@@ -72,5 +72,17 @@ While `FORM_URL` is empty, the RSVP button opens a pre-filled email to
 
 ## Deploying
 
-Static, so anything works — Cloudflare Pages, Netlify drop, GitHub Pages, S3.
-Point `confluxcon.com` at whichever you pick.
+GitHub Pages, off `main` at the repo root: <https://github.com/ConfluxConflux/confluxcon>.
+`git push` and it rebuilds in about a minute. `CNAME` holds the custom domain —
+leave it in place, Pages reads it on every build.
+
+DNS lives at Namecheap. The apex needs GitHub's four A records:
+
+    185.199.108.153
+    185.199.109.153
+    185.199.110.153
+    185.199.111.153
+
+and `www` a CNAME to `confluxconflux.github.io`. Once those resolve, turn on
+**Enforce HTTPS** in the repo's Pages settings — the certificate can't be issued
+before the domain points at GitHub.
