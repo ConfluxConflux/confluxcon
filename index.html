@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confluxcon — Lighthaven, Berkeley</title>
+<meta name="description" content="A farewell party to capture why Jacob fell in love with Berkeley. Lighthaven, Berkeley — Tuesday, September 8, 2026.">
+<meta property="og:title" content="confluxcon">
+<meta property="og:description" content="a farewell party to capture why Jacob fell in love with Berkeley — Lighthaven, Berkeley, Tuesday, September 8, 2026">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230e4f52'/%3E%3Ctext x='50' y='72' font-family='Georgia,serif' font-size='64' fill='%23f4d19b' text-anchor='middle'%3Ec%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   confluxcon — palette & type
+   ============================================================ */
+:root{
+  --ink:#1d2f31;
+  --ink-soft:#4a6265;
+  --parchment:#fbf6ec;
+  --parchment-2:#f3ead9;
+  --rule:#d9cbb2;
+  --gold:#e0a458;
+  --gold-lt:#f4d19b;
+  --teal-deep:#0b3b3f;
+  --teal:#12656a;
+
+  --font-display:"Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body:"EB Garamond", Georgia, "Times New Roman", serif;
+
+  --maxw:1180px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  font-size:19px;
+  line-height:1.6;
+  color:var(--ink);
+  background:linear-gradient(168deg,#0a3f47 0%,#0d5559 30%,#116e6c 55%,#17847c 78%,#1e9a8a 100%);
+  background-attachment:fixed;
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---- teal / rainbow aurora ---- */
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(85px);will-change:transform;mix-blend-mode:screen}
+.b1{width:66vw;height:66vw;left:-14vw;top:-16vw;background:#5eead4;opacity:.50;animation:drift1 34s ease-in-out infinite alternate}
+.b2{width:50vw;height:50vw;right:-10vw;top:-6vw;background:#7c7ff0;opacity:.38;animation:drift2 41s ease-in-out infinite alternate}
+.b3{width:52vw;height:52vw;right:4vw;top:34vh;background:#ff8a5c;opacity:.30;animation:drift3 47s ease-in-out infinite alternate}
+.b4{width:52vw;height:52vw;left:-6vw;top:58vh;background:#3ee6a0;opacity:.36;animation:drift4 38s ease-in-out infinite alternate}
+.b5{width:44vw;height:44vw;left:30vw;top:14vh;background:#d06ff0;opacity:.26;animation:drift2 52s ease-in-out infinite alternate-reverse}
+.b6{width:46vw;height:46vw;right:-6vw;bottom:-16vw;background:#ffd166;opacity:.22;animation:drift1 44s ease-in-out infinite alternate-reverse}
+.b7{width:48vw;height:48vw;left:6vw;bottom:-18vw;background:#4fc3f7;opacity:.30;animation:drift3 50s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate3d(8vw,10vh,0) scale(1.18)}}
+@keyframes drift2{to{transform:translate3d(-10vw,12vh,0) scale(1.12)}}
+@keyframes drift3{to{transform:translate3d(-7vw,-11vh,0) scale(1.2)}}
+@keyframes drift4{to{transform:translate3d(11vw,-9vh,0) scale(1.14)}}
+@media (prefers-reduced-motion:reduce){.blob{animation:none}}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+header.hero{padding:14vh 0 7vh;text-align:center;color:#fff}
+.donate{
+  display:inline-block;margin-top:1.7rem;
+  font-family:var(--font-body);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--teal);text-decoration:none;background:#fff;
+  border:1px solid var(--rule);border-radius:999px;padding:.72em 1.7em;
+  transition:background .2s ease,border-color .2s ease,color .2s ease,transform .2s ease;
+}
+.donate:hover{background:var(--teal);border-color:var(--teal);color:var(--parchment);transform:translateY(-2px)}
+
+.logo{
+  font-family:var(--font-display);
+  font-weight:500;
+  font-size:clamp(3.1rem,11.5vw,8.2rem);
+  line-height:.95;
+  letter-spacing:-.022em;
+  margin:0;
+  color:#fdfaf3;
+  text-shadow:0 2px 40px rgba(4,32,35,.45);
+}
+/* the second "con" — the convention half of the name */
+.logo .con{
+  font-weight:700;
+  font-style:italic;
+  background:linear-gradient(92deg,var(--gold-lt),var(--gold) 55%,#ffe6b8);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:var(--gold-lt);
+  padding-right:.06em;
+}
+
+.slogan{
+  font-family:var(--font-display);
+  font-style:italic;
+  font-weight:400;
+  font-size:min(3.05vw,1.62rem);
+  line-height:1.4;
+  color:#eaf6f2;
+  white-space:nowrap;
+  margin:1.5rem auto 0;
+  text-shadow:0 1px 22px rgba(4,32,35,.5);
+}
+
+.meta{
+  margin-top:2.4rem;
+  font-size:.79rem;
+  letter-spacing:.235em;
+  text-transform:uppercase;
+  color:rgba(240,252,248,.78);
+}
+.meta span{white-space:nowrap}
+.meta i{font-style:normal;opacity:.45;margin:0 .85em}
+
+.cta{
+  display:inline-block;margin-top:2.9rem;
+  font-family:var(--font-body);
+  font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--teal-deep);background:var(--gold-lt);
+  padding:1.05em 2.5em;border-radius:999px;text-decoration:none;
+  border:1px solid rgba(255,255,255,.5);
+  box-shadow:0 10px 34px rgba(4,32,35,.34);
+  transition:transform .22s ease, box-shadow .22s ease, background .22s ease;
+}
+.cta:hover{transform:translateY(-2px);background:#ffe9c2;box-shadow:0 15px 40px rgba(4,32,35,.42)}
+
+/* ============================================================
+   Parchment panels
+   ============================================================ */
+section{margin:0 0 7vh}
+.panel{
+  background:var(--parchment);
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:6px;
+  box-shadow:0 24px 70px rgba(3,28,31,.30);
+  padding:clamp(28px,5vw,58px);
+}
+.eyebrow{
+  font-size:.73rem;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--ink-soft);margin:0 0 .5rem;
+}
+h2{
+  font-family:var(--font-display);font-weight:500;
+  font-size:clamp(1.75rem,4.4vw,2.65rem);
+  letter-spacing:-.015em;margin:0 0 .55rem;color:var(--ink);
+}
+.lede{color:var(--ink-soft);max-width:60ch;margin:0 0 2.2rem;font-size:1.03rem}
+
+/* ============================================================
+   RSVP
+   ============================================================ */
+.rsvp-actions{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.btn{
+  font-family:var(--font-body);font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:1.02em 2.3em;border-radius:999px;border:1px solid transparent;
+  cursor:pointer;text-decoration:none;display:inline-block;
+  transition:transform .2s ease, opacity .2s ease, background .2s ease;
+}
+.btn-primary{background:var(--teal);color:#fdfaf3}
+.btn-primary:hover:not([disabled]){transform:translateY(-2px);background:#0f5458}
+.btn[disabled]{opacity:.36;cursor:not-allowed}
+.hint{font-size:.93rem;color:var(--ink-soft);font-style:italic}
+
+/* ============================================================
+   Schedule grid
+   ============================================================ */
+.sched-head{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:flex-end;margin-bottom:1.9rem}
+.legend{font-size:.85rem;color:var(--ink-soft);font-style:italic}
+
+.sched-scroll{overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+.sched{
+  display:grid;
+  min-width:860px;
+  border:1px solid var(--rule);
+  background:var(--parchment-2);
+  border-radius:4px;
+}
+/* time header */
+.sched .corner{
+  position:sticky;left:0;z-index:4;
+  background:var(--parchment-2);
+  border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+}
+.timelbl{
+  border-bottom:1px solid var(--rule);
+  border-left:1px solid rgba(217,203,178,.55);
+  padding:.75rem 0 .7rem .7rem;
+  font-family:var(--font-display);
+  font-size:1.02rem;color:var(--ink);white-space:nowrap;
+}
+/* room labels */
+.room{
+  position:sticky;left:0;z-index:3;
+  background:var(--parchment-2);
+  border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:1rem .95rem 1.05rem;
+}
+.room:last-of-type{border-bottom:none}
+.room .rname{font-family:var(--font-display);font-size:1.12rem;line-height:1.22;display:block}
+.room .fits{font-size:.83rem;color:var(--ink-soft);display:block;margin-top:.15rem}
+.room .bar{display:block;width:34px;height:3px;border-radius:2px;margin-top:.6rem}
+/* background slot cells */
+.slot{border-left:1px solid rgba(217,203,178,.5);border-bottom:1px solid var(--rule)}
+.slot.hour{border-left-color:var(--rule)}
+.slot.lastrow{border-bottom:none}
+/* session cards */
+.session{
+  margin:6px 5px;padding:.6rem .7rem;border-radius:4px;
+  border:1px solid var(--s-bd,#8fbfd6);
+  background:var(--s-bg,#eaf4f9);
+  display:flex;flex-direction:column;justify-content:space-between;
+  overflow:hidden;z-index:2;min-height:0;
+}
+.session .stitle{font-weight:600;font-size:.97rem;line-height:1.25;color:var(--ink)}
+.session .sfoot{display:flex;justify-content:space-between;gap:.6rem;align-items:baseline;margin-top:.5rem}
+.session .shost{font-size:.87rem;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.session .scap{font-size:.85rem;color:var(--ink-soft);white-space:nowrap}
+
+.empty-note{
+  text-align:center;padding:2.6rem 1rem 0;color:var(--ink-soft);
+  font-style:italic;font-size:1.02rem;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+footer{padding:2vh 0 9vh;text-align:center;color:rgba(240,252,248,.72);font-size:.95rem}
+footer a{color:rgba(240,252,248,.92)}
+footer .fmark{font-family:var(--font-display);font-size:1.35rem;color:#fdfaf3;display:block;margin-bottom:.6rem}
+footer .fmark .con{font-style:italic;font-weight:700;color:var(--gold-lt)}
+
+@media (max-width:640px){
+  body{font-size:18px}
+  header.hero{padding:13vh 0 8vh}
+  .meta i{display:block;height:0;overflow:hidden;margin:.5em 0}
+}
+
+/* ---- edit mode ---- */
+.editbar{
+  display:none;align-items:center;gap:14px;flex-wrap:wrap;
+  background:#eef4ef;border:1px solid #bcd3c4;border-radius:4px;
+  padding:.85rem 1.1rem;margin-bottom:1.4rem;font-size:.94rem;color:var(--ink-soft);
+}
+body.editing .editbar{display:flex}
+.editbar .ebt{font-style:italic;flex:1;min-width:230px}
+.editbar button{
+  font-family:var(--font-body);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+  padding:.62em 1.25em;border-radius:999px;cursor:pointer;border:1px solid var(--rule);
+  background:#fff;color:var(--ink);transition:background .18s ease;
+}
+.editbar button:hover{background:var(--parchment-2)}
+.editbar button.ghost{border-color:#d8b6b6;color:#8c4a4a}
+
+body.editing .slot{cursor:pointer;transition:background .12s ease}
+body.editing .slot:hover{background:rgba(47,143,127,.14);box-shadow:inset 0 0 0 1px rgba(47,143,127,.4)}
+body.editing .session{cursor:pointer}
+.session.draft{border-style:dashed}
+.session .pencil{display:none;font-size:.8rem;opacity:.5;margin-left:.4rem}
+body.editing .session .pencil{display:inline}
+
+/* ---- modal ---- */
+.modal{
+  position:fixed;inset:0;z-index:50;display:none;
+  align-items:center;justify-content:center;padding:22px;
+  background:rgba(6,34,37,.55);backdrop-filter:blur(3px);
+}
+.modal[open]{display:flex}
+.sheet{
+  background:var(--parchment);border-radius:6px;width:min(480px,100%);
+  max-height:92vh;overflow:auto;padding:clamp(24px,4vw,36px);
+  box-shadow:0 30px 80px rgba(3,28,31,.45);
+}
+.sheet h3{font-family:var(--font-display);font-weight:500;font-size:1.6rem;margin:0 0 .3rem}
+.sheet .sub{color:var(--ink-soft);font-style:italic;font-size:.95rem;margin:0 0 1.5rem}
+.field{margin-bottom:1.05rem}
+.field label{
+  display:block;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-soft);margin-bottom:.4rem;
+}
+.field input,.field select{
+  width:100%;font-family:var(--font-body);font-size:1rem;color:var(--ink);
+  background:#fff;border:1px solid var(--rule);border-radius:4px;padding:.62em .75em;
+}
+.field input:focus,.field select:focus{outline:2px solid #2f8f7f;outline-offset:-1px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sheet .err{color:#a33;font-size:.92rem;margin:.2rem 0 1rem;display:none}
+.sheet .err.on{display:block}
+.sheet-actions{display:flex;gap:10px;align-items:center;margin-top:1.6rem}
+.sheet-actions .spacer{flex:1}
+.sheet-actions button{
+  font-family:var(--font-body);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:.85em 1.7em;border-radius:999px;cursor:pointer;border:1px solid transparent;
+}
+.bt-save{background:var(--teal);color:#fdfaf3}
+.bt-cancel{background:transparent;border-color:var(--rule);color:var(--ink-soft)}
+.bt-del{background:transparent;border-color:#d8b6b6;color:#8c4a4a}
+.codebox{width:100%;height:190px;font-family:ui-monospace,Menlo,monospace;font-size:.78rem;
+  border:1px solid var(--rule);border-radius:4px;padding:.7em;background:#fff;color:var(--ink);resize:vertical}
+
+.prose{max-width:64ch;font-size:1.06rem;line-height:1.62;color:var(--ink)}
+.prose p{margin:0 0 1.1rem}
+.prose p:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="blob b4"></div><div class="blob b5"></div>
+  <div class="blob b6"></div><div class="blob b7"></div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1 class="logo">conflux<span class="con">con</span></h1>
+    <p class="slogan">a farewell party to capture why Jacob fell in love with Berkeley</p>
+    <p class="meta">
+      <span>Lighthaven</span><i>·</i><span>Berkeley</span><i>·</i><span id="metaDate">September 8, 2026</span>
+    </p>
+    <a class="cta" href="#rsvp">RSVP</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="rsvp">
+    <div class="panel">
+      <p class="eyebrow">Répondez</p>
+      <h2 id="rsvpDate">Tuesday, September 8</h2>
+      <p class="lede" id="rsvpWhere">Lighthaven, Berkeley</p>
+
+      <div class="rsvp-actions">
+        <button class="btn btn-primary" id="rsvpBtn">RSVP</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="schedule">
+    <div class="panel">
+      <div class="sched-head">
+        <div>
+          <p class="eyebrow">The programme</p>
+          <h2>Schedule</h2>
+          <p class="lede" style="margin-bottom:0">An unconference. Claim a room, bring a session.</p>
+        </div>
+        <p class="legend" id="legend"></p>
+      </div>
+
+      <div class="editbar">
+        <span class="ebt" id="ebText">Edit mode — click any empty square to claim it.</span>
+        <button id="ebCode">Copy code</button>
+        <button class="ghost" id="ebClear">Clear mine</button>
+      </div>
+      <div class="sched-scroll">
+        <div class="sched" id="sched"></div>
+      </div>
+      <p class="empty-note" id="emptyNote" hidden>Nothing claimed yet.</p>
+    </div>
+  </section>
+
+  <section id="theory">
+    <div class="panel">
+      <h2>Theory of impact</h2>
+      <div class="prose">
+        <p>By having fun and making memories, we will increase our positive associations with
+        living in Berkeley. This will increase the chance that we live in Berkeley in the future,
+        which will increase the chance that we do impactful AI safety work, which will decrease
+        the chance AI kills everyone, etc.</p>
+        <p>Also, it seems good to have fun in life regardless. And you get to say goodbye to me
+        before I move back to the far-off land of Menlo Park, California.</p>
+      </div>
+      <a class="donate" href="https://venmo.com/jacobcohen4761" target="_blank" rel="noopener">Donate</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="fmark">conflux<span class="con">con</span></span>
+    <p style="margin:0">
+      <a href="https://lighthaven.space/" target="_blank" rel="noopener">Lighthaven</a> · Berkeley, California
+    </p>
+  </div>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="sheet">
+    <h3 id="mTitle">Claim a session</h3>
+    <p class="sub" id="mSub"></p>
+    <div class="field">
+      <label for="fTitle">What is it?</label>
+      <input id="fTitle" type="text" placeholder="Transcendent math puzzle sesh" maxlength="90">
+    </div>
+    <div class="row2">
+      <div class="field"><label for="fRoom">Room</label><select id="fRoom"></select></div>
+      <div class="field"><label for="fCap">Fits (optional)</label><input id="fCap" type="number" min="1" max="200" placeholder="—"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label for="fStart">Start</label><select id="fStart"></select></div>
+      <div class="field"><label for="fEnd">End</label><select id="fEnd"></select></div>
+    </div>
+    <div class="field">
+      <label for="fHost">Host (optional)</label>
+      <input id="fHost" type="text" placeholder="@you" maxlength="60">
+    </div>
+    <p class="err" id="mErr"></p>
+    <div class="sheet-actions">
+      <button class="bt-save" id="mSave">Claim it</button>
+      <button class="bt-cancel" id="mCancel">Cancel</button>
+      <span class="spacer"></span>
+      <button class="bt-del" id="mDel" hidden>Release</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="codeModal" role="dialog" aria-modal="true" aria-labelledby="cTitle">
+  <div class="sheet">
+    <h3 id="cTitle">Make these permanent</h3>
+    <p class="sub">Paste over the <code>const SESSIONS</code> block in <code>index.html</code>. Until then these live only in this browser.</p>
+    <textarea class="codebox" id="codeOut" readonly></textarea>
+    <div class="sheet-actions">
+      <button class="bt-save" id="cCopy">Copy</button>
+      <button class="bt-cancel" id="cClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==================================================================
+   ★★★  EVERYTHING YOU'D WANT TO EDIT LIVES IN THIS BLOCK  ★★★
+   ================================================================== */
+
+/* ---- 1. THE DATE ---------------------------------------------- */
+const EVENT_DATE = { dow:"Tuesday", day:"September 8", year:"2026" };
+
+/* ---- 2. WHERE THE RSVP GOES ----------------------------------
+   Leave FORM_URL empty and the button falls back to an email.
+   Once your Google Form exists, paste its /viewform URL here.   */
+const FORM_URL   = "";                          // e.g. "https://docs.google.com/forms/d/e/1FAIpQ.../viewform"
+const RSVP_EMAIL = "jacobcohen4761@gmail.com";
+
+/* ---- 3. THE ROOMS --------------------------------------------- */
+const ROOMS = [
+  { name:"Bayes Ground", fits:40, color:"#4fa373" },
+  { name:"Bayes Median", fits:30, color:"#4a90b8" },
+  { name:"Bayes Attic",  fits:35, color:"#9a7bc8" },
+];
+
+/* ---- 4. THE DAY'S SPAN (24h clock, whole hours) --------------- */
+const START_HOUR = 15;   // 3 PM
+const END_HOUR   = 23;   // 11 PM
+
+/* ---- 5. THE SESSIONS ------------------------------------------
+   Starts empty on purpose. To add one, drop an object in the list:
+
+     { room:"Bayes Ground", start:"18:30", end:"20:00",
+       title:"Poker Tournament: Final Table", host:"@jim", cap:7 },
+
+   · room  — must match a name in ROOMS exactly
+   · start/end — "HH:MM", 24-hour, on the hour or half hour
+   · host / cap — both optional, leave them off if you like
+   Two sessions in the SAME room shouldn't overlap in time.      */
+const SESSIONS = [
+  // ← add sessions here
+];
+
+/* ==================================================================
+   ★★★  END OF THE EDITABLE BLOCK — logic below  ★★★
+   ================================================================== */
+
+const SLOT_MIN = 30;
+const SLOTS = (END_HOUR - START_HOUR) * (60 / SLOT_MIN);
+const toSlot = t => {
+  const [h, m] = t.split(":").map(Number);
+  return (h * 60 + m - START_HOUR * 60) / SLOT_MIN;
+};
+const fmtHour = h => `${((h + 11) % 12) + 1} ${h < 12 ? "AM" : "PM"}`;
+
+/* ---------- RSVP ---------- */
+const fullDate = `${EVENT_DATE.dow}, ${EVENT_DATE.day}`;
+
+document.getElementById("metaDate")  .textContent = `${EVENT_DATE.day}, ${EVENT_DATE.year}`;
+document.getElementById("rsvpDate")  .textContent = fullDate;
+document.getElementById("rsvpWhere") .textContent =
+  `Lighthaven, Berkeley · ${fmtHour(START_HOUR)} – ${fmtHour(END_HOUR)}`;
+
+document.getElementById("rsvpBtn").addEventListener("click", () => {
+  if (FORM_URL) {
+    window.open(FORM_URL, "_blank", "noopener");
+  } else {
+    const body = `I'm in for confluxcon on ${fullDate}.\n\nName: \n`;
+    window.location.href =
+      `mailto:${RSVP_EMAIL}?subject=${encodeURIComponent("confluxcon RSVP")}&body=${encodeURIComponent(body)}`;
+  }
+});
+
+/* ---------- Schedule ---------- */
+const STORE_KEY = "confluxcon.claims.v1";
+const EDIT = /(^|[?#&])edit\b/.test(location.search) || /(^|[?#&])edit\b/.test(location.hash);
+
+const sched   = document.getElementById("sched");
+const modal   = document.getElementById("modal");
+const codeM   = document.getElementById("codeModal");
+const esc     = t => String(t).replace(/[&<>"']/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const slotTime = n => {
+  const m = START_HOUR * 60 + n * SLOT_MIN;
+  return `${String(Math.floor(m / 60)).padStart(2,"0")}:${String(m % 60).padStart(2,"0")}`;
+};
+const prettyTime = t => {
+  const [h, m] = t.split(":").map(Number);
+  return `${((h + 11) % 12) + 1}${m ? ":" + String(m).padStart(2,"0") : ""} ${h < 12 ? "AM" : "PM"}`;
+};
+
+/* claims made in this browser, until they're pasted into the file */
+let mine = [];
+try { const v = JSON.parse(localStorage.getItem(STORE_KEY)); if (Array.isArray(v)) mine = v; } catch (e) {}
+const persist = () => {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(mine)); return true; }
+  catch (e) { return false; }
+};
+
+const roomIdx = n => ROOMS.findIndex(r => r.name === n);
+const everything = () => [
+  ...SESSIONS.map((s, i) => ({ ...s, _id: "f" + i, _mine: false })),
+  ...mine.map(s => ({ ...s, _mine: true })),
+];
+
+/* does [a,b) collide with an existing booking in this room? */
+function clash(room, a, b, ignoreId) {
+  return everything().some(s =>
+    s.room === room && s._id !== ignoreId && toSlot(s.start) < b && a < toSlot(s.end));
+}
+
+if (EDIT) document.body.classList.add("editing");
+
+function render() {
+  sched.style.gridTemplateColumns = `150px repeat(${SLOTS}, minmax(46px, 1fr))`;
+  sched.style.gridTemplateRows    = `auto repeat(${ROOMS.length}, minmax(104px, auto))`;
+
+  const cells = [`<div class="corner"></div>`];
+  for (let h = START_HOUR; h < END_HOUR; h++)
+    cells.push(`<div class="timelbl" style="grid-row:1;grid-column:${(h - START_HOUR) * 2 + 2}/span 2">${fmtHour(h)}</div>`);
+
+  ROOMS.forEach((r, i) => {
+    const row = i + 2, last = i === ROOMS.length - 1 ? " lastrow" : "";
+    cells.push(`<div class="room" style="grid-row:${row}">
+        <span class="rname">${esc(r.name)}</span>
+        <span class="fits">Fits ${r.fits}</span>
+        <span class="bar" style="background:${r.color}"></span>
+      </div>`);
+    for (let n = 0; n < SLOTS; n++)
+      cells.push(`<div class="slot${n % 2 === 0 ? " hour" : ""}${last}" style="grid-row:${row};grid-column:${n + 2}"
+        data-room="${esc(r.name)}" data-slot="${n}"${EDIT ? ` title="Claim ${prettyTime(slotTime(n))} in ${esc(r.name)}"` : ""}></div>`);
+  });
+
+  let placed = 0;
+  everything().forEach(ev => {
+    const i = roomIdx(ev.room);
+    if (i < 0) { console.warn(`confluxcon: no room named "${ev.room}"`); return; }
+    const a = toSlot(ev.start), b = toSlot(ev.end);
+    if (!(b > a) || a < 0 || b > SLOTS) { console.warn(`confluxcon: "${ev.title}" falls outside ${START_HOUR}:00–${END_HOUR}:00`); return; }
+    const c = ROOMS[i].color;
+    cells.push(`<div class="session${ev._mine ? " draft" : ""}" data-id="${esc(ev._id)}"
+        style="grid-row:${i + 2};grid-column:${a + 2}/span ${b - a};--s-bd:${c};--s-bg:${c}1f">
+        <span class="stitle">${esc(ev.title)}<span class="pencil">✎</span></span>
+        <span class="sfoot">
+          <span class="shost">${esc(ev.host || "")}</span>
+          ${ev.cap ? `<span class="scap">◔ ${esc(ev.cap)}</span>` : ""}
+        </span>
+      </div>`);
+    placed++;
+  });
+
+  sched.innerHTML = cells.join("");
+  document.getElementById("emptyNote").hidden = placed > 0 || EDIT;
+  document.getElementById("legend").textContent = `${fmtHour(START_HOUR)} – ${fmtHour(END_HOUR)} · ${ROOMS.length} rooms`;
+  const bar = document.getElementById("ebText");
+  if (bar) bar.textContent = mine.length
+    ? `${mine.length} claimed in this browser, not yet in the file.`
+    : "Click any empty square to claim it.";
+}
+
+/* ---------- claim / edit dialog ---------- */
+const F = {
+  title: document.getElementById("fTitle"), room: document.getElementById("fRoom"),
+  cap:   document.getElementById("fCap"),   start: document.getElementById("fStart"),
+  end:   document.getElementById("fEnd"),   host:  document.getElementById("fHost"),
+};
+const mErr = document.getElementById("mErr"), mDel = document.getElementById("mDel");
+let editingId = null;
+
+F.room.innerHTML = ROOMS.map(r => `<option value="${esc(r.name)}">${esc(r.name)} · fits ${r.fits}</option>`).join("");
+F.start.innerHTML = Array.from({ length: SLOTS }, (_, n) =>
+  `<option value="${slotTime(n)}">${prettyTime(slotTime(n))}</option>`).join("");
+
+function refreshEnds() {
+  const from = toSlot(F.start.value) + 1, keep = F.end.value;
+  F.end.innerHTML = Array.from({ length: SLOTS + 1 - from }, (_, k) =>
+    `<option value="${slotTime(from + k)}">${prettyTime(slotTime(from + k))}</option>`).join("");
+  if ([...F.end.options].some(o => o.value === keep)) F.end.value = keep;
+}
+F.start.addEventListener("change", refreshEnds);
+
+function openDialog(ev) {
+  editingId = ev._id || null;
+  document.getElementById("mTitle").textContent = editingId ? "Edit session" : "Claim a session";
+  document.getElementById("mSub").textContent =
+    `${ev.room} · ${prettyTime(ev.start)}`;
+  F.title.value = ev.title || ""; F.room.value = ev.room;
+  F.host.value = ev.host || "";   F.cap.value = ev.cap || "";
+  F.start.value = ev.start; refreshEnds(); F.end.value = ev.end;
+  mErr.classList.remove("on");
+  mDel.hidden = !(editingId && ev._mine);
+  modal.setAttribute("open", "");
+  setTimeout(() => F.title.focus(), 30);
+}
+const closeDialog = () => { modal.removeAttribute("open"); editingId = null; };
+
+sched.addEventListener("click", e => {
+  if (!EDIT) return;
+  const card = e.target.closest(".session");
+  if (card) {
+    const ev = everything().find(x => x._id === card.dataset.id);
+    if (!ev) return;
+    if (!ev._mine) { alert("This one lives in index.html — edit it there."); return; }
+    openDialog(ev);
+    return;
+  }
+  const slot = e.target.closest(".slot");
+  if (!slot) return;
+  const n = +slot.dataset.slot;
+  openDialog({ room: slot.dataset.room, start: slotTime(n), end: slotTime(Math.min(n + 2, SLOTS)) });
+});
+
+document.getElementById("mSave").addEventListener("click", () => {
+  const title = F.title.value.trim();
+  const a = toSlot(F.start.value), b = toSlot(F.end.value);
+  const fail = m => { mErr.textContent = m; mErr.classList.add("on"); };
+  if (!title)   return fail("Give it a name first.");
+  if (!(b > a)) return fail("The end has to come after the start.");
+  if (clash(F.room.value, a, b, editingId))
+    return fail(`Something else already has ${F.room.value} then. Pick another room or time.`);
+
+  const rec = {
+    _id: editingId || "m" + Math.random().toString(36).slice(2, 9),
+    room: F.room.value, start: F.start.value, end: F.end.value, title,
+  };
+  if (F.host.value.trim()) rec.host = F.host.value.trim();
+  if (+F.cap.value > 0)    rec.cap  = +F.cap.value;
+
+  const at = mine.findIndex(x => x._id === editingId);
+  at >= 0 ? (mine[at] = rec) : mine.push(rec);
+  if (!persist()) return fail("Couldn't save locally — private window? Copy the code out before closing the tab.");
+  closeDialog(); render();
+});
+
+mDel.addEventListener("click", () => {
+  mine = mine.filter(x => x._id !== editingId);
+  persist(); closeDialog(); render();
+});
+document.getElementById("mCancel").addEventListener("click", closeDialog);
+modal.addEventListener("click", e => { if (e.target === modal) closeDialog(); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  closeDialog(); codeM.removeAttribute("open");
+});
+
+/* ---------- export ---------- */
+function sessionCode() {
+  const list = everything().sort((x, y) =>
+    roomIdx(x.room) - roomIdx(y.room) || toSlot(x.start) - toSlot(y.start));
+  if (!list.length) return "const SESSIONS = [\n  // ← add sessions here\n];";
+  const q = t => String(t).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return "const SESSIONS = [\n" + list.map(s => {
+    let o = `  { room:"${q(s.room)}", start:"${s.start}", end:"${s.end}",\n    title:"${q(s.title)}"`;
+    if (s.host) o += `, host:"${q(s.host)}"`;
+    if (s.cap)  o += `, cap:${+s.cap}`;
+    return o + " },";
+  }).join("\n") + "\n];";
+}
+
+const ebCode = document.getElementById("ebCode");
+if (ebCode) {
+  const out = document.getElementById("codeOut");
+  ebCode.addEventListener("click", () => { out.value = sessionCode(); codeM.setAttribute("open", ""); });
+  document.getElementById("cClose").addEventListener("click", () => codeM.removeAttribute("open"));
+  codeM.addEventListener("click", e => { if (e.target === codeM) codeM.removeAttribute("open"); });
+  document.getElementById("cCopy").addEventListener("click", async e => {
+    out.select();
+    try { await navigator.clipboard.writeText(out.value); } catch (_) { document.execCommand("copy"); }
+    e.target.textContent = "Copied"; setTimeout(() => (e.target.textContent = "Copy"), 1400);
+  });
+  document.getElementById("ebClear").addEventListener("click", () => {
+    if (!mine.length) return;
+    if (!confirm(`Release ${mine.length} session(s)? Anything already in index.html is untouched.`)) return;
+    mine = []; persist(); render();
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>
