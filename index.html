@@ -309,6 +309,90 @@ body.editing .session .pencil{display:inline}
 .prose{max-width:64ch;font-size:1.06rem;line-height:1.62;color:var(--ink)}
 .prose p{margin:0 0 1.1rem}
 .prose p:last-child{margin-bottom:0}
+
+/* ============================================================
+   Personal invite · tabs · guest wall · profile form
+   ============================================================ */
+.greeting{
+  font-family:var(--font-display);font-style:italic;
+  font-size:min(2.6vw,1.22rem);color:var(--gold-lt);
+  margin:1.15rem 0 0;text-shadow:0 1px 20px rgba(4,32,35,.5);
+}
+.greeting b{font-weight:600;font-style:normal;color:#fff8e8}
+
+.tabs{
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  margin:0 auto 5vh;
+}
+.tabs button{
+  font-family:var(--font-body);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.8em 1.9em;border-radius:999px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.42);
+  background:rgba(255,255,255,.12);color:#eaf6f2;
+  backdrop-filter:blur(4px);
+  transition:background .2s ease,color .2s ease,transform .2s ease;
+}
+.tabs button:hover{transform:translateY(-1px);background:rgba(255,255,255,.22)}
+.tabs button[aria-selected="true"]{background:var(--parchment);color:var(--teal-deep);border-color:transparent}
+.tabs .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);
+  margin-left:.6em;vertical-align:middle}
+
+/* ---- guest wall ---- */
+.guests{
+  display:grid;gap:16px;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+}
+.gcard{
+  background:var(--parchment-2);border:1px solid var(--rule);border-radius:5px;
+  padding:1.15rem 1.25rem 1.25rem;display:flex;flex-direction:column;gap:.45rem;
+}
+.gcard.me{border-color:var(--gold);box-shadow:0 0 0 2px rgba(224,164,88,.28)}
+.gcard .gname{font-family:var(--font-display);font-size:1.24rem;line-height:1.2;color:var(--ink)}
+.gcard .gorg{font-size:.87rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft)}
+.gcard .gbio{font-size:.98rem;line-height:1.5;color:var(--ink);margin:.15rem 0 0}
+.gcard .gline{font-size:.92rem;color:var(--ink-soft)}
+.gcard .gline b{font-weight:600;color:var(--ink);font-size:.86rem;letter-spacing:.1em;
+  text-transform:uppercase;margin-right:.45em}
+.gcard a{color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(18,101,106,.35)}
+.gcard a:hover{border-bottom-color:var(--teal)}
+.gcard .gfoot{margin-top:auto;padding-top:.7rem}
+
+/* ---- profile form ---- */
+.pform{max-width:640px}
+.field textarea{
+  width:100%;font-family:var(--font-body);font-size:1rem;color:var(--ink);line-height:1.5;
+  background:#fff;border:1px solid var(--rule);border-radius:4px;padding:.62em .75em;
+  resize:vertical;min-height:88px;
+}
+.field textarea:focus{outline:2px solid #2f8f7f;outline-offset:-1px}
+.field .fhint{font-size:.88rem;color:var(--ink-soft);font-style:italic;margin:.35rem 0 0}
+
+.choices{display:flex;flex-wrap:wrap;gap:9px}
+.choice{
+  display:inline-flex;align-items:center;gap:.5em;cursor:pointer;
+  border:1px solid var(--rule);border-radius:999px;background:#fff;
+  padding:.6em 1.25em;font-size:.98rem;color:var(--ink);
+  transition:background .18s ease,border-color .18s ease;
+}
+.choice:hover{background:var(--parchment-2)}
+.choice input{accent-color:var(--teal);margin:0}
+.choice:has(input:checked){border-color:var(--teal);background:#e7f1ef}
+
+.tally{margin:1.1rem 0 0;display:flex;flex-direction:column;gap:.55rem;max-width:420px}
+.tally .trow{display:grid;grid-template-columns:8.5em 1fr 2.6em;gap:.7rem;align-items:center;font-size:.95rem}
+.tally .tbar{height:9px;border-radius:999px;background:var(--parchment-2);
+  border:1px solid var(--rule);overflow:hidden}
+.tally .tbar i{display:block;height:100%;background:var(--teal);border-radius:999px}
+.tally .tnum{text-align:right;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.suggests{font-size:.95rem;color:var(--ink-soft);margin:.9rem 0 0;line-height:1.55}
+.suggests b{color:var(--ink);font-weight:600}
+
+.status{font-size:.95rem;font-style:italic;color:var(--ink-soft);margin:0}
+.status.good{color:#2b6b52;font-style:normal}
+.status.bad{color:#a33;font-style:normal}
+
+.gate{text-align:center;padding:1rem 0 .5rem}
+.gate .lede{margin:0 auto 1.6rem}
 </style>
 </head>
 <body>
@@ -323,6 +407,7 @@ body.editing .session .pencil{display:inline}
   <div class="wrap">
     <h1 class="logo">conflux<span class="con">con</span></h1>
     <p class="slogan">a farewell party to capture why Jacob fell in love with Berkeley</p>
+    <p class="greeting" id="greeting" hidden></p>
     <p class="meta">
       <span>Lighthaven</span><i>·</i><span>Berkeley</span><i>·</i><span id="metaDate">September 8, 2026</span>
     </p>
@@ -331,6 +416,13 @@ body.editing .session .pencil{display:inline}
 </header>
 
 <main class="wrap">
+
+  <nav class="tabs" id="tabs" role="tablist">
+    <button role="tab" id="tabEvent"   aria-selected="true"  aria-controls="pane-event">The event</button>
+    <button role="tab" id="tabProfile" aria-selected="false" aria-controls="pane-profile">Your profile<span class="dot" id="tabDot" hidden></span></button>
+  </nav>
+
+  <div id="pane-event" role="tabpanel" aria-labelledby="tabEvent">
 
   <section id="rsvp">
     <div class="panel">
@@ -341,6 +433,16 @@ body.editing .session .pencil{display:inline}
       <div class="rsvp-actions">
         <button class="btn btn-primary" id="rsvpBtn">RSVP</button>
       </div>
+    </div>
+  </section>
+
+  <section id="guests">
+    <div class="panel">
+      <p class="eyebrow">Who's coming</p>
+      <h2>The room</h2>
+      <p class="lede" id="guestsLede">Everyone who has filled in their profile.</p>
+      <div class="guests" id="guestWall"></div>
+      <p class="empty-note" id="guestsEmpty">Nobody has filled theirs in yet.</p>
     </div>
   </section>
 
@@ -381,6 +483,93 @@ body.editing .session .pencil{display:inline}
       <a class="donate" href="https://venmo.com/jacobcohen4761" target="_blank" rel="noopener">Donate</a>
     </div>
   </section>
+
+  </div><!-- /pane-event -->
+
+  <div id="pane-profile" role="tabpanel" aria-labelledby="tabProfile" hidden>
+
+    <section id="profile">
+      <div class="panel">
+
+        <div class="gate" id="pGate" hidden>
+          <p class="eyebrow">Invite only</p>
+          <h2>No link, no profile</h2>
+          <p class="lede">Every guest gets their own link. Yours came from Jacob &mdash;
+            open it and this page fills itself in.</p>
+        </div>
+
+        <form class="pform" id="pForm" hidden>
+          <p class="eyebrow">Your profile</p>
+          <h2 id="pHead">Tell the room who you are</h2>
+          <p class="lede">This is the card everyone sees on the front page. Change it whenever.</p>
+
+          <div class="row2">
+            <div class="field">
+              <label for="pName">Name</label>
+              <input id="pName" type="text" maxlength="80" autocomplete="name">
+            </div>
+            <div class="field">
+              <label for="pOrg">Where you are these days</label>
+              <input id="pOrg" type="text" maxlength="80" placeholder="SAGA">
+            </div>
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <label for="pLink">Website or profile</label>
+              <input id="pLink" type="text" maxlength="200" placeholder="jacob.show" autocomplete="url">
+            </div>
+            <div class="field">
+              <label for="pArrival">When you'll turn up</label>
+              <input id="pArrival" type="text" maxlength="40" placeholder="7pm-ish" list="arrivalList">
+              <datalist id="arrivalList">
+                <option>3pm</option><option>4pm</option><option>5pm</option><option>6pm</option>
+                <option>7pm</option><option>8pm</option><option>9pm</option><option>late</option>
+              </datalist>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="pBio">One line about you</label>
+            <textarea id="pBio" maxlength="400" placeholder="What you're thinking about lately."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="pBringing">Bringing / want to run a session on</label>
+            <input id="pBringing" type="text" maxlength="200" placeholder="A bottle of something, and opinions about Go">
+            <p class="fhint">Session ideas land on the schedule.</p>
+          </div>
+
+          <div class="field">
+            <label for="pKnows">How you know Jacob</label>
+            <input id="pKnows" type="text" maxlength="200" placeholder="Your version of the story">
+          </div>
+
+          <div class="field">
+            <label>Settle it: what should this thing be called?</label>
+            <div class="choices" id="pVote">
+              <label class="choice"><input type="radio" name="namevote" value="confluxcon"> confluxcon</label>
+              <label class="choice"><input type="radio" name="namevote" value="fluxcon"> fluxcon</label>
+              <label class="choice"><input type="radio" name="namevote" value="other"> something else</label>
+            </div>
+            <div class="field" id="pSuggestWrap" hidden style="margin-top:.9rem;margin-bottom:0">
+              <label for="pSuggest">Your name for it</label>
+              <input id="pSuggest" type="text" maxlength="60" placeholder="conflux&hellip;?">
+            </div>
+            <div class="tally" id="pTally"></div>
+            <p class="suggests" id="pSuggests"></p>
+          </div>
+
+          <div class="rsvp-actions" style="margin-top:2rem">
+            <button class="btn btn-primary" id="pSave" type="submit">Save</button>
+            <p class="status" id="pStatus"></p>
+          </div>
+        </form>
+
+      </div>
+    </section>
+
+  </div><!-- /pane-profile -->
 
 </main>
 
@@ -448,6 +637,12 @@ const EVENT_DATE = { dow:"Tuesday", day:"September 8", year:"2026" };
    Once your Google Form exists, paste its /viewform URL here.   */
 const FORM_URL   = "";                          // e.g. "https://docs.google.com/forms/d/e/1FAIpQ.../viewform"
 const RSVP_EMAIL = "jacobcohen4761@gmail.com";
+
+/* ---- 2b. WHERE GUEST PROFILES GO ------------------------------
+   The /exec URL of the Apps Script web app (see apps-script.gs).
+   Leave it empty and profiles fall back to an email to RSVP_EMAIL,
+   with the guest wall reading the baked data/profiles.json.        */
+const BACKEND_URL = "";
 
 /* ---- 3. THE ROOMS --------------------------------------------- */
 const ROOMS = [
@@ -710,6 +905,281 @@ if (ebCode) {
 }
 
 render();
+
+/* ============================================================
+   PERSONAL INVITES · PROFILES · THE GUEST WALL
+   ------------------------------------------------------------
+   Each guest gets confluxcon.com/?g=<hash>. The hash is looked
+   up in data/roster.json (built from guests.csv by build.py) to
+   personalise the page and unlock the profile tab. Submitted
+   profiles come back from BACKEND_URL, or from the baked
+   data/profiles.json when there is no backend yet.
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+
+const GUEST_HASH  = (new URLSearchParams(location.search).get("g") || "").trim();
+const LOCAL_KEY   = "confluxcon.profile.v1";
+const NAME_LABELS = { confluxcon: "confluxcon", fluxcon: "fluxcon", other: "something else" };
+
+let ROSTER      = {};
+let PROFILES    = {};
+let SUGGESTIONS = [];
+let ME          = null;   // roster entry for GUEST_HASH, if it resolves
+let LOCAL       = null;   // this browser's unsent draft, when there is no backend
+
+const stripScheme = u => String(u).replace(/^https?:\/\//i, "").replace(/\/$/, "");
+
+const readLocal = () => {
+  try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || "null"); } catch (_) { return null; }
+};
+const writeLocal = p => {
+  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(p)); } catch (_) {}
+};
+
+async function fetchJSON(url, opts) {
+  const r = await fetch(url, opts);
+  if (!r.ok) throw new Error(r.status + " " + r.statusText);
+  return r.json();
+}
+
+/* ---- tabs ------------------------------------------------------ */
+
+function showPane(which) {
+  const onProfile = which === "profile";
+  $("pane-event")  .hidden = onProfile;
+  $("pane-profile").hidden = !onProfile;
+  $("tabEvent")  .setAttribute("aria-selected", String(!onProfile));
+  $("tabProfile").setAttribute("aria-selected", String(onProfile));
+  if (onProfile && location.hash !== "#profile") history.replaceState(null, "", "#profile");
+  if (!onProfile && location.hash === "#profile") history.replaceState(null, "", location.pathname + location.search);
+}
+
+$("tabEvent")  .addEventListener("click", () => showPane("event"));
+$("tabProfile").addEventListener("click", () => showPane("profile"));
+
+/* in-page anchors live in the event pane — make sure it is showing */
+document.addEventListener("click", e => {
+  const a = e.target.closest('a[href^="#"]');
+  if (a && a.getAttribute("href") !== "#profile") showPane("event");
+});
+
+/* ---- the guest wall -------------------------------------------- */
+
+function cardHTML(hash, p, mine, unsent) {
+  const bits = [];
+  bits.push(`<span class="gname">${esc(p.name || (ROSTER[hash] || {}).name || "Someone")}</span>`);
+  const org = p.org || (ROSTER[hash] || {}).org;
+  if (org) bits.push(`<span class="gorg">${esc(org)}</span>`);
+  if (p.bio) bits.push(`<p class="gbio">${esc(p.bio)}</p>`);
+  if (p.bringing) bits.push(`<p class="gline"><b>Bringing</b>${esc(p.bringing)}</p>`);
+  if (p.arrival)  bits.push(`<p class="gline"><b>Arrives</b>${esc(p.arrival)}</p>`);
+  if (p.knows_jacob) bits.push(`<p class="gline"><b>Knows Jacob</b>${esc(p.knows_jacob)}</p>`);
+
+  /* anything you added to guests.csv as a pub_* column */
+  const extras = (ROSTER[hash] || {}).extras || {};
+  Object.keys(extras).forEach(k => {
+    bits.push(`<p class="gline"><b>${esc(k.replace(/_/g, " "))}</b>${esc(extras[k])}</p>`);
+  });
+
+  const link = p.link || (ROSTER[hash] || {}).link;
+  if (link) {
+    const href = /^[a-z][a-z0-9+.-]*:\/\//i.test(link) ? link : "https://" + link;
+    bits.push(`<p class="gline gfoot"><a href="${esc(href)}" target="_blank" rel="noopener">${esc(stripScheme(link))}</a></p>`);
+  }
+  if (unsent) bits.push(`<p class="gline gfoot"><em>Only you can see this &mdash; it has not been sent yet.</em></p>`);
+  return `<div class="gcard${mine ? " me" : ""}">${bits.join("")}</div>`;
+}
+
+function renderWall() {
+  const wall = $("guestWall");
+  const rows = Object.entries(PROFILES);
+  rows.sort((a, b) => {
+    if (a[0] === GUEST_HASH) return -1;
+    if (b[0] === GUEST_HASH) return 1;
+    return String(b[1].updated || "").localeCompare(String(a[1].updated || ""));
+  });
+
+  const html = rows.map(([h, p]) => cardHTML(h, p, h === GUEST_HASH, false));
+  if (LOCAL && GUEST_HASH && !PROFILES[GUEST_HASH]) {
+    html.unshift(cardHTML(GUEST_HASH, LOCAL, true, true));
+  }
+
+  wall.innerHTML = html.join("");
+  $("guestsEmpty").hidden = html.length > 0;
+
+  const invited = Object.keys(ROSTER).length;
+  $("guestsLede").textContent = invited
+    ? `${rows.length} of ${invited} invited have filled theirs in.`
+    : "Everyone who has filled in their profile.";
+}
+
+/* ---- the name vote --------------------------------------------- */
+
+function renderTally() {
+  const counts = { confluxcon: 0, fluxcon: 0, other: 0 };
+  Object.values(PROFILES).forEach(p => {
+    if (counts[p.name_vote] !== undefined) counts[p.name_vote]++;
+  });
+  if (LOCAL && GUEST_HASH && !PROFILES[GUEST_HASH] && counts[LOCAL.name_vote] !== undefined) {
+    counts[LOCAL.name_vote]++;
+  }
+  const total = counts.confluxcon + counts.fluxcon + counts.other;
+  const box = $("pTally");
+  if (!total) { box.innerHTML = ""; $("pSuggests").textContent = ""; return; }
+
+  box.innerHTML = Object.keys(NAME_LABELS).map(k => {
+    const w = Math.round((counts[k] / total) * 100);
+    return `<div class="trow"><span>${esc(NAME_LABELS[k])}</span>
+      <span class="tbar"><i style="width:${w}%"></i></span>
+      <span class="tnum">${counts[k]}</span></div>`;
+  }).join("");
+
+  const seen = new Set(), lines = [];
+  SUGGESTIONS.forEach(sg => {
+    const t = String(sg.suggestion || "").trim();
+    if (!t || seen.has(t.toLowerCase())) return;
+    seen.add(t.toLowerCase());
+    lines.push(`<b>${esc(t)}</b>${sg.name ? " &mdash; " + esc(sg.name) : ""}`);
+  });
+  $("pSuggests").innerHTML = lines.length ? "On the table: " + lines.join(" &middot; ") : "";
+}
+
+/* ---- the profile form ------------------------------------------ */
+
+const PF = {
+  name: $("pName"), org: $("pOrg"), link: $("pLink"), arrival: $("pArrival"),
+  bio: $("pBio"), bringing: $("pBringing"), knows_jacob: $("pKnows"),
+  suggest: $("pSuggest")
+};
+
+const votePicked = () => {
+  const el = document.querySelector('#pVote input[name="namevote"]:checked');
+  return el ? el.value : "";
+};
+
+$("pVote").addEventListener("change", () => {
+  $("pSuggestWrap").hidden = votePicked() !== "other";
+});
+
+function fillForm(p) {
+  PF.name.value        = p.name        || (ME && ME.name) || "";
+  PF.org.value         = p.org         || (ME && ME.org)  || "";
+  PF.link.value        = p.link        || (ME && stripScheme(ME.link || "")) || "";
+  PF.arrival.value     = p.arrival     || "";
+  PF.bio.value         = p.bio         || "";
+  PF.bringing.value    = p.bringing    || "";
+  PF.knows_jacob.value = p.knows_jacob || "";
+  PF.suggest.value     = p.name_suggestion || "";
+  const v = document.querySelector(`#pVote input[value="${p.name_vote || ""}"]`);
+  if (v) v.checked = true;
+  $("pSuggestWrap").hidden = (p.name_vote || "") !== "other";
+}
+
+function collect() {
+  return {
+    hash:            GUEST_HASH,
+    name:            PF.name.value.trim(),
+    org:             PF.org.value.trim(),
+    link:            PF.link.value.trim(),
+    arrival:         PF.arrival.value.trim(),
+    bio:             PF.bio.value.trim(),
+    bringing:        PF.bringing.value.trim(),
+    knows_jacob:     PF.knows_jacob.value.trim(),
+    name_vote:       votePicked(),
+    name_suggestion: votePicked() === "other" ? PF.suggest.value.trim() : "",
+    updated:         new Date().toISOString()
+  };
+}
+
+const setStatus = (msg, kind) => {
+  const el = $("pStatus");
+  el.textContent = msg;
+  el.className = "status" + (kind ? " " + kind : "");
+};
+
+$("pForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const rec = collect();
+  if (!rec.name) { setStatus("A name, at least.", "bad"); return; }
+
+  writeLocal(rec);
+  LOCAL = rec;
+  $("pSave").disabled = true;
+
+  if (!BACKEND_URL) {
+    /* no backend deployed yet — hand it to Jacob as an email */
+    const body = Object.entries(rec)
+      .filter(([k, v]) => v && k !== "updated")
+      .map(([k, v]) => `${k}: ${v}`).join("\n");
+    location.href = `mailto:${RSVP_EMAIL}?subject=${encodeURIComponent("confluxcon profile — " + rec.name)}` +
+                    `&body=${encodeURIComponent(body)}`;
+    setStatus("Opening your mail app — send it and Jacob will add you.", "good");
+    $("pSave").disabled = false;
+    renderWall(); renderTally();
+    return;
+  }
+
+  try {
+    const res = await fetchJSON(BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },  // keeps it preflight-free
+      body: JSON.stringify(rec)
+    });
+    if (!res.ok) throw new Error(res.error || "rejected");
+    PROFILES[GUEST_HASH] = res.profile;
+    LOCAL = null;
+    setStatus("Saved. You're on the front page.", "good");
+    renderWall(); renderTally();
+  } catch (err) {
+    setStatus("Couldn't reach the server — kept it in this browser, try again in a minute.", "bad");
+  } finally {
+    $("pSave").disabled = false;
+  }
+});
+
+/* ---- boot ------------------------------------------------------- */
+
+(async function invites() {
+  try {
+    const r = await fetchJSON("data/roster.json");
+    ROSTER = r.guests || {};
+  } catch (_) { ROSTER = {}; }
+
+  ME = GUEST_HASH ? ROSTER[GUEST_HASH] || null : null;
+
+  if (ME) {
+    const g = $("greeting");
+    g.innerHTML = `<b>${esc(ME.name)}</b> — this one's yours.`;
+    g.hidden = false;
+    document.title = `confluxcon — ${ME.name}`;
+    $("pHead").textContent = `Tell the room who you are, ${ME.name.split(" ")[0]}`;
+    $("pForm").hidden = false;
+    $("pGate").hidden = true;
+  } else {
+    $("pGate").hidden = false;
+    $("pForm").hidden = true;
+  }
+
+  try {
+    const src = BACKEND_URL ? BACKEND_URL + "?action=profiles" : "data/profiles.json";
+    const d = await fetchJSON(src);
+    PROFILES    = d.profiles || {};
+    SUGGESTIONS = d.suggestions || [];
+  } catch (_) { PROFILES = {}; SUGGESTIONS = []; }
+
+  if (ME) {
+    LOCAL = readLocal();
+    if (LOCAL && LOCAL.hash !== GUEST_HASH) LOCAL = null;
+    fillForm(PROFILES[GUEST_HASH] || LOCAL || {});
+    if (PROFILES[GUEST_HASH]) LOCAL = null;
+    $("tabDot").hidden = !!PROFILES[GUEST_HASH];
+  }
+
+  renderWall();
+  renderTally();
+  if (location.hash === "#profile") showPane("profile");
+})();
 </script>
 
 </body>

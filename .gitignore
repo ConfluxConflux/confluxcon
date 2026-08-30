@@ -1,0 +1,10 @@
+# Your private guest list. Columns like how_i_know_them and p_attend are
+# yours alone — this repo is PUBLIC, so the CSV never gets committed.
+guests.csv
+guests.local.csv
+
+# Local scratch
+.DS_Store
+__pycache__/
+*.pyc
+guests.csv.bak
