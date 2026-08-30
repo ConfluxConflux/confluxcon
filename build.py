@@ -6,7 +6,7 @@ confluxcon — turn guests.csv into the site's public data.
   python3 build.py --numbers   # pull the open Numbers document down into guests.csv first
   python3 build.py --links     # just print the invite links
   python3 build.py --report    # private headcount / arrival report (never published)
-  python3 build.py --pull      # also fetch submitted profiles into data/profiles.json
+  python3 build.py --seed      # JSON to paste into the Apps Script backend, once
 
 Numbers never writes back to a .csv — opening one makes a separate Numbers
 document, and saving writes a .numbers file. So either edit guests.csv in a
@@ -307,6 +307,37 @@ def pull_profiles():
     print(f"  data/profiles.json — {n} submitted profile{'s' if n != 1 else ''}")
 
 
+# ---------- seed for the backend --------------------------------------------
+
+def build_seed(sheet):
+    """A JSON blob to paste into SEED_JSON in apps-script.gs. Holds passwords,
+    so it is written locally and gitignored — never committed."""
+    slugs, guests = set(), []
+    for r in sorted(sheet.rows, key=lambda r: sheet.get(r, "name").lower()):
+        name = sheet.get(r, "name")
+        slug = slugify(name, slugs)
+        slugs.add(slug)
+        first, _, last = name.partition(" ")
+        guests.append({
+            "slug": slug, "first": first, "last": last,
+            "password": sheet.get(r, "password").lower(),
+            "admin": slug == "jacob",
+            "met": sheet.get(r, "how_i_know_them"),
+            "org": sheet.get(r, "org"),
+            "link": norm_link(sheet.get(r, "link")),
+            "lane": "invited" if sheet.invited(r) else "prospect",
+        })
+    blob = {"guests": guests,
+            "sessions": ["AI Safety Trivia", "Lightning Talks", "Cuddle Puddle"]}
+    os.makedirs(DATA_DIR, exist_ok=True)
+    path = os.path.join(DATA_DIR, "seed.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(blob, f, ensure_ascii=False, indent=1)
+    print(f"\n  wrote data/seed.json — {len(guests)} guests, {len(blob['sessions'])} sessions")
+    print("  Paste its contents between the backticks of SEED_JSON in")
+    print("  apps-script.gs (in the Apps Script editor, not the repo), then run seed().")
+
+
 # ---------- Numbers ---------------------------------------------------------
 
 NUMBERS_SCRIPT = """
@@ -364,6 +395,9 @@ def main():
             f"{c}{' (published)' if is_public_extra(c) else ''}" for c in unmatched))
     fill_passwords(sheet)
 
+    if "--seed" in args:
+        build_seed(sheet)
+        return
     if "--report" in args:
         report(sheet)
         return

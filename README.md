@@ -89,59 +89,54 @@ before the domain points at GitHub.
 
 ---
 
-## Personal invites
+## How it works now
 
-Each guest gets a password. They go to `confluxcon.com`, type it, and land on
-their own page at `confluxcon.com/<firstname>` — the password *is* the identity,
-so there is nothing else to remember. What you text is one line:
+`confluxcon.com` is one page behind one password field. The password *is* the
+identity — the word you type decides whose RSVP you land on — so there is
+nothing else for a guest to remember. What you text is one line:
 
     confluxcon.com — your password is neutrality
 
-`python3 build.py --links` prints that line for every invited guest, ready to
-paste one at a time.
+Signed in, a guest gets two tabs (**Event** and **Profile**); you get a third,
+**Console**. Everything anyone types saves itself to a Google Sheet as they go.
+There is no submit button anywhere.
 
-### The guest list
+### The two things only you can do
 
-`guests.csv` is the source of truth and is **gitignored** — this repo is public
-and the sheet holds your notes and everybody's password. Headers are matched
-loosely, so name the columns whatever reads well:
+**1. Deploy the backend.** `apps-script.gs` has the steps at the top: new Google
+Sheet ▸ Extensions ▸ Apps Script ▸ paste ▸ paste the output of
+`python3 build.py --seed` into `SEED_JSON` ▸ run `seed()` ▸ Deploy as a web app
+("Execute as: Me", "Who has access: Anyone") ▸ copy the `/exec` URL into
+`BACKEND_URL` at the top of `index.html`'s script ▸ commit and push.
 
-| Field | Headers that match |
-|---|---|
-| name | `Name`, `Guest name`, `who` |
-| password | `Password`, `pass`, `word`, `code` |
-| where we met | `Where we met`, `how i know them` |
-| affiliation | `Current affiliation (for their badge)`, `org`, `company`, `lab` |
-| invited | `Invited`, `sent` — omit the column and everyone counts as invited |
-| probability *(private)* | `Your probability they attend`, `odds` |
-| notes *(private)* | `Notes`, `comments` |
+Until that URL is filled in, the door shows a setup notice instead of the
+password field and nobody can sign in.
 
-Leave a password blank and `build.py` picks an unused word from `WORDS` and
-writes it back. **Passwords must be unique** — one names a person, so a
-duplicate would log someone into the wrong RSVP; the build refuses to stay quiet
-about a clash.
+**2. Fix HTTPS.** DNS now points at GitHub, but `confluxcon.com` still has a
+stale Namecheap A record — `162.255.119.130` — alongside the four GitHub ones.
+GitHub will not issue a certificate while it is there, so the site is HTTP-only
+and browsers warn on the password field. Delete that one A record, leave
+`185.199.108–111.153`, wait for the certificate, then tick **Enforce HTTPS** in
+the repo's Pages settings.
 
-Numbers can't save back to a `.csv`, so edit it there and run
-`python3 build.py --numbers` to pull the front document down over it.
+### After that, the sheet is the database
 
-### What gets built
+`guests.csv` and `build.py` are only for seeding and for working offline. Once
+the backend is live, edit people in the Console — or in the Google Sheet
+directly, which the site reads on every load.
 
-    data/roster.json    public  — slug, name, badge fields. No passwords, ever.
-    data/secrets.json   local   — password -> slug, gitignored
+    python3 build.py            # fill blank passwords, rebuild data/, print the texts
+    python3 build.py --numbers  # pull the open Numbers document down into guests.csv
+    python3 build.py --seed     # the JSON to paste into the backend, once
+    python3 build.py --links    # just the messages to send
+    python3 build.py --report   # private headcount and arrival breakdown
 
-Because auth is a password check, it cannot happen in a page served off GitHub
-Pages — the check has to live in the backend. `apps-script.gs` is where it goes.
+### Rules the code enforces
 
-## The guest page
-
-Two tabs behind the password:
-
-**Event** — the party itself: date, Lighthaven with a maps link, what's planned
-so far, a *Who's coming* grid that fills itself in from people's answers, and
-the theory of impact.
-
-**Profile** — their badge at the top (first name bold, last italic, where you
-met • where they are now, all editable), then: are you coming, on a four-point
-scale wired to a probability slider; median time of arrival; which sessions they
-want to attend; anything they'd run. Everything optional, everything autosaving.
-No submit button, so there is never a half-finished form to agonise over.
+- **Passwords are unique.** One names a person, so the backend refuses a word
+  another guest already has.
+- **Only invited guests can write.** A password not in the sheet is refused.
+- **Guests edit only themselves.** The `admin` column marks the one account that
+  can edit the roster; everyone else can only save their own row.
+- **Nothing public carries a credential.** `data/roster.json` holds no
+  passwords; `data/secrets.json` and `data/seed.json` are gitignored.

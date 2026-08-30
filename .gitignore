@@ -9,3 +9,4 @@ __pycache__/
 *.pyc
 guests.csv.bak
 data/secrets.json
+data/seed.json
