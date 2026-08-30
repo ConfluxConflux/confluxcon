@@ -31,7 +31,7 @@ SITE     = "https://confluxcon.com"
 # wins, so the order here matters — "arrival" is tested before "attend"
 # because "median arrival time, conditional on attending" contains both.
 ALIASES = [
-    ("hash",            ("hash", "id", "code")),
+    ("password",        ("password", "pass", "word", "code")),
     ("invited",         ("invit", "send", "asked")),
     ("name",            ("name", "guest", "who")),
     ("how_i_know_them", ("met", "know", "how i")),
@@ -42,7 +42,7 @@ ALIASES = [
     ("notes",           ("note", "comment")),
 ]
 # Public unless it is one of these. Everything else in the sheet stays local.
-PRIVATE_FIELDS = ("how_i_know_them", "p_attend", "median_arrival", "notes", "invited", "hash")
+PRIVATE_FIELDS = ("how_i_know_them", "p_attend", "median_arrival", "notes", "invited", "password")
 
 
 # ---------- column matching -------------------------------------------------
@@ -102,15 +102,43 @@ def pct(v):
     return max(0.0, min(1.0, n))
 
 
-def make_hash(name, taken):
-    """Stable 6-digit id derived from the name, nudged on collision."""
-    for salt in range(1000):
+# Words you can say down the phone without spelling them. A password names a
+# person, so these must stay unique across the whole guest list.
+WORDS = """
+neutrality lantern meridian saffron quorum thicket halcyon cobalt ferment alcove
+tessera plumbline garnet wick harbour solstice marrow cadence aperture kiln
+bellwether cinder driftwood ember fathom girder hearth ingot jetty keystone
+lodestar mantle nectar obelisk parapet quiver rampart sextant tallow undertow
+vellum wainscot xenon yardarm zenith almanac bramble copse dovetail escarpment
+foxglove gantry hollow inkwell juniper knoll limestone millrace nightjar oakum
+pergola quarry rookery sandbar tinder umbra verdigris windlass yarrow zephyr
+anvil bastion cairn dell estuary fenland grotto heathland isthmus
+""".split()
+
+
+def make_password(name, taken):
+    """Stable word for a guest, picked from WORDS and nudged on collision."""
+    for salt in range(len(WORDS) * 4):
         seed = f"{name.strip().lower()}#{salt}" if salt else name.strip().lower()
         h = int(hashlib.sha256(seed.encode()).hexdigest(), 16)
-        cand = str(100000 + h % 900000)     # always six digits, never a leading zero
+        cand = WORDS[h % len(WORDS)]
         if cand not in taken:
             return cand
-    raise SystemExit("could not find a free hash — that is a lot of guests")
+    raise SystemExit("ran out of unused words — add more to WORDS")
+
+
+def slugify(name, taken):
+    """confluxcon.com/audrey, falling back to the full name on a collision."""
+    parts = re.sub(r"[^a-z ]", "", name.lower()).split()
+    if not parts:
+        return ""
+    for cand in (parts[0], "".join(parts)):
+        if cand not in taken:
+            return cand
+    n = 2
+    while f"{parts[0]}{n}" in taken:
+        n += 1
+    return f"{parts[0]}{n}"
 
 
 # ---------- the sheet -------------------------------------------------------
@@ -161,20 +189,17 @@ def load():
         rows = [r for r in rdr if (r.get(namecol) or "").strip()]
 
     sheet = Sheet(rows, cols, field)
-    for r in rows:                        # Numbers renders 328509 as "328,509"
-        if field.get("hash"):
-            r[field["hash"]] = re.sub(r"[^0-9]", "", r.get(field["hash"]) or "")
     return sheet
 
 
-def fill_hashes(sheet):
-    taken = {sheet.get(r, "hash") for r in sheet.rows if sheet.get(r, "hash")}
+def fill_passwords(sheet):
+    taken = {sheet.get(r, "password").lower() for r in sheet.rows if sheet.get(r, "password")}
     added = 0
     for r in sheet.rows:
-        if not sheet.get(r, "hash"):
-            h = make_hash(sheet.get(r, "name"), taken)
-            sheet.set(r, "hash", h)
-            taken.add(h)
+        if not sheet.get(r, "password"):
+            w = make_password(sheet.get(r, "name"), taken)
+            sheet.set(r, "password", w)
+            taken.add(w)
             added += 1
     if added:
         with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
@@ -182,39 +207,56 @@ def fill_hashes(sheet):
             w.writeheader()
             for r in sheet.rows:
                 w.writerow({c: r.get(c, "") for c in sheet.cols})
-        print(f"  filled {added} blank hash{'es' if added != 1 else ''} in guests.csv")
+        print(f"  wrote {added} new password{'s' if added != 1 else ''} into guests.csv")
 
 
 # ---------- outputs ---------------------------------------------------------
 
 def build_roster(sheet):
-    guests = {}
+    """Two files. roster.json is public and holds no credentials; secrets.json
+    maps password -> slug for the backend, and never leaves this machine."""
+    slugs, guests, secrets = set(), {}, {}
     for r in sheet.rows:
         if not sheet.invited(r):
             continue
-        guests[sheet.get(r, "hash")] = {
-            "name":   sheet.get(r, "name"),
+        name = sheet.get(r, "name")
+        slug = slugify(name, slugs)
+        slugs.add(slug)
+        first, _, last = name.partition(" ")
+        guests[slug] = {
+            "first":  first,
+            "last":   last,
+            "met":    sheet.get(r, "how_i_know_them"),
             "org":    sheet.get(r, "org"),
             "link":   norm_link(sheet.get(r, "link")),
             "extras": sheet.extras(r),
         }
-    out = {"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-           "guests": guests}
+        secrets[sheet.get(r, "password").lower()] = slug
+
     os.makedirs(DATA_DIR, exist_ok=True)
     with open(os.path.join(DATA_DIR, "roster.json"), "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=1, sort_keys=True)
-    print(f"  data/roster.json — {len(guests)} invited guest{'s' if len(guests) != 1 else ''}")
+        json.dump({"generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                   "guests": guests}, f, ensure_ascii=False, indent=1, sort_keys=True)
+    with open(os.path.join(DATA_DIR, "secrets.json"), "w", encoding="utf-8") as f:
+        json.dump({"passwords": secrets}, f, ensure_ascii=False, indent=1, sort_keys=True)
+
+    dupes = len(guests) - len(set(secrets.values()))
+    print(f"  data/roster.json  — {len(guests)} invited guest{'s' if len(guests) != 1 else ''} (public, no passwords)")
+    print(f"  data/secrets.json — {len(secrets)} password{'s' if len(secrets) != 1 else ''} (gitignored)")
+    if dupes:
+        print(f"  !! {dupes} guests share a password — fix guests.csv before sending anything")
 
 
 def print_links(sheet):
+    """The messages you actually send, ready to paste one at a time."""
     invited = [r for r in sheet.rows if sheet.invited(r)]
     if not invited:
         print("\n  nobody marked invited yet")
         return
     w = max(len(sheet.get(r, "name")) for r in invited)
-    print(f"\n  {'GUEST'.ljust(w)}  LINK")
+    print(f"\n  {'GUEST'.ljust(w)}  WHAT TO TEXT THEM")
     for r in sorted(invited, key=lambda r: sheet.get(r, "name").lower()):
-        print(f"  {sheet.get(r, 'name').ljust(w)}  {SITE}/?g={sheet.get(r, 'hash')}")
+        print(f"  {sheet.get(r, 'name').ljust(w)}  confluxcon.com — your password is {sheet.get(r, 'password')}")
 
 
 def report(sheet):
@@ -320,7 +362,7 @@ def main():
     if unmatched:
         print("  extra columns: " + ", ".join(
             f"{c}{' (published)' if is_public_extra(c) else ''}" for c in unmatched))
-    fill_hashes(sheet)
+    fill_passwords(sheet)
 
     if "--report" in args:
         report(sheet)

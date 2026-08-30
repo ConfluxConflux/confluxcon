@@ -8,3 +8,4 @@ guests.local.csv
 __pycache__/
 *.pyc
 guests.csv.bak
+data/secrets.json

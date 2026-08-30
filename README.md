@@ -89,90 +89,59 @@ before the domain points at GitHub.
 
 ---
 
-## Personal invite links
+## Personal invites
 
-Every guest gets their own URL — `confluxcon.com/?g=328509`. Open it and the site
-greets them by name and unlocks a **Your profile** tab. What they write there
-lands on the front page under *The room*, for everyone to see.
+Each guest gets a password. They go to `confluxcon.com`, type it, and land on
+their own page at `confluxcon.com/<firstname>` — the password *is* the identity,
+so there is nothing else to remember. What you text is one line:
+
+    confluxcon.com — your password is neutrality
+
+`python3 build.py --links` prints that line for every invited guest, ready to
+paste one at a time.
 
 ### The guest list
 
-`guests.csv` is the source of truth. It is **gitignored** — this repo is public,
-and the sheet holds your own notes (how you know them, how likely they are to
-show). Only name, org and link ever leave your machine.
-
-Column headers are matched loosely, so call them whatever reads well in the
-spreadsheet. These all land in the same place:
+`guests.csv` is the source of truth and is **gitignored** — this repo is public
+and the sheet holds your notes and everybody's password. Headers are matched
+loosely, so name the columns whatever reads well:
 
 | Field | Headers that match |
 |---|---|
 | name | `Name`, `Guest name`, `who` |
-| org | `Current organizational affiliation (for your badge)`, `org`, `company`, `lab` |
-| link | `Personal website (or another link)`, `link`, `profile`, `url` |
-| hash | `Hash`, `id`, `code` |
-| how you know them *(private)* | `Where we met`, `how i know them` |
-| probability *(private)* | `Your probability of attendance`, `odds`, `likelihood` |
-| arrival *(private)* | `Your median arrival time…`, `arrives`, `eta` |
+| password | `Password`, `pass`, `word`, `code` |
+| where we met | `Where we met`, `how i know them` |
+| affiliation | `Current affiliation (for their badge)`, `org`, `company`, `lab` |
+| invited | `Invited`, `sent` — omit the column and everyone counts as invited |
+| probability *(private)* | `Your probability they attend`, `odds` |
 | notes *(private)* | `Notes`, `comments` |
-| invited | `Invited`, `sent` — **leave the column out entirely and everyone counts as invited** |
 
-Add any other column you like. It stays private unless the header ends in
-`(public)` or starts with `pub_`, in which case it shows on the guest's card —
-so `House (public)` puts `House · Andesite` on their card.
+Leave a password blank and `build.py` picks an unused word from `WORDS` and
+writes it back. **Passwords must be unique** — one names a person, so a
+duplicate would log someone into the wrong RSVP; the build refuses to stay quiet
+about a clash.
 
-**Hashes fill themselves in.** Leave the cell blank; `build.py` derives a stable
-six-digit number from the name and writes it back. The same name always produces
-the same number, so you never have to keep the hashes anywhere — but if you
-rename someone, their link changes.
+Numbers can't save back to a `.csv`, so edit it there and run
+`python3 build.py --numbers` to pull the front document down over it.
 
-`guests.example.csv` is a committed sample of the shape.
+### What gets built
 
-### Numbers doesn't save back to CSV
+    data/roster.json    public  — slug, name, badge fields. No passwords, ever.
+    data/secrets.json   local   — password -> slug, gitignored
 
-Opening `guests.csv` in Numbers makes a *separate* Numbers document. Editing it
-and hitting save writes a `.numbers` file; `guests.csv` never changes. That is
-Numbers, not a bug here.
+Because auth is a password check, it cannot happen in a page served off GitHub
+Pages — the check has to live in the backend. `apps-script.gs` is where it goes.
 
-So either edit `guests.csv` in a text editor or Google Sheets, or keep the
-spreadsheet in Numbers and pull it down when you're done:
+## The guest page
 
-    python3 build.py --numbers
+Two tabs behind the password:
 
-That exports the front Numbers document over `guests.csv` (keeping the old one
-as `guests.csv.bak`), then rebuilds. Leave the document open in Numbers and run
-it whenever you've made changes.
+**Event** — the party itself: date, Lighthaven with a maps link, what's planned
+so far, a *Who's coming* grid that fills itself in from people's answers, and
+the theory of impact.
 
-### Building
-
-    python3 build.py             # fill hashes, write data/roster.json, print every link
-    python3 build.py --numbers   # pull from Numbers first, then all of the above
-    python3 build.py --links     # just the links, to paste into messages
-    python3 build.py --report    # private headcount and arrival breakdown — never published
-    python3 build.py --pull      # bake submitted profiles into data/profiles.json
-
-`data/roster.json` is committed and world-readable. **The invite list is
-therefore public** — anyone can fetch it and see who was invited, and try
-another guest's link. For a party that is probably fine; if it isn't, the fix is
-to stop committing it and read the roster from the backend instead.
-
-## Profiles
-
-Guests fill in name, org, link, arrival time, a line about themselves, what
-they're bringing, how they know you — and vote on whether the thing is called
-**confluxcon**, **fluxcon**, or something they suggest. The tally shows under
-the form.
-
-Two ways it can work:
-
-**Now, with no setup.** `BACKEND_URL` in `index.html` is empty. Saving a profile
-opens the guest's mail app with the answers filled in, and keeps a copy in their
-browser so their own card shows on the page. You add them by hand.
-
-**Live.** Deploy `apps-script.gs` as a Google Apps Script web app — the setup
-steps are in the top of that file, about five minutes — and paste the `/exec`
-URL into `BACKEND_URL`. Profiles then save straight to a Google Sheet and appear
-on everyone's front page. Writes are only accepted for hashes that appear in
-`roster.json`, so only people you invited can post.
-
-Either way `data/profiles.json` is the fallback the page reads if the backend is
-unreachable; `build.py --pull` refreshes it.
+**Profile** — their badge at the top (first name bold, last italic, where you
+met • where they are now, all editable), then: are you coming, on a four-point
+scale wired to a probability slider; median time of arrival; which sessions they
+want to attend; anything they'd run. Everything optional, everything autosaving.
+No submit button, so there is never a half-finished form to agonise over.

@@ -1,112 +1,148 @@
 {
- "generated": "2026-08-30T19:53:32+00:00",
+ "generated": "2026-08-30T21:31:50+00:00",
  "guests": {
-  "185867": {
+  "alex": {
    "extras": {},
+   "first": "Alex",
+   "last": "Ulinich",
    "link": "",
-   "name": "Katia Bravo",
+   "met": "",
    "org": ""
   },
-  "228644": {
+  "allie": {
    "extras": {},
+   "first": "Allie",
+   "last": "Mahaffey",
    "link": "",
-   "name": "Jo Jiao",
+   "met": "",
    "org": ""
   },
-  "299121": {
+  "allison": {
    "extras": {},
+   "first": "Allison",
+   "last": "Hung",
    "link": "",
-   "name": "Kenneth Sun",
+   "met": "",
    "org": ""
   },
-  "300467": {
+  "ariana": {
    "extras": {},
+   "first": "Ariana",
+   "last": "Azarbal",
    "link": "",
-   "name": "Allie Mahaffey",
+   "met": "",
    "org": ""
   },
-  "328509": {
+  "audrey": {
    "extras": {},
-   "link": "https://jacob.show",
-   "name": "Jacob Cohen",
+   "first": "Audrey",
+   "last": "Wong",
+   "link": "",
+   "met": "Proof School",
+   "org": "UC Berkeley"
+  },
+  "dylan": {
+   "extras": {},
+   "first": "Dylan",
+   "last": "Ventura",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "helena": {
+   "extras": {},
+   "first": "Helena",
+   "last": "Tran",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "ian": {
+   "extras": {},
+   "first": "Ian",
+   "last": "Habich",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "isa": {
+   "extras": {},
+   "first": "Isa",
+   "last": "Alexander",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "jacob": {
+   "extras": {},
+   "first": "Jacob",
+   "last": "Cohen",
+   "link": "",
+   "met": "Birth",
    "org": "SAGA"
   },
-  "408995": {
+  "jo": {
    "extras": {},
+   "first": "Jo",
+   "last": "Jiao",
    "link": "",
-   "name": "Logan Graves",
+   "met": "",
    "org": ""
   },
-  "474437": {
+  "katia": {
    "extras": {},
+   "first": "Katia",
+   "last": "Bravo",
    "link": "",
-   "name": "Ian Habich",
+   "met": "",
    "org": ""
   },
-  "485870": {
+  "kenneth": {
    "extras": {},
+   "first": "Kenneth",
+   "last": "Sun",
    "link": "",
-   "name": "Helena Tran",
+   "met": "",
    "org": ""
   },
-  "502945": {
+  "logan": {
    "extras": {},
+   "first": "Logan",
+   "last": "Graves",
    "link": "",
-   "name": "Audrey Wong",
+   "met": "",
    "org": ""
   },
-  "526628": {
+  "miles": {
    "extras": {},
+   "first": "Miles",
+   "last": "Kodama",
    "link": "",
-   "name": "Alex Ulinich",
+   "met": "",
    "org": ""
   },
-  "619620": {
+  "tol": {
    "extras": {},
+   "first": "Tol",
+   "last": "Waskan",
    "link": "",
-   "name": "Ariana Azarbal",
+   "met": "",
    "org": ""
   },
-  "786559": {
+  "verda": {
    "extras": {},
+   "first": "Verda",
+   "last": "Korzeniewski",
    "link": "",
-   "name": "Tol Waskan",
+   "met": "",
    "org": ""
   },
-  "798015": {
+  "zachary": {
    "extras": {},
+   "first": "Zachary",
+   "last": "Hsu",
    "link": "",
-   "name": "Verda Korzeniewski",
-   "org": ""
-  },
-  "800411": {
-   "extras": {},
-   "link": "",
-   "name": "Miles Kodama",
-   "org": ""
-  },
-  "855321": {
-   "extras": {},
-   "link": "",
-   "name": "Isa Alexander",
-   "org": ""
-  },
-  "870517": {
-   "extras": {},
-   "link": "",
-   "name": "Zachary Hsu",
-   "org": ""
-  },
-  "891593": {
-   "extras": {},
-   "link": "",
-   "name": "Allison Hung",
-   "org": ""
-  },
-  "921008": {
-   "extras": {},
-   "link": "",
-   "name": "Dylan Ventura",
+   "met": "",
    "org": ""
   }
  }
