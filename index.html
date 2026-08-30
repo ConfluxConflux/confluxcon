@@ -59,15 +59,8 @@ body{
 .doorcard{width:min(430px,100%)}
 .dmark{font-family:var(--display);font-weight:500;font-size:clamp(3rem,13vw,4.6rem);
   line-height:1;letter-spacing:-.022em;margin:0;color:#fdfaf3;
-  text-shadow:0 2px 36px rgba(4,32,35,.45);position:relative;white-space:nowrap}
+  text-shadow:0 2px 36px rgba(4,32,35,.45);white-space:nowrap}
 .dmark em{font-style:italic;font-weight:700;color:var(--gold-lt)}
-/* the trailing "con" arrives by air — see the leap below */
-.dmark.leaping .c2{opacity:0}
-.dmark .ghost{
-  position:absolute;top:0;left:0;pointer-events:none;
-  font-weight:500;color:#fdfaf3;will-change:transform;
-}
-.dmark .ghost.landed{font-style:italic;font-weight:700;color:var(--gold-lt)}
 .dsub{font-family:var(--display);font-style:italic;font-size:1.06rem;color:#dcefe9;margin:1rem 0 2.6rem}
 .pwform{display:flex;flex-direction:column;gap:.75rem}
 .pwform input{font-family:var(--mono);font-size:1.05rem;text-align:center;letter-spacing:.05em;
@@ -84,8 +77,17 @@ body{
 /* ---------- signed in ---------- */
 .top{padding:5vh 0 2.4vh;text-align:center;color:#fdfaf3}
 .mark{font-family:var(--display);font-weight:500;font-size:clamp(2.3rem,7vw,3.6rem);
-  line-height:1;letter-spacing:-.02em;margin:0;text-shadow:0 2px 34px rgba(4,32,35,.4)}
+  line-height:1;letter-spacing:-.02em;margin:0;text-shadow:0 2px 34px rgba(4,32,35,.4);
+  position:relative;white-space:nowrap;color:#fdfaf3}
 .mark em{font-style:italic;font-weight:700;color:var(--gold-lt)}
+/* The leading "con" is a readout: its intensity is the share of the vote that
+   still wants confluxcon over fluxcon. Fade it far enough and the mark reads
+   fluxcon on its own. */
+.mark .c1{display:inline-block;transition:opacity .5s ease}
+.mark.leaping .c2{opacity:0}
+.mark .ghost{position:absolute;top:0;left:0;pointer-events:none;
+  font-weight:500;font-style:normal;color:#fdfaf3;will-change:transform}
+.mark .ghost.landed{font-style:italic;font-weight:700;color:var(--gold-lt)}
 .whoami{font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;
   color:rgba(240,252,248,.72);margin:1.1rem 0 0}
 .whoami button{background:none;border:0;color:rgba(240,252,248,.72);cursor:pointer;font:inherit;
@@ -212,6 +214,9 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .seg label.v-likely:has(input:checked){background:var(--likely-bg);border-color:var(--likely);color:var(--likely)}
 .seg label.v-maybe:has(input:checked){background:var(--maybe-bg);border-color:var(--maybe);color:var(--maybe)}
 .seg label.v-no:has(input:checked){background:var(--no-bg);border-color:var(--no);color:var(--no)}
+.seg.two{grid-template-columns:repeat(2,1fr)}
+.seg label.v-name:has(input:checked){background:#eef3f0;border-color:var(--teal);color:var(--teal)}
+.votetally{font-size:.92rem;color:var(--ink-3);font-style:italic;margin:.7rem 0 0}
 .seg.small{gap:4px}
 .seg.small label{font-size:.8rem;padding:.5em .15em}
 .fine{margin-top:1.2rem;padding-top:1rem;border-top:1px dashed var(--rule-soft)}
@@ -272,7 +277,7 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .lanes .count{font-family:var(--mono);font-size:.9em;opacity:.65;margin-left:.5em}
 .tablewrap{overflow:auto;border:1px solid var(--rule-soft);border-radius:6px;background:#fff;
   max-height:min(62vh,580px);overscroll-behavior:contain}
-table{border-collapse:separate;border-spacing:0;width:100%;min-width:1500px;font-size:.95rem}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1620px;font-size:.95rem}
 th:nth-child(2),td:nth-child(2){min-width:12em}
 th:nth-child(3),td:nth-child(3){min-width:12em}
 th:nth-child(4),td:nth-child(4){min-width:12em}
@@ -281,7 +286,8 @@ th:nth-child(6),td:nth-child(6){min-width:4.5em}
 th:nth-child(7),td:nth-child(7){min-width:6.5em}
 th:nth-child(8),td:nth-child(8){min-width:19em}
 th:nth-child(9),td:nth-child(9){min-width:16em}
-th:nth-child(10),td:nth-child(10){min-width:8.5em}
+th:nth-child(10),td:nth-child(10){min-width:9em}
+th:nth-child(11),td:nth-child(11){min-width:8.5em}
 thead th{position:sticky;top:0;z-index:3;background:var(--paper-2);text-align:left;
   font-family:var(--body);font-weight:600;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink-2);padding:.6rem .7rem;border-bottom:1px solid var(--rule)}
@@ -362,7 +368,7 @@ footer a{color:rgba(240,252,248,.9)}
 <!-- ============================ THE DOOR ============================ -->
 <div class="door" id="door">
   <div class="doorcard">
-    <h1 class="dmark" id="dmark"><span class="c1">con</span>flux<em class="c2">con</em></h1>
+    <h1 class="dmark">conflux<em>con</em></h1>
     <p class="dsub">Tuesday, September 8 &middot; Lighthaven, Berkeley</p>
 
     <div class="setup" id="setup" hidden>
@@ -387,7 +393,7 @@ footer a{color:rgba(240,252,248,.9)}
 <div id="site" hidden>
   <header class="top">
     <div class="wrap">
-      <h1 class="mark">conflux<em>con</em></h1>
+      <h1 class="mark" id="mark"><span class="c1">con</span><span class="fl">flux</span><em class="c2">con</em></h1>
       <p class="whoami"><span id="whoName"></span><button type="button" id="signOut">Sign out</button></p>
     </div>
   </header>
@@ -498,6 +504,15 @@ footer a{color:rgba(240,252,248,.9)}
         </div>
 
         <div class="fld">
+          <label id="lblName">What should this thing be called?</label>
+          <div class="seg two" id="fName" role="radiogroup" aria-labelledby="lblName">
+            <label class="v-name"><input type="radio" name="namevote" value="confluxcon">confluxcon</label>
+            <label class="v-name"><input type="radio" name="namevote" value="fluxcon">fluxcon</label>
+          </div>
+          <p class="votetally" id="voteTally"></p>
+        </div>
+
+        <div class="fld">
           <label for="fLink">Your link <span class="opt">&mdash; shows on the guest wall</span></label>
           <input type="text" id="fLink" placeholder="yoursite.com">
         </div>
@@ -586,6 +601,7 @@ function adopt(payload) {
   $("tabConsole").hidden = !S.admin;
   $("whoName").textContent = NAME(S.me) + (S.admin ? " · host" : "");
   drawPlan(); drawWall(); drawSessions();
+  paintVote(false);                       // keep the mark honest as votes land
   if (S.admin) drawConsole();
 }
 
@@ -601,17 +617,71 @@ function toast(html) {
 
 /* ---------- the door ---------- */
 
-/* The "con" of conflux leaps the word and lands as the italic one — the name
-   explaining itself, once, on the way in. */
-function leap() {
-  const mark = $("dmark");
-  if (!mark || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const c1 = mark.querySelector(".c1"), c2 = mark.querySelector(".c2");
-  if (!c1 || !c2 || !mark.animate) return;
+/* ============================================================
+   THE WORDMARK
+   "conflux" arrives, then a con leaps off the front and lands
+   italic on the end — flux never moves. The con it left behind
+   then flickers down to whatever share of the vote still wants
+   confluxcon. Everyone picks fluxcon and it fades out of the
+   name; the mark ends up reading fluxcon on its own.
+   ============================================================ */
 
-  const a = c1.getBoundingClientRect(), b = c2.getBoundingClientRect(), box = mark.getBoundingClientRect();
+const VOTE_FLOOR = 0.12;                 // never quite gone — a trace stays
+
+function voteShare() {
+  if (!S || !S.guests) return { share: 1, yes: 0, total: 0 };
+  const cast = S.guests.map(g => g.namevote)
+                       .filter(v => v === "confluxcon" || v === "fluxcon");
+  const yes = cast.filter(v => v === "confluxcon").length;
+  // nobody has voted yet: the incumbent name stands at full strength
+  return { share: cast.length ? yes / cast.length : 1, yes, total: cast.length };
+}
+
+function paintVote(animate) {
+  const mark = $("mark");
+  if (!mark) return;
+  const c1 = mark.querySelector(".c1");
+  const { share, yes, total } = voteShare();
+  const target = Math.round((VOTE_FLOOR + (1 - VOTE_FLOOR) * share) * 100) / 100;
+
+  if (animate && mark.animate && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // a flicker, not a fade — the con guttering like a bulb before it settles
+    c1.animate([
+      { opacity: 1 }, { opacity: target * .35, offset:.18 }, { opacity: .92, offset:.30 },
+      { opacity: target * .5,  offset:.46 }, { opacity: .78, offset:.56 },
+      { opacity: target * .8,  offset:.72 }, { opacity: target }
+    ], { duration: 1100, easing: "ease-out", fill: "forwards" });
+  }
+  c1.style.opacity = target;
+
+  mark.title = total
+    ? `${yes} of ${total} want confluxcon`
+    : "Nobody has voted on the name yet";
+
+  const tally = $("voteTally");
+  if (tally) {
+    tally.textContent = total
+      ? `${yes} of ${total} so far want confluxcon. The con in the header up there fades as that slips.`
+      : "Nobody has voted yet. The con in the header up there fades as fluxcon gains.";
+  }
+}
+
+/* the leap: only the con moves */
+let leapt = false;
+function leap() {
+  const mark = $("mark");
+  if (!mark || leapt) return;
+  leapt = true;                            // one flourish per visit, whatever happens
+
+  const c1 = mark.querySelector(".c1"), c2 = mark.querySelector(".c2");
+  const canMove = mark.animate && c1 && c2 &&
+                  !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!canMove) { paintVote(false); return; }
+
+  const box = mark.getBoundingClientRect();
+  const a = c1.getBoundingClientRect(), b = c2.getBoundingClientRect();
   const dx = b.left - a.left;
-  if (dx <= 0) return;                       // wrapped or not laid out — leave it be
+  if (dx <= 0) { paintVote(false); return; }   // wrapped, or no layout to measure
 
   mark.classList.add("leaping");
   const ghost = document.createElement("span");
@@ -621,25 +691,23 @@ function leap() {
   ghost.style.top  = (a.top  - box.top)  + "px";
   mark.appendChild(ghost);
 
+  const D = 940, EASE = "cubic-bezier(.36,.92,.34,1)", WAIT = 380;
   const hop = ghost.animate([
     { transform:"translate(0,0) rotate(0deg)" },
-    { transform:`translate(${dx * .5}px,-.42em) rotate(-7deg)`, offset:.5 },
+    { transform:`translate(${dx * .52}px,-.44em) rotate(-8deg)`, offset:.52 },
     { transform:`translate(${dx}px,0) rotate(0deg)` }
-  ], { duration:900, easing:"cubic-bezier(.34,.9,.36,1)", fill:"forwards", delay:420 });
+  ], { duration:D, easing:EASE, delay:WAIT, fill:"forwards" });
 
-  setTimeout(() => ghost.classList.add("landed"), 420 + 470);
-  hop.finished.then(() => {
+  setTimeout(() => ghost.classList.add("landed"), WAIT + D * .5);
+
+  const settle = () => {
     c2.style.opacity = "1";
     ghost.remove();
     mark.classList.remove("leaping");
-  }).catch(() => {
-    c2.style.opacity = "1";
-    ghost.remove();
-    mark.classList.remove("leaping");
-  });
+    paintVote(true);                      // and now the one left behind dims
+  };
+  hop.finished.then(settle).catch(settle);
 }
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(leap);
-else addEventListener("load", leap);
 
 $("mapsTop").href = MAPS_URL;
 $("mapsBottom").href = MAPS_URL;
@@ -671,6 +739,8 @@ function enter(data) {
   $("site").hidden = false;
   adopt(data);
   fillForm();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(leap);
+  else setTimeout(leap, 60);
 }
 
 $("signOut").addEventListener("click", () => {
@@ -758,6 +828,8 @@ function fillForm() {
   }
   const pick = document.querySelector(`#fGoing input[value="${me.going || ""}"]`);
   if (pick) pick.checked = true;
+  const vote = document.querySelector(`#fName input[value="${me.namevote || ""}"]`);
+  if (vote) vote.checked = true;
   ["bMet","bAffil"].forEach(id => autosize($(id)));
   syncChips();
 }
@@ -775,6 +847,7 @@ function collect() {
     arrive:$("fArrive").value.trim(),link:  $("fLink").value.trim(),
     going: picked ? picked.value : "",
     prob:  $("fProbOut").textContent === "—" ? "" : +$("fProb").value,
+    namevote: (document.querySelector('#fName input:checked') || {}).value || "",
     sessions
   };
 }
@@ -800,6 +873,7 @@ async function flush() {
     S = data;                                   // adopt without stomping the open form
     $("whoName").textContent = NAME(S.me) + (S.admin ? " · host" : "");
     drawPlan(); drawWall(); drawSessions();
+    paintVote(true);                      // your own vote moves it immediately
     if (S.admin) drawConsole();
     setSaver("saved", "Saved just now");
     clearT = setTimeout(() => setSaver("idle", "Everything's saved"), 2800);
@@ -813,6 +887,7 @@ async function flush() {
 
 ["fArrive","fLink","bFirst","bLast","bMet","bAffil"]
   .forEach(id => $(id).addEventListener("input", touched));
+$("fName").addEventListener("change", touched);
 
 $("fGoing").addEventListener("change", e => {
   const rung = RUNGS.find(r => r.v === e.target.value);
@@ -912,6 +987,7 @@ let COLS = [
   { key:"arrive", label:"Arrives" },
   { key:"attend", label:"Wants to attend" },
   { key:"run",    label:"Would run" },
+  { key:"namevote", label:"Name" },
   { key:"pw",     label:"Password" },
   { key:"acts",   label:"" }
 ];
@@ -979,6 +1055,11 @@ function drawTable() {
       <td><input type="text" value="${esc(attendOf(g))}" readonly
                  aria-label="Wants to attend" title="What they picked on their own profile"></td>
       <td>${cell(g, "run", "—")}</td>
+      <td><select data-f="namevote" aria-label="Name vote, ${esc(NAME(g))}">
+        <option value=""${!g.namevote ? " selected" : ""}>—</option>
+        <option value="confluxcon"${g.namevote === "confluxcon" ? " selected" : ""}>confluxcon</option>
+        <option value="fluxcon"${g.namevote === "fluxcon" ? " selected" : ""}>fluxcon</option>
+      </select></td>
       <td>${cell(g, "password", "word", ' class="pwin"')}</td>
       <td class="acts">
         ${g.lane === "prospect"
@@ -1048,8 +1129,12 @@ $("tbody").addEventListener("change", async e => {
   const sel = e.target.closest("select[data-f]");
   if (!sel) return;
   const slug = sel.closest("tr").dataset.slug;
-  const rung = RUNGS.find(r => r.v === sel.value);
   try {
+    if (sel.dataset.f === "namevote") {
+      adopt(await api("admin", { op:"set", slug, field:"namevote", value: sel.value }));
+      return;
+    }
+    const rung = RUNGS.find(r => r.v === sel.value);
     await api("admin", { op:"set", slug, field:"going", value: sel.value });
     adopt(await api("admin", { op:"set", slug, field:"prob", value: rung ? rung.p : "" }));
   } catch (_) { toast("Couldn't save that."); }

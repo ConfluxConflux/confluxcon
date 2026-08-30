@@ -131,6 +131,20 @@ directly, which the site reads on every load.
     python3 build.py --links    # just the messages to send
     python3 build.py --report   # private headcount and arrival breakdown
 
+### The wordmark is the vote
+
+The header mark plays once per visit: a `con` leaps off the front of *conflux*
+and lands italic on the end — `flux` never moves. The `con` it left behind then
+flickers down to whatever share of the vote still wants **confluxcon** over
+**fluxcon**, floored at 0.12 so a trace always remains. Everyone picks fluxcon
+and it fades until the mark reads *fluxcon* by itself. Hovering it says who's
+winning. Guests vote on their Profile; you can override anyone in the Console's
+Name column.
+
+With no votes cast the incumbent stands at full strength. The reading is
+independent of the animation, so it still paints correctly under
+reduced-motion, or if the mark ever wraps.
+
 ### Rules the code enforces
 
 - **Passwords are unique.** One names a person, so the backend refuses a word

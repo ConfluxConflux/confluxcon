@@ -24,7 +24,7 @@ var GUESTS   = 'guests';
 var SESSIONS = 'sessions';
 
 var GCOLS = ['order','slug','first','last','password','admin','met','org','lane',
-             'going','prob','arrive','link','run','sessions','seen','updated'];
+             'going','prob','arrive','link','run','sessions','namevote','seen','updated'];
 var SCOLS = ['name','by','host'];
 
 /* ---------- sheet plumbing ------------------------------------------------ */
@@ -92,6 +92,7 @@ function publicCard_(g) {
     met: g.met, org: g.org, link: g.link,
     going: g.going, prob: g.prob === '' ? null : Number(g.prob),
     run: g.run, sessions: parseSessions_(g.sessions),
+    namevote: g.namevote || '',
     seen: g.seen === true || g.seen === 'yes'
   };
 }
@@ -166,7 +167,8 @@ function doPost(e) {
           met:    clean(p.met, 60),     org:    clean(p.org, 60),
           arrive: clean(p.arrive, 40),  link:   clean(p.link, 200),
           going:  ['yes','likely','maybe','no',''].indexOf(p.going) >= 0 ? p.going : me.going,
-          prob:   num(p.prob)
+          prob:   num(p.prob),
+          namevote: ['confluxcon','fluxcon',''].indexOf(p.namevote) >= 0 ? p.namevote : me.namevote
         };
         for (var k in fields) writeCell_(GUESTS, GCOLS, me._row, k, fields[k]);
         if (p.sessions) {
@@ -218,7 +220,7 @@ function doPost(e) {
           // 'pw' is accepted as an alias so an older page keeps working
           if (body.field === 'pw') body.field = 'password';
           var allowed = ['first','last','password','met','org','lane','going',
-                         'prob','arrive','link','run'];
+                         'prob','arrive','link','run','namevote'];
           if (allowed.indexOf(body.field) < 0) return json_({ ok: false, error: 'bad_field' });
 
           // A password names a person, so two guests may never share one.
@@ -256,7 +258,7 @@ function doPost(e) {
           if (!pw) pw = 'spare' + (all.length + 1);
           sh.appendRow([maxOrder + 1, slug, parts[0], parts.slice(1).join(' '), pw, '',
                         clean(body.met, 60), clean(body.org, 60), 'prospect',
-                        '', '', '', '', '', '{}', '', '']);
+                        '', '', '', '', '', '{}', '', '', '']);
         }
 
         if (body.op === 'move') {
@@ -303,7 +305,7 @@ function seed() {
   data.guests.forEach(function (g, i) {
     sh.appendRow([i + 1, g.slug, g.first, g.last, g.password, g.admin ? 'yes' : '',
                   g.met || '', g.org || '', g.lane || 'invited',
-                  '', '', '', g.link || '', '', '{}', '', '']);
+                  '', '', '', g.link || '', '', '{}', '', '', '']);
   });
   var ss = sheet_(SESSIONS, SCOLS);
   ss.clear();
