@@ -207,12 +207,17 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .brow{display:contents}
 .brow > *{margin:0}
 .bdiv{grid-column:1/-1;height:1px;background:var(--rule-soft);margin:.75rem 0 .55rem}
+@media (max-width:540px){
+  .badge .body{grid-template-columns:1fr;gap:0}
+  .blab{white-space:normal;margin-top:.55rem}
+  .brow.small .blab{margin-top:.45rem}
+}
 .blab{white-space:nowrap;font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;
   color:var(--ink-3);line-height:1.25}
-/* the arrow hangs outside the value column so the link keeps the shared centre */
 .linkwrap{position:relative;display:block;min-width:0}
-.linkwrap .blink{width:100%;text-transform:lowercase;letter-spacing:.01em;font-size:.82rem}
-.linkgo{position:absolute;left:100%;margin-left:.3rem;top:50%;transform:translateY(-50%);
+.linkwrap .blink{width:100%;text-transform:lowercase;letter-spacing:.01em;font-size:.82rem;
+  padding-left:1.3em;padding-right:1.3em}
+.linkgo{position:absolute;right:.1em;top:50%;transform:translateY(-50%);
   color:var(--teal);text-decoration:none;font-size:.85rem;line-height:1}
 .linkgo:hover{color:var(--teal-deep)}
 .brow.small{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2)}
@@ -445,7 +450,7 @@ footer a{color:rgba(240,252,248,.9)}
         <div class="ehero">
           <p class="eslogan">a farewell party to capture why Jacob fell in love with Berkeley</p>
           <p class="ewhen">Tuesday, September 8</p>
-          <a class="ewhere" id="mapsTop" target="_blank" rel="noopener">Lighthaven &middot; 2740 Telegraph Ave, Berkeley &nearr;</a>
+          <a class="ewhere" id="mapsTop" target="_blank" rel="noopener">Lighthaven &middot; Bayes {Ground, Median, Attic} &nearr;</a>
         </div>
 
         <section class="esec" id="whoSec">
@@ -455,7 +460,7 @@ footer a{color:rgba(240,252,248,.9)}
         </section>
 
         <section class="esec">
-          <h2>Planned so far</h2>
+          <h2>Possible opt-in activities</h2>
           <ul class="plan" id="planList"></ul>
           <button type="button" class="morebtn" id="moreBtn">More &rarr;</button>
         </section>
