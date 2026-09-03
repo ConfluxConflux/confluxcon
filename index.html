@@ -1085,6 +1085,7 @@ $("newSess").addEventListener("keydown", e => {
 let COLS = [
   { key:"ord",    label:"" },
   { key:"name",   label:"Guest" },
+  { key:"pw",     label:"Password" },
   { key:"tier",   label:"Tier" },
   { key:"met",    label:"Where we met" },
   { key:"org",    label:"Affiliation" },
@@ -1094,7 +1095,6 @@ let COLS = [
   { key:"attend", label:"Wants to attend" },
   { key:"run",    label:"Would run" },
   { key:"namevote", label:"Name" },
-  { key:"pw",     label:"Password" },
   { key:"acts",   label:"" }
 ];
 
@@ -1149,6 +1149,7 @@ function drawTable() {
         <button class="arrow" data-act="down" ${i === rows.length-1 ? "disabled" : ""} aria-label="Move down">&darr;</button>
       </td>
       <td>${cell(g, "name", "Full name", ' class="nmin"', NAME(g))}</td>
+      <td>${cell(g, "password", "word", ' class="pwin"')}</td>
       <td>${cell(g, "tier", "—", ' style="width:3em;text-align:center"', g.tier || "")}</td>
       <td>${cell(g, "met", "—")}</td>
       <td>${cell(g, "org", "—")}</td>
@@ -1167,7 +1168,6 @@ function drawTable() {
         <option value="confluxcon"${g.namevote === "confluxcon" ? " selected" : ""}>confluxcon</option>
         <option value="fluxcon"${g.namevote === "fluxcon" ? " selected" : ""}>fluxcon</option>
       </select></td>
-      <td>${cell(g, "password", "word", ' class="pwin"')}</td>
       <td class="acts">
         ${g.lane === "prospect"
           ? `<button class="mini go" data-act="invite">Invite</button>`
