@@ -191,21 +191,26 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .badge .hole{width:52px;height:9px;border-radius:999px;background:var(--paper);
   box-shadow:inset 0 1px 2px rgba(3,28,31,.45)}
 .badge .body{padding:1.5rem 1rem 1.2rem;text-align:center}
-.badge input{width:100%;text-align:center;border:0;background:transparent;color:inherit;font:inherit;
+.badge input{width:100%;text-align:left;border:0;background:transparent;color:inherit;font:inherit;
   letter-spacing:inherit;text-transform:inherit;padding:.06em .25em;border-radius:4px;
   transition:background .16s,box-shadow .16s}
 .badge input::placeholder{color:var(--ink-3);opacity:.7}
 .badge input:hover{background:var(--paper-2)}
 .badge input:focus{background:#fff;box-shadow:inset 0 0 0 1px var(--teal);outline:none}
 /* .badge input sets font:inherit, so these have to outrank it */
-.badge .bFirst{font-family:var(--display);font-size:2.4rem;font-weight:700;line-height:1.05;
+.badge .bFirst{font-family:var(--display);font-size:2rem;font-weight:700;line-height:1.1;
   letter-spacing:-.015em;color:var(--ink)}
-.badge .bLast{font-family:var(--display);font-size:1.6rem;font-weight:400;font-style:italic;
+.badge .bLast{font-family:var(--display);font-size:1.45rem;font-weight:400;font-style:italic;
   line-height:1.15;color:var(--ink)}
-.brow{display:grid;grid-template-columns:8.2em 1fr;align-items:center;gap:.55rem;
-  margin:0 0 .3rem;text-align:left}
-.blab{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+.brow{display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:.9rem;
+  margin:0 0 .35rem;text-align:left}
+.blab{white-space:nowrap;font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;
   color:var(--ink-3);line-height:1.25}
+.linkwrap{display:flex;align-items:baseline;gap:.35rem;min-width:0}
+.linkwrap .blink{flex:1;min-width:0;text-transform:lowercase;letter-spacing:.01em;
+  font-size:.82rem}
+.linkgo{flex:none;color:var(--teal);text-decoration:none;font-size:.9rem;line-height:1}
+.linkgo:hover{color:var(--teal-deep)}
 .brow.small{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2)}
 .brow.rule{margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--rule-soft)}
 
@@ -502,7 +507,11 @@ footer a{color:rgba(240,252,248,.9)}
             <p class="brow"><label class="blab" for="bLast">last name</label>
               <input class="bLast" id="bLast" maxlength="20" placeholder="Last"></p>
             <p class="brow small rule"><label class="blab" for="bLink">personal website / social media</label>
-              <input id="bLink" maxlength="200" placeholder="optional"></p>
+              <span class="linkwrap">
+                <input id="bLink" class="blink" maxlength="200" placeholder="optional">
+                <a id="bLinkGo" class="linkgo" target="_blank" rel="noopener" hidden
+                   title="Open it in a new tab">&nearr;</a>
+              </span></p>
             <p class="brow small"><label class="blab" for="bMet">where we met</label>
               <input id="bMet" maxlength="24" placeholder="optional"></p>
             <p class="brow small"><label class="blab" for="bAffil">current affiliation</label>
@@ -598,8 +607,11 @@ const BACKEND_URL = "https://conflux--a5831fa6a74411f1a2db1607ee4eb77e.web.val.r
 
 const MAPS_URL = "https://www.google.com/maps/place/Lighthaven/@37.8599609,-122.2621757,17z/data=!3m1!4b1!4m6!3m5!1s0x80857d0060538aed:0x80c35642ae135480!8m2!3d37.8599609!4d-122.2596008!16s%2Fg%2F11xrz9phmw";
 const PW_KEY = "confluxcon.pw";
-const HOURS  = [["3pm","15:00"],["4pm","16:00"],["5pm","17:00"],["6pm","18:00"],
-                ["7pm","19:00"],["8pm","20:00"],["9pm","21:00"],["10pm","22:00"]];
+/* 11am through 1am the next morning, on the hour */
+const HOURS  = Array.from({ length: 15 }, (_, i) => {
+  const h = (11 + i) % 24;
+  return [((h % 12) || 12) + (h < 12 ? "am" : "pm"), String(h).padStart(2, "0") + ":00"];
+});
 
 /* The field is a time input now, so anything typed in the old free-text days
    ("3pm", "late") has to be read forward or dropped. */
@@ -932,12 +944,16 @@ function drawPlan() {
   }).join("") || `<li><span class="empty">Nothing planned yet.</span></li>`;
 }
 
+const hrefOf = v => {
+  const t = String(v || "").trim();
+  return t ? (/^[a-z][a-z0-9+.-]*:\/\//i.test(t) ? t : "https://" + t) : "";
+};
+
 function drawWall() {
   const going = S.guests.filter(x => x.going && x.going !== "no");
   $("wall").innerHTML = going.map(x => {
     const full = esc(NAME(x));
-    const href = x.link
-      ? (/^[a-z][a-z0-9+.-]*:\/\//i.test(x.link) ? x.link : "https://" + x.link) : "";
+    const href = hrefOf(x.link);
     return `<div class="wcard${x.slug === S.slug ? " me" : ""}">
       <div class="whead">
         <span class="wn">${href
@@ -963,6 +979,7 @@ function fillForm() {
   $("bMet").value    = me.met    || "";
   $("bAffil").value  = me.org    || "";
   $("bLink").value   = me.link   || "";
+  syncLink();
   $("fNote").value   = me.note   || "";
   $("fMsg").value    = me.msg    || "";
   $("fArrive").value = toTime(me.arrive);
@@ -1033,6 +1050,14 @@ async function flush() {
 
 ["bFirst","bLast","bMet","bAffil","bLink","fNote","fMsg","fArrive"]
   .forEach(id => $(id).addEventListener("input", touched));
+
+/* the arrow only offers itself once there is something to open */
+function syncLink() {
+  const h = hrefOf($("bLink").value);
+  $("bLinkGo").hidden = !h;
+  if (h) $("bLinkGo").href = h;
+}
+$("bLink").addEventListener("input", syncLink);
 $("fName").addEventListener("change", touched);
 
 $("fGoing").addEventListener("change", e => {
