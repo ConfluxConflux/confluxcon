@@ -72,7 +72,8 @@ body{
 .pwform button:hover:not([disabled]){background:#ffe9c2;transform:translateY(-1px)}
 .pwform button[disabled]{opacity:.55;cursor:wait}
 .derr{color:#ffd4cd;font-size:.95rem;min-height:1.5em;margin:1rem 0 0}
-.dhint{margin:2.4rem 0 0;font-size:.92rem;color:rgba(240,252,248,.72);font-style:italic;line-height:1.55}
+.doorslot{display:grid;align-items:center;justify-items:stretch;min-height:2.5rem}
+.dhint{margin:0;font-size:.92rem;color:rgba(240,252,248,.72);font-style:italic;line-height:1.55}
 
 /* ---------- signed in ---------- */
 .top{padding:5vh 0 2.4vh;text-align:center;color:#fdfaf3}
@@ -381,11 +382,12 @@ footer a{color:rgba(240,252,248,.9)}
     <form class="pwform" id="pwForm" autocomplete="off">
       <input id="pwInput" type="password" placeholder="your password"
              aria-label="Your password" spellcheck="false" autocapitalize="none">
-      <button type="submit" id="pwGo">Let me in</button>
+      <div class="doorslot">
+        <button type="submit" id="pwGo" hidden>Let me in</button>
+        <p class="dhint" id="pwHint">text Jacob if you're confused</p>
+      </div>
     </form>
     <p class="derr" id="pwErr" role="status"></p>
-    <p class="dhint">Jacob theoretically sent you a password. Check your messages with
-      him; if you can't find it, ask him.</p>
   </div>
 </div>
 
@@ -585,11 +587,22 @@ let LANE = "invited";
 /* ---------- talking to the sheet ---------- */
 
 async function api(action, extra = {}) {
-  const res = await fetch(BACKEND_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },   // stays preflight-free
-    body: JSON.stringify(Object.assign({ action, password: PW }, extra))
-  });
+  // Without a deadline a blocked request just hangs and the door looks dead.
+  const stop = new AbortController();
+  const bell = setTimeout(() => stop.abort(), 12000);
+  let res;
+  try {
+    res = await fetch(BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },   // stays preflight-free
+      body: JSON.stringify(Object.assign({ action, password: PW }, extra)),
+      signal: stop.signal
+    });
+  } catch (e) {
+    throw new Error(e.name === "AbortError" ? "timeout" : "unreachable");
+  } finally {
+    clearTimeout(bell);
+  }
   if (!res.ok) throw new Error("http_" + res.status);
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || "refused");
@@ -713,6 +726,18 @@ $("mapsTop").href = MAPS_URL;
 $("mapsBottom").href = MAPS_URL;
 if (!BACKEND_URL) { $("setup").hidden = false; $("pwForm").hidden = true; }
 
+/* The button only exists once there's something to send; until then the slot
+   holds the hint instead, so the card never changes height. */
+function doorSlot() {
+  const typed = $("pwInput").value.trim().length > 0;
+  $("pwGo").hidden = !typed;
+  $("pwHint").hidden = typed;
+}
+$("pwInput").addEventListener("input", doorSlot);
+$("pwInput").addEventListener("change", doorSlot);   // password managers
+addEventListener("pageshow", doorSlot);                 // back/forward restore
+doorSlot();
+
 $("pwForm").addEventListener("submit", async e => {
   e.preventDefault();
   const tried = $("pwInput").value.trim();
@@ -726,9 +751,12 @@ $("pwForm").addEventListener("submit", async e => {
     enter(data);
   } catch (err) {
     PW = "";
-    $("pwErr").textContent = String(err.message).includes("bad_password")
-      ? "That's not a password on the list. Check Jacob's message."
-      : "Couldn't reach the server. Try again in a moment.";
+    const why = String(err.message);
+    $("pwErr").textContent =
+      why.includes("bad_password") ? "That's not a password on the list. Check Jacob's message." :
+      why.includes("timeout")      ? "The server didn't answer. A VPN or content blocker may be eating it." :
+      why.includes("unreachable")  ? "Couldn't reach the server — check your connection, VPN, or blocker." :
+                                     "Something went wrong. Try again in a moment.";
   } finally {
     $("pwGo").disabled = false;
   }
