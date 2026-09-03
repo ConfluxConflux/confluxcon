@@ -35,6 +35,9 @@
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
 }
 *{box-sizing:border-box}
+/* Author rules outrank the UA sheet, so .door{display:flex} was quietly beating
+   [hidden] and leaving the door painted over a signed-in page. */
+[hidden]{display:none!important}
 html{scroll-behavior:smooth}
 body{
   margin:0;font-family:var(--body);font-size:18px;line-height:1.6;color:var(--ink);
@@ -752,11 +755,17 @@ $("pwForm").addEventListener("submit", async e => {
   } catch (err) {
     PW = "";
     const why = String(err.message);
-    $("pwErr").textContent =
-      why.includes("bad_password") ? "That's not a password on the list. Check Jacob's message." :
-      why.includes("timeout")      ? "The server didn't answer. A VPN or content blocker may be eating it." :
-      why.includes("unreachable")  ? "Couldn't reach the server — check your connection, VPN, or blocker." :
-                                     "Something went wrong. Try again in a moment.";
+    if (why.includes("bad_password")) {
+      // No scolding. The slot just goes back to the hint until they retype.
+      $("pwErr").textContent = "";
+      $("pwGo").hidden = true;
+      $("pwHint").hidden = false;
+    } else {
+      $("pwErr").textContent =
+        why.includes("timeout")     ? "The server didn't answer. A VPN or content blocker may be eating it." :
+        why.includes("unreachable") ? "Couldn't reach the server — check your connection, VPN, or blocker." :
+                                      "Something went wrong. Try again in a moment.";
+    }
   } finally {
     $("pwGo").disabled = false;
   }
