@@ -289,7 +289,14 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .bigbox:focus{background:#fff;border-color:var(--teal);outline:none}
 .wnote{display:block;margin:.35rem 0 0;font-size:.86rem;line-height:1.4;
   color:var(--ink-2);font-style:italic}
-.paynote{font-size:.95rem;line-height:1.55;color:var(--ink-2);margin:0 0 1rem;max-width:46ch}
+.payhead{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.payhead .donate{margin-top:0}
+.paynote{font-size:.95rem;line-height:1.55;color:var(--ink-2);margin:.7rem 0 1rem;max-width:46ch}
+.paybox{display:flex;align-items:center;gap:.4rem}
+.paybox .dollar{font-family:var(--mono);font-size:1.05rem;color:var(--ink-3)}
+.paybox input{width:7em;font-family:var(--mono);font-size:1.05rem;color:var(--ink);
+  background:var(--paper-2);border:1px solid var(--rule);border-radius:6px;padding:.5rem .6rem}
+.paybox input:focus{background:#fff;border-color:var(--teal);outline:none}
 .deadnote{font-size:.92rem;color:var(--ink-3);font-style:italic;margin:2rem 0 0;
   padding-top:1.2rem;border-top:1px solid var(--rule-soft)}
 
@@ -568,17 +575,24 @@ footer a{color:rgba(240,252,248,.9)}
         </div>
 
         <div class="fld">
-          <label for="fMsg">Leave a comment for me</label>
-          <textarea id="fMsg" class="bigbox" rows="6" maxlength="2000"
-                    placeholder="only I see this"></textarea>
-        </div>
-
-        <div class="fld">
-          <label id="lblPay">Willingness to pay</label>
+          <div class="payhead">
+            <label for="fPay" id="lblPay">Willingness to pay</label>
+            <a class="donate" href="https://venmo.com/jacobcohen4761" target="_blank" rel="noopener">Donate</a>
+          </div>
           <p class="paynote">The event is free, but if you want to chip in to defray costs,
             that would be appreciated! For context, this event is more expensive for me than
             other events I've run because Lighthaven is charging me $30/person.</p>
-          <a class="donate" href="https://venmo.com/jacobcohen4761" target="_blank" rel="noopener">Donate</a>
+          <div class="paybox">
+            <span class="dollar" aria-hidden="true">$</span>
+            <input type="number" id="fPay" min="0" step="5" inputmode="decimal"
+                   placeholder="0" aria-label="Willingness to pay, in dollars">
+          </div>
+        </div>
+
+        <div class="fld">
+          <label for="fMsg">Leave a comment for me</label>
+          <textarea id="fMsg" class="bigbox" rows="6" maxlength="2000"
+                    placeholder="only I see this"></textarea>
         </div>
 
         <p class="deadnote">No submit button. Change your mind on the day and just come back here.</p>
@@ -1003,6 +1017,7 @@ function fillForm() {
   syncLink();
   $("fNote").value   = me.note   || "";
   $("fMsg").value    = me.msg    || "";
+  $("fPay").value    = me.pay    || "";
   $("fArrive").value = toTime(me.arrive);
   if (me.prob == null) {
     $("fProbOut").textContent = "—";
@@ -1029,6 +1044,7 @@ function collect() {
     met:   $("bMet").value.trim(),   org:   $("bAffil").value.trim(),
     arrive:$("fArrive").value.trim(),link:  $("bLink").value.trim(),
     note:  $("fNote").value.trim(),   msg:   $("fMsg").value,
+    pay:   $("fPay").value.trim(),
     going: picked ? picked.value : "",
     prob:  $("fProbOut").textContent === "—" ? "" : +$("fProb").value,
     namevote: (document.querySelector('#fName input:checked') || {}).value || "",
@@ -1069,7 +1085,7 @@ async function flush() {
   }
 }
 
-["bFirst","bLast","bMet","bAffil","bLink","fNote","fMsg","fArrive"]
+["bFirst","bLast","bMet","bAffil","bLink","fNote","fMsg","fPay","fArrive"]
   .forEach(id => $(id).addEventListener("input", touched));
 
 /* the arrow only offers itself once there is something to open */
@@ -1202,6 +1218,7 @@ let COLS = [
   { key:"run",    label:"Would run" },
   { key:"note",   label:"Public comment" },
   { key:"msg",    label:"For you" },
+  { key:"pay",    label:"Would pay" },
   { key:"namevote", label:"Name" },
   { key:"acts",   label:"" }
 ];
@@ -1273,6 +1290,7 @@ function drawTable() {
       <td>${cell(g, "run", "—")}</td>
       <td>${cell(g, "note", "—", "", g.note || "")}</td>
       <td>${cell(g, "msg", "—", "", g.msg || "")}</td>
+      <td>${cell(g, "pay", "—", ' style="width:5em"', g.pay || "")}</td>
       <td><select data-f="namevote" aria-label="Name vote, ${esc(NAME(g))}">
         <option value=""${!g.namevote ? " selected" : ""}>—</option>
         <option value="confluxcon"${g.namevote === "confluxcon" ? " selected" : ""}>confluxcon</option>
