@@ -1081,6 +1081,25 @@ $("fGoing").addEventListener("change", e => {
   if (rung) { $("fProb").value = rung.p; $("fProbOut").textContent = rung.p + "%"; }
   touched();
 });
+
+/* Clicking the answer you already gave takes it back — the only way out of an
+   RSVP, since a radio group otherwise has no off. `change` never fires for
+   that, so the state has to be read before the click lands. */
+let goingWas = null;
+$("fGoing").addEventListener("mousedown", e => {
+  const lab = e.target.closest("label");
+  const r = lab && lab.querySelector('input[name="going"]');
+  goingWas = r && r.checked ? r.value : null;
+});
+$("fGoing").addEventListener("click", e => {
+  const r = e.target.closest('input[name="going"]');
+  if (!r || goingWas !== r.value) return;
+  r.checked = false;
+  goingWas = null;
+  $("fProb").value = 50;
+  $("fProbOut").textContent = "\u2014";
+  touched();
+});
 $("fProb").addEventListener("input", () => {
   const n = +$("fProb").value;
   $("fProbOut").textContent = n + "%";
