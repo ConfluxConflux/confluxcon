@@ -921,7 +921,7 @@ function drawPlan() {
 }
 
 function drawWall() {
-  const going = S.guests.filter(x => x.seen && x.going !== "no");
+  const going = S.guests.filter(x => x.going && x.going !== "no");
   $("wall").innerHTML = going.map(x => {
     const full = esc(NAME(x));
     const href = x.link
@@ -934,7 +934,7 @@ function drawWall() {
       </div>
     </div>`;
   }).join("") || `<p class="empty">Nobody has filled theirs in yet.</p>`;
-  $("rsvpBtn").hidden = !!(S.me && S.me.seen);   // only while yours is missing
+  $("rsvpBtn").hidden = !!(S.me && S.me.going);   // only while yours is missing
 }
 
 /* ---------- the profile ---------- */
@@ -1131,7 +1131,7 @@ function drawConsole() { drawStats(); drawTable(); }
 function drawStats() {
   const inv = S.roster.filter(g => g.lane === "invited");
   const pro = S.roster.filter(g => g.lane === "prospect");
-  const answered = inv.filter(g => g.seen);
+  const answered = inv.filter(g => g.going);
   const expected = inv.reduce((n, g) => n + (g.prob == null ? 0 : g.prob / 100), 0);
   const runners  = inv.filter(g => (g.run || "").trim()).length;
   $("stats").innerHTML = [
