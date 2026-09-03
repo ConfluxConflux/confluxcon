@@ -268,6 +268,14 @@ export default async function (req: Request): Promise<Response> {
         });
       }
 
+      if (body.op === "remove") {
+        const g = all.find(x => x.slug === body.slug);
+        if (!g) return json({ ok: false, error: "no_guest" });
+        if (g.slug === slug) return json({ ok: false, error: "cannot_remove_self" });
+        if (isYes(g.admin)) return json({ ok: false, error: "cannot_remove_admin" });
+        await sqlite.execute({ sql: `DELETE FROM ${G} WHERE slug = ?`, args: [g.slug] });
+      }
+
       if (body.op === "move") {
         const lane = all.filter(x => (x.lane || "invited") === body.lane)
                         .sort((a, b) => (Number(a.ord) || 0) - (Number(b.ord) || 0));
