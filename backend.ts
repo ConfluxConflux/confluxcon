@@ -17,7 +17,8 @@ const G = "confluxcon_guests_v1";
 const S = "confluxcon_sessions_v1";
 
 const GCOLS = ["ord","slug","first","last","password","admin","met","org","lane","tier",
-               "going","prob","arrive","link","run","sessions","namevote","seen","updated"];
+               "going","prob","arrive","link","run","sessions","namevote","note","msg",
+               "seen","updated"];
 
 const WORDS = ("bellwether cinder driftwood ember fathom girder hearth ingot jetty keystone " +
   "lodestar mantle nectar obelisk parapet quiver rampart sextant tallow undertow vellum " +
@@ -32,9 +33,11 @@ async function init() {
     ord INTEGER, slug TEXT PRIMARY KEY, first TEXT, last TEXT, password TEXT,
     admin TEXT, met TEXT, org TEXT, lane TEXT, tier TEXT, going TEXT, prob TEXT,
     arrive TEXT, link TEXT, run TEXT, sessions TEXT, namevote TEXT,
-    seen TEXT, updated TEXT)`);
-  // A table made before tiers existed won't have the column above.
-  try { await sqlite.execute(`ALTER TABLE ${G} ADD COLUMN tier TEXT`); } catch (_) {}
+    note TEXT, msg TEXT, seen TEXT, updated TEXT)`);
+  // Older tables predate these columns; adding one that exists throws, harmlessly.
+  for (const col of ["tier", "note", "msg"]) {
+    try { await sqlite.execute(`ALTER TABLE ${G} ADD COLUMN ${col} TEXT`); } catch (_) {}
+  }
   await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${S} (
     name TEXT PRIMARY KEY, by TEXT, host TEXT)`);
 }
@@ -59,6 +62,11 @@ async function setField(slug: string, col: string, value: any) {
 const clean = (v: any, max = 300) =>
   String(v == null ? "" : v).replace(/[\r\n\t]+/g, " ").trim().slice(0, max);
 
+/** Same, but a message to the host is allowed its paragraphs. */
+const cleanLines = (v: any, max = 2000) =>
+  String(v == null ? "" : v).replace(/\r/g, "").replace(/\t/g, " ")
+    .replace(/\n{3,}/g, "\n\n").trim().slice(0, max);
+
 const num = (v: any) => {
   if (v === "" || v == null) return "";
   const n = Math.round(Number(v));
@@ -81,6 +89,7 @@ function publicCard(g: any) {
     going: g.going, prob: g.prob === "" ? null : Number(g.prob),
     run: g.run, sessions: parseSessions(g.sessions),
     namevote: g.namevote || "",
+    note: g.note || "",
     seen: isYes(g.seen),
   };
 }
@@ -91,6 +100,7 @@ function adminRow(g: any) {
   c.password = g.password;
   c.lane = g.lane || "invited";
   c.tier = g.tier == null ? "" : String(g.tier);
+  c.msg = g.msg || "";                 // never leaves adminRow
   c.arrive = g.arrive;
   c.order = Number(g.ord) || 0;
   c.admin = isYes(g.admin);
@@ -157,8 +167,8 @@ export default async function (req: Request): Promise<Response> {
     for (const [i, g] of data.guests.entries()) {
       await sqlite.execute({
         sql: `INSERT INTO ${G} (ord,slug,first,last,password,admin,met,org,lane,tier,
-              going,prob,arrive,link,run,sessions,namevote,seen,updated)
-              VALUES (?,?,?,?,?,?,?,?,?,?,'','','',?,'','{}','','','')`,
+              going,prob,arrive,link,run,sessions,namevote,note,msg,seen,updated)
+              VALUES (?,?,?,?,?,?,?,?,?,?,'','','',?,'','{}','','','','','')`,
         args: [i + 1, g.slug, g.first, g.last, g.password, g.admin ? "yes" : "",
                g.met || "", g.org || "", g.lane || "invited",
                String(g.tier ?? ""), g.link || ""],
@@ -194,6 +204,8 @@ export default async function (req: Request): Promise<Response> {
         going: ["yes", "likely", "maybe", "no", ""].includes(p.going) ? p.going : me0.going,
         prob: num(p.prob),
         namevote: ["confluxcon", "fluxcon", ""].includes(p.namevote) ? p.namevote : me0.namevote,
+        note: clean(p.note, 140),
+        msg: cleanLines(p.msg, 2000),
       };
       for (const k in fields) await setField(slug, k, fields[k]);
       if (p.sessions) await setField(slug, "sessions", JSON.stringify(p.sessions).slice(0, 4000));
@@ -236,7 +248,7 @@ export default async function (req: Request): Promise<Response> {
         if (!g) return json({ ok: false, error: "no_guest" });
         let field = body.field === "pw" ? "password" : body.field;
         const allowed = ["first","last","password","met","org","lane","tier","going",
-                         "prob","arrive","link","run","namevote"];
+                         "prob","arrive","link","run","namevote","note","msg"];
         if (!allowed.includes(field)) return json({ ok: false, error: "bad_field" });
 
         // A password names a person, so two guests may never share one.
@@ -265,8 +277,8 @@ export default async function (req: Request): Promise<Response> {
         const pw = WORDS.find(w => !pwTaken.has(w)) || "spare" + (all.length + 1);
         await sqlite.execute({
           sql: `INSERT INTO ${G} (ord,slug,first,last,password,admin,met,org,lane,tier,
-                going,prob,arrive,link,run,sessions,namevote,seen,updated)
-                VALUES (?,?,?,?,?,'',?,?,'prospect',?,'','','','','{}','','','')`,
+                going,prob,arrive,link,run,sessions,namevote,note,msg,seen,updated)
+                VALUES (?,?,?,?,?,'',?,?,'prospect',?,'','','','','{}','','','','','')`,
           args: [maxOrder + 1, s, parts[0], parts.slice(1).join(" "), pw,
                  clean(body.met, 60), clean(body.org, 60), clean(body.tier, 4)],
         });

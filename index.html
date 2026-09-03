@@ -202,15 +202,12 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   letter-spacing:-.015em;color:var(--ink)}
 .badge .bLast{font-family:var(--display);font-size:1.6rem;font-weight:400;font-style:italic;
   line-height:1.15;color:var(--ink)}
-.brow{display:grid;grid-template-columns:5.4em 1fr;align-items:center;gap:.5rem;
+.brow{display:grid;grid-template-columns:8.2em 1fr;align-items:center;gap:.55rem;
   margin:0 0 .3rem;text-align:left}
 .blab{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
   color:var(--ink-3);line-height:1.25}
-.bMeta{display:flex;flex-direction:column;align-items:stretch;gap:.3rem;
-  margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--rule-soft);
-  font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2)}
-.blink{margin:.85rem 0 0}
-.blink input{font-size:.68rem;letter-spacing:.04em;text-transform:none;color:var(--ink-2)}
+.brow.small{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2)}
+.brow.rule{margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--rule-soft)}
 
 .fld{margin-bottom:1.7rem;max-width:560px}
 .fld>label{display:block;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
@@ -272,6 +269,12 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   padding:.6em 1.35em;border-radius:999px;border:1px solid var(--teal);background:#fff;color:var(--teal);
   cursor:pointer;margin-left:auto;transition:background .18s,color .18s}
 .adder button:hover{background:var(--teal);color:var(--paper)}
+.bigbox{width:100%;font-family:var(--body);font-size:1rem;line-height:1.5;color:var(--ink);
+  background:var(--paper-2);border:1px solid var(--rule);border-radius:6px;padding:.7rem .8rem;
+  resize:vertical;min-height:7em}
+.bigbox:focus{background:#fff;border-color:var(--teal);outline:none}
+.wnote{display:block;margin:.35rem 0 0;font-size:.86rem;line-height:1.4;
+  color:var(--ink-2);font-style:italic}
 .deadnote{font-size:.92rem;color:var(--ink-3);font-style:italic;margin:2rem 0 0;
   padding-top:1.2rem;border-top:1px solid var(--rule-soft)}
 
@@ -469,28 +472,10 @@ footer a{color:rgba(240,252,248,.9)}
           <span class="pip"></span><span id="saverText">Everything's saved</span>
         </div>
 
-        <p class="pubnote">This information is
+        <p class="pubnote">This information may be
           <a href="#wall" id="pubLink">public to all attendees</a>.</p>
 
         <h2>RSVP to conflux<em>con</em></h2>
-
-        <div class="badge">
-          <div class="clip" aria-hidden="true"><span class="hole"></span></div>
-          <div class="body">
-            <p class="brow"><label class="blab" for="bFirst">first name</label>
-              <input class="bFirst" id="bFirst" maxlength="18" placeholder="First"></p>
-            <p class="brow"><label class="blab" for="bLast">last name</label>
-              <input class="bLast" id="bLast" maxlength="20" placeholder="Last"></p>
-            <p class="bMeta">
-              <input id="bMet" maxlength="24" placeholder="where we met" aria-label="Where we met">
-              <input id="bAffil" maxlength="24" placeholder="these days" aria-label="These days">
-            </p>
-            <p class="blink">
-              <input id="bLink" maxlength="200" aria-label="Your link"
-                     placeholder="link to personal website / social media page (optional)">
-            </p>
-          </div>
-        </div>
 
         <div class="fld">
           <label id="lblGoing">Are you coming?</label>
@@ -507,6 +492,27 @@ footer a{color:rgba(240,252,248,.9)}
               <span class="pct" id="fProbOut">&mdash;</span>
             </div>
           </div>
+        </div>
+
+        <div class="badge">
+          <div class="clip" aria-hidden="true"><span class="hole"></span></div>
+          <div class="body">
+            <p class="brow"><label class="blab" for="bFirst">first name</label>
+              <input class="bFirst" id="bFirst" maxlength="18" placeholder="First"></p>
+            <p class="brow"><label class="blab" for="bLast">last name</label>
+              <input class="bLast" id="bLast" maxlength="20" placeholder="Last"></p>
+            <p class="brow small rule"><label class="blab" for="bLink">personal website / social media</label>
+              <input id="bLink" maxlength="200" placeholder="optional"></p>
+            <p class="brow small"><label class="blab" for="bMet">where we met</label>
+              <input id="bMet" maxlength="24" placeholder="optional"></p>
+            <p class="brow small"><label class="blab" for="bAffil">current affiliation</label>
+              <input id="bAffil" maxlength="24" placeholder="optional"></p>
+          </div>
+        </div>
+
+        <div class="fld">
+          <label for="fNote">Leave a comment for other attendees to see</label>
+          <input type="text" id="fNote" maxlength="140" placeholder="optional">
         </div>
 
         <div class="fld">
@@ -537,6 +543,12 @@ footer a{color:rgba(240,252,248,.9)}
             <label class="v-name"><input type="radio" name="namevote" value="fluxcon">fluxcon</label>
           </div>
           <p class="votetally" id="voteTally"></p>
+        </div>
+
+        <div class="fld">
+          <label for="fMsg">Leave a comment for me</label>
+          <textarea id="fMsg" class="bigbox" rows="6" maxlength="2000"
+                    placeholder="only I see this"></textarea>
         </div>
 
         <p class="deadnote">No submit button. Change your mind on the day and just come back here.</p>
@@ -932,6 +944,7 @@ function drawWall() {
           ? `<a href="${esc(href)}" target="_blank" rel="noopener">${full}</a>` : full}</span>
         ${x.prob == null ? "" : `<span class="wprob ${nearestRung(x.prob).v}">${x.prob}%</span>`}
       </div>
+      ${x.note ? `<span class="wnote">${esc(x.note)}</span>` : ""}
     </div>`;
   }).join("") || `<p class="empty">Nobody has filled theirs in yet.</p>`;
   $("rsvpBtn").hidden = !!(S.me && S.me.going);   // only while yours is missing
@@ -950,6 +963,8 @@ function fillForm() {
   $("bMet").value    = me.met    || "";
   $("bAffil").value  = me.org    || "";
   $("bLink").value   = me.link   || "";
+  $("fNote").value   = me.note   || "";
+  $("fMsg").value    = me.msg    || "";
   $("fArrive").value = toTime(me.arrive);
   if (me.prob == null) {
     $("fProbOut").textContent = "—";
@@ -975,6 +990,7 @@ function collect() {
     first: $("bFirst").value.trim(), last:  $("bLast").value.trim(),
     met:   $("bMet").value.trim(),   org:   $("bAffil").value.trim(),
     arrive:$("fArrive").value.trim(),link:  $("bLink").value.trim(),
+    note:  $("fNote").value.trim(),   msg:   $("fMsg").value,
     going: picked ? picked.value : "",
     prob:  $("fProbOut").textContent === "—" ? "" : +$("fProb").value,
     namevote: (document.querySelector('#fName input:checked') || {}).value || "",
@@ -1015,7 +1031,7 @@ async function flush() {
   }
 }
 
-["bFirst","bLast","bMet","bAffil","bLink","fArrive"]
+["bFirst","bLast","bMet","bAffil","bLink","fNote","fMsg","fArrive"]
   .forEach(id => $(id).addEventListener("input", touched));
 $("fName").addEventListener("change", touched);
 
@@ -1119,6 +1135,8 @@ let COLS = [
   { key:"arrive", label:"Arrives" },
   { key:"attend", label:"Wants to attend" },
   { key:"run",    label:"Would run" },
+  { key:"note",   label:"Public comment" },
+  { key:"msg",    label:"For you" },
   { key:"namevote", label:"Name" },
   { key:"acts",   label:"" }
 ];
@@ -1188,6 +1206,8 @@ function drawTable() {
       <td><input type="text" value="${esc(attendOf(g))}" readonly
                  aria-label="Wants to attend" title="What they picked on their own profile"></td>
       <td>${cell(g, "run", "—")}</td>
+      <td>${cell(g, "note", "—", "", g.note || "")}</td>
+      <td>${cell(g, "msg", "—", "", g.msg || "")}</td>
       <td><select data-f="namevote" aria-label="Name vote, ${esc(NAME(g))}">
         <option value=""${!g.namevote ? " selected" : ""}>—</option>
         <option value="confluxcon"${g.namevote === "confluxcon" ? " selected" : ""}>confluxcon</option>
