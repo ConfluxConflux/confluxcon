@@ -672,6 +672,16 @@ const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g,
   c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const NAME = x => `${x.first || ""} ${x.last || ""}`.trim();
 
+/* Sessions record only a first name, and the seeded ones record nothing at all
+   — those are the host's. Resolve to a full name where the roster makes it
+   unambiguous, so every activity can say who is running it. */
+const HOST_NAME = "Jacob Cohen";
+function runBy(s) {
+  if (!s.by) return HOST_NAME;
+  const hits = (S.guests || []).filter(g => g.first === s.by);
+  return hits.length === 1 ? NAME(hits[0]) : s.by;
+}
+
 let PW = "";      // this browser's password
 let S  = null;    // the latest payload from the sheet
 let LANE = "invited";
@@ -972,9 +982,8 @@ const interestIn = name =>
 function drawPlan() {
   $("planList").innerHTML = S.sessions.map(r => {
     const n = interestIn(r.name);
-    const credit = r.by ? (r.host ? `${r.by} is running it` : `${r.by} suggested it`) : "";
     return `<li><span class="tick" aria-hidden="true">&#9670;</span>
-      <span>${esc(r.name)}${credit ? ` <span class="by">&mdash; ${esc(credit)}</span>` : ""}</span>
+      <span>${esc(r.name)} <span class="by">&mdash; run by ${esc(runBy(r))}</span></span>
       ${n ? `<span class="interest">${n} in</span>` : ""}</li>`;
   }).join("") || `<li><span class="empty">Nothing planned yet.</span></li>`;
 }
@@ -1153,13 +1162,10 @@ function drawSessions() {
   $("fSessions").innerHTML = S.sessions.map((s, i) => {
     const want = mine[s.name] || "";
     const isMine = s.by && s.by === S.me.first;
-    const credit = !s.by ? ""
-      : isMine ? (s.host ? "You'd run it" : "Yours")
-               : (s.host ? `${s.by} is running it` : `${s.by} suggested it`);
     return `<div class="sessrow">
       <p class="snm">
         <span>${esc(s.name)}</span>
-        ${credit ? `<span class="${isMine ? "runs" : "by"}">${esc(credit)}</span>` : ""}
+        <span class="by">&mdash; run by ${esc(runBy(s))}</span>
         ${isMine || S.admin ? `<button type="button" class="drop" data-drop="${esc(s.name)}"
                  aria-label="Remove ${esc(s.name)}">&times;</button>` : ""}
       </p>
