@@ -741,12 +741,59 @@ $("mapsTop").href = MAPS_URL;
 $("mapsBottom").href = MAPS_URL;
 if (!BACKEND_URL) { $("setup").hidden = false; $("pwForm").hidden = true; }
 
-/* The button only exists once there's something to send; until then the slot
-   holds the hint instead, so the card never changes height. */
+/* The button appears only for a password the backend actually recognises, so we
+   ask it as they type. Verdicts are cached, and a correct one keeps the payload
+   so pressing the button doesn't make the round trip twice.
+
+   If the backend can't be reached we show the button anyway — better a real
+   error on submit than a door with no way through. */
+const VERDICT = new Map();   // typed word -> "yes" | "no"
+const READY   = new Map();   // typed word -> the auth payload we already fetched
+let probeSeq = 0, probeTimer = null;
+
+function showButton(on) {
+  $("pwGo").hidden = !on;
+  $("pwHint").classList.toggle("gone", on);      // stays in flow, holds the height
+}
+
+async function probe(pw) {
+  if (VERDICT.has(pw)) return VERDICT.get(pw);
+  const stop = new AbortController();
+  const bell = setTimeout(() => stop.abort(), 8000);
+  try {
+    const res = await fetch(BACKEND_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "auth", password: pw }),
+      signal: stop.signal
+    });
+    const data = await res.json();
+    const verdict = data.ok ? "yes" : data.error === "bad_password" ? "no" : "unknown";
+    if (verdict !== "unknown") VERDICT.set(pw, verdict);
+    if (data.ok) READY.set(pw, data);
+    return verdict;
+  } catch (_) {
+    return "unknown";
+  } finally {
+    clearTimeout(bell);
+  }
+}
+
 function doorSlot() {
-  const typed = $("pwInput").value.trim().length > 0;
-  $("pwGo").hidden = !typed;
-  $("pwHint").classList.toggle("gone", typed);   // stays in flow, holds the height
+  const typed = $("pwInput").value.trim();
+  clearTimeout(probeTimer);
+  const seq = ++probeSeq;
+  if (!typed) { showButton(false); return; }
+
+  const known = VERDICT.get(typed);
+  if (known) { showButton(known === "yes"); return; }
+
+  showButton(false);                             // hint stands until we hear back
+  probeTimer = setTimeout(async () => {
+    const verdict = await probe(typed);
+    if (seq !== probeSeq || $("pwInput").value.trim() !== typed) return;
+    showButton(verdict !== "no");
+  }, 320);
 }
 
 /* The two hints trade places while the door is up. */
@@ -770,7 +817,7 @@ $("pwForm").addEventListener("submit", async e => {
   $("pwErr").textContent = "";
   try {
     PW = tried;
-    const data = await api("auth");
+    const data = READY.get(tried) || await api("auth");
     try { localStorage.setItem(PW_KEY, PW); } catch (_) {}
     enter(data);
   } catch (err) {
@@ -779,8 +826,8 @@ $("pwForm").addEventListener("submit", async e => {
     if (why.includes("bad_password")) {
       // No scolding. The slot just goes back to the hint until they retype.
       $("pwErr").textContent = "";
-      $("pwGo").hidden = true;
-      $("pwHint").classList.remove("gone");
+      VERDICT.set(tried, "no");
+      showButton(false);
     } else {
       $("pwErr").textContent =
         why.includes("timeout")     ? "The server didn't answer. A VPN or content blocker may be eating it." :
