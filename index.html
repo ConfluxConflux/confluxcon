@@ -641,7 +641,7 @@ const toTime = v => {
   return String(h).padStart(2, "0") + ":" + (ampm[2] || "00");
 };
 const RUNGS  = [
-  { v:"no",     p:5,  coming:"Can't",      sess:"Probably not" },
+  { v:"no",     p:10, coming:"Can't",      sess:"Probably not" },
   { v:"maybe",  p:40, coming:"Maybe",      sess:"Maybe" },
   { v:"likely", p:75, coming:"Probably",   sess:"Probably" },
   { v:"yes",    p:95, coming:"Definitely", sess:"Definitely" }
