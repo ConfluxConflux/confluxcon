@@ -6,7 +6,7 @@ confluxcon — turn guests.csv into the site's public data.
   python3 build.py --numbers   # pull the open Numbers document down into guests.csv first
   python3 build.py --links     # just print the invite links
   python3 build.py --report    # private headcount / arrival report (never published)
-  python3 build.py --seed      # JSON to paste into the Apps Script backend, once
+  python3 build.py --seed URL  # load guests into the Val Town backend, once
 
 Numbers never writes back to a .csv — opening one makes a separate Numbers
 document, and saving writes a .numbers file. So either edit guests.csv in a
@@ -309,9 +309,9 @@ def pull_profiles():
 
 # ---------- seed for the backend --------------------------------------------
 
-def build_seed(sheet):
-    """A JSON blob to paste into SEED_JSON in apps-script.gs. Holds passwords,
-    so it is written locally and gitignored — never committed."""
+def build_seed(sheet, url=None):
+    """The guest list, for loading into the backend once. Holds passwords, so it
+    is written locally and gitignored — never committed. With a URL, POSTs it."""
     slugs, guests = set(), []
     for r in sorted(sheet.rows, key=lambda r: sheet.get(r, "name").lower()):
         name = sheet.get(r, "name")
@@ -334,8 +334,26 @@ def build_seed(sheet):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(blob, f, ensure_ascii=False, indent=1)
     print(f"\n  wrote data/seed.json — {len(guests)} guests, {len(blob['sessions'])} sessions")
-    print("  Paste its contents between the backticks of SEED_JSON in")
-    print("  apps-script.gs (in the Apps Script editor, not the repo), then run seed().")
+
+    if not url:
+        print("  Pass the backend URL to load it:  python3 build.py --seed <url>")
+        return
+
+    body = json.dumps({"action": "seed", "data": blob}).encode("utf-8")
+    req = urllib.request.Request(url, data=body,
+                                 headers={"Content-Type": "text/plain;charset=utf-8"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            out = json.load(r)
+    except Exception as e:
+        print(f"  backend refused: {e}")
+        return
+    if out.get("ok"):
+        print(f"  seeded {out.get('seeded')} guests, {out.get('sessions')} sessions")
+    elif out.get("error") == "already_seeded":
+        print("  already seeded — the backend has data; refusing to wipe it")
+    else:
+        print(f"  backend said: {out.get('error')}")
 
 
 # ---------- Numbers ---------------------------------------------------------
@@ -396,7 +414,8 @@ def main():
     fill_passwords(sheet)
 
     if "--seed" in args:
-        build_seed(sheet)
+        urls = [a for a in args if a.startswith("http")]
+        build_seed(sheet, urls[0] if urls else None)
         return
     if "--report" in args:
         report(sheet)

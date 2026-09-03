@@ -83,9 +83,10 @@ DNS lives at Namecheap. The apex needs GitHub's four A records:
     185.199.110.153
     185.199.111.153
 
-and `www` a CNAME to `confluxconflux.github.io`. Once those resolve, turn on
-**Enforce HTTPS** in the repo's Pages settings — the certificate can't be issued
-before the domain points at GitHub.
+and `www` a CNAME to `confluxconflux.github.io`, and nothing else on the apex.
+Once those resolve, turn on **Enforce HTTPS** in the repo's Pages settings — the
+certificate can't be issued before the domain points at GitHub, and won't issue
+at all if any other record answers for the apex.
 
 ---
 
@@ -98,38 +99,57 @@ nothing else for a guest to remember. What you text is one line:
     confluxcon.com — your password is neutrality
 
 Signed in, a guest gets two tabs (**Event** and **Profile**); you get a third,
-**Console**. Everything anyone types saves itself to a Google Sheet as they go.
+**Console**. Everything anyone types saves itself to the backend as they go.
 There is no submit button anywhere.
 
-### The two things only you can do
+### The backend
 
-**1. Deploy the backend.** `apps-script.gs` has the steps at the top: new Google
-Sheet ▸ Extensions ▸ Apps Script ▸ paste ▸ paste the output of
-`python3 build.py --seed` into `SEED_JSON` ▸ run `seed()` ▸ Deploy as a web app
-("Execute as: Me", "Who has access: Anyone") ▸ copy the `/exec` URL into
-`BACKEND_URL` at the top of `index.html`'s script ▸ commit and push.
+`backend.ts` runs on [Val Town](https://val.town): sign in with GitHub, New ▸
+HTTP val, paste the file, copy the val's URL. Then load the guest list into it,
+once:
 
-Until that URL is filled in, the door shows a setup notice instead of the
-password field and nobody can sign in.
+    python3 build.py --seed https://<your-val>.web.val.run
 
-**2. Fix HTTPS.** DNS now points at GitHub, but `confluxcon.com` still has a
-stale Namecheap A record — `162.255.119.130` — alongside the four GitHub ones.
-GitHub will not issue a certificate while it is there, so the site is HTTP-only
-and browsers warn on the password field. Delete that one A record, leave
-`185.199.108–111.153`, wait for the certificate, then tick **Enforce HTTPS** in
-the repo's Pages settings.
+Seeding is self-locking — it works while the table is empty, and afterwards
+demands the admin password and an explicit `force`, so a stray request can't
+wipe live RSVPs.
 
-### After that, the sheet is the database
+Put that same URL in `BACKEND_URL` at the top of `index.html`'s script, then
+commit and push. Until it is filled in, the door shows a setup notice instead
+of the password field and nobody can sign in.
+
+It used to run on Google Apps Script. That died on Google's Advanced Protection
+Program, which blocks unverified apps — including your own — from touching your
+account, with no way through short of OAuth review. Val Town needs no consent
+screen at all.
+
+### HTTPS
+
+The apex used to carry a stale Namecheap **URL Redirect Record** — an apex-to-www
+forward, served from `162.255.119.130` — alongside GitHub's four A records.
+GitHub will not issue a certificate while a fifth address answers for the apex.
+It was deleted on 2026-09-02 and DNS is clean. If the certificate has still not
+issued, clear the custom domain in the repo's Pages settings and re-enter it to
+force a retry, then tick **Enforce HTTPS**.
+
+Note that a URL Redirect Record hides behind **SHOW MORE** in Namecheap's host
+records table, and is not listed as an A record even though it publishes one.
+
+### After that, the backend is the database
 
 `guests.csv` and `build.py` are only for seeding and for working offline. Once
-the backend is live, edit people in the Console — or in the Google Sheet
-directly, which the site reads on every load.
+the backend is live, add and edit people in the **Console** tab — a new guest
+gets a slug and an unused password word, and can sign in immediately. Nothing
+needs a redeploy, and `--seed` must never run again.
 
     python3 build.py            # fill blank passwords, rebuild data/, print the texts
     python3 build.py --numbers  # pull the open Numbers document down into guests.csv
-    python3 build.py --seed     # the JSON to paste into the backend, once
+    python3 build.py --seed URL # load the guest list into the backend, once
     python3 build.py --links    # just the messages to send
     python3 build.py --report   # private headcount and arrival breakdown
+
+`guests.csv` goes stale the moment you add someone in the Console, so `--links`
+only knows the people it seeded. Read a later guest's password off the Console.
 
 ### The wordmark is the vote
 

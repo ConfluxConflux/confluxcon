@@ -373,8 +373,8 @@ footer a{color:rgba(240,252,248,.9)}
 
     <div class="setup" id="setup" hidden>
       <h3>Not connected yet</h3>
-      Deploy <code>apps-script.gs</code> as a Google Apps Script web app and put its
-      <code>/exec</code> URL into <code>BACKEND_URL</code> in <code>index.html</code>.
+      Paste <code>backend.ts</code> into a Val Town HTTP val and put the val's URL
+      into <code>BACKEND_URL</code> in <code>index.html</code>.
       Until then nobody can sign in. The steps are at the top of that file.
     </div>
 
@@ -556,7 +556,7 @@ footer a{color:rgba(240,252,248,.9)}
 <script>
 /* ============================================================
    1. THE ONE THING TO FILL IN
-   The /exec URL of the Apps Script web app. See apps-script.gs.
+   The URL of the Val Town backend. See backend.ts.
    ============================================================ */
 const BACKEND_URL = "";
 
