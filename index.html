@@ -159,7 +159,6 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .wcard .wo{display:none;font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;
   color:var(--ink-3);line-height:1.3;overflow-wrap:anywhere}
 @container (min-width:430px){ .wcard .wo{display:block} }
-.wallnote{font-size:.9rem;color:var(--ink-3);font-style:italic;margin:1rem 0 0}
 .prose{max-width:64ch;font-size:1.05rem;line-height:1.62}
 .prose p{margin:0 0 1.1rem}
 .prose p:last-child{margin-bottom:0}
@@ -182,6 +181,9 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 @keyframes pulse{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.saver .pip{animation:none}}
 
+.pubnote{margin:0 0 1.4rem;font-size:.92rem;color:var(--ink-3);font-style:italic}
+.pubnote a{color:var(--teal);text-decoration:underline;text-underline-offset:2px}
+.pubnote a:hover{color:var(--teal-deep)}
 .badge{background:linear-gradient(#fff,#fdfaf3);border:1px solid var(--rule);border-radius:9px;
   overflow:hidden;box-shadow:0 10px 26px rgba(3,28,31,.14);max-width:420px}
 .badge .clip{height:32px;display:flex;align-items:center;justify-content:center;
@@ -195,18 +197,20 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .badge input::placeholder{color:var(--ink-3);opacity:.7}
 .badge input:hover{background:var(--paper-2)}
 .badge input:focus{background:#fff;box-shadow:inset 0 0 0 1px var(--teal);outline:none}
-.bFirst{font-family:var(--display);font-size:2.75rem;font-weight:700;line-height:1.02;
+/* .badge input sets font:inherit, so these have to outrank it */
+.badge .bFirst{font-family:var(--display);font-size:2.4rem;font-weight:700;line-height:1.05;
   letter-spacing:-.015em;color:var(--ink)}
-.bLast{font-family:var(--display);font-size:1.75rem;font-weight:400;font-style:italic;
-  line-height:1.12;color:var(--ink)}
-.bMeta{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:.15em .5em;
+.badge .bLast{font-family:var(--display);font-size:1.6rem;font-weight:400;font-style:italic;
+  line-height:1.15;color:var(--ink)}
+.brow{display:grid;grid-template-columns:5.4em 1fr;align-items:center;gap:.5rem;
+  margin:0 0 .3rem;text-align:left}
+.blab{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-3);line-height:1.25}
+.bMeta{display:flex;flex-direction:column;align-items:stretch;gap:.3rem;
   margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--rule-soft);
   font-size:.75rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2)}
-.bMeta .dot{color:var(--gold-deep);flex:none;font-size:1.2em;line-height:1}
-.bMeta input{width:auto;max-width:100%;text-align:center}
-.badge .foot{margin:1rem 0 0;font-family:var(--display);font-size:.9rem;color:var(--gold-deep)}
-.badge .foot em{font-style:italic;font-weight:700}
-.badgehint{font-size:.9rem;color:var(--ink-3);font-style:italic;margin:.75rem 0 2.2rem;max-width:420px}
+.blink{margin:.85rem 0 0}
+.blink input{font-size:.68rem;letter-spacing:.04em;text-transform:none;color:var(--ink-2)}
 
 .fld{margin-bottom:1.7rem;max-width:560px}
 .fld>label{display:block;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
@@ -418,7 +422,7 @@ footer a{color:rgba(240,252,248,.9)}
   <div class="wrap">
     <nav class="tabs" role="tablist">
       <button role="tab" id="tabEvent"   aria-selected="true"  aria-controls="pEvent">Event</button>
-      <button role="tab" id="tabProfile" aria-selected="false" aria-controls="pProfile">Profile</button>
+      <button role="tab" id="tabProfile" aria-selected="false" aria-controls="pProfile">RSVP</button>
       <button role="tab" id="tabConsole" aria-selected="false" aria-controls="pConsole" hidden>Console</button>
     </nav>
 
@@ -431,16 +435,16 @@ footer a{color:rgba(240,252,248,.9)}
           <a class="ewhere" id="mapsTop" target="_blank" rel="noopener">Lighthaven &middot; 2740 Telegraph Ave, Berkeley &nearr;</a>
         </div>
 
+        <section class="esec" id="whoSec">
+          <h2>RSVPs so far</h2>
+          <div class="wall" id="wall"></div>
+          <button type="button" class="morebtn" id="rsvpBtn" hidden>RSVP</button>
+        </section>
+
         <section class="esec">
           <h2>Planned so far</h2>
           <ul class="plan" id="planList"></ul>
           <button type="button" class="morebtn" id="moreBtn">More &rarr;</button>
-        </section>
-
-        <section class="esec">
-          <h2>Who's coming</h2>
-          <div class="wall" id="wall"></div>
-          <p class="wallnote" id="wallNote"></p>
         </section>
 
         <section class="esec">
@@ -465,25 +469,31 @@ footer a{color:rgba(240,252,248,.9)}
           <span class="pip"></span><span id="saverText">Everything's saved</span>
         </div>
 
-        <div class="badge">
-          <div class="clip" aria-hidden="true"><span class="hole"></span></div>
-          <div class="body">
-            <input class="bFirst" id="bFirst" maxlength="18" placeholder="First" aria-label="Badge first name">
-            <input class="bLast"  id="bLast"  maxlength="20" placeholder="Last"  aria-label="Badge last name">
-            <p class="bMeta">
-              <input id="bMet" maxlength="24" placeholder="where we met" aria-label="Badge, where we met">
-              <span class="dot" aria-hidden="true">&bull;</span>
-              <input id="bAffil" maxlength="24" placeholder="these days" aria-label="Badge, current affiliation">
-            </p>
-            <p class="foot">conflux<em>con</em></p>
-          </div>
-        </div>
-        <p class="badgehint">Tap any line to change it. This is what gets printed.</p>
+        <p class="pubnote">This information is
+          <a href="#wall" id="pubLink">public to all attendees</a>.</p>
 
         <h2>RSVP to conflux<em>con</em></h2>
 
+        <div class="badge">
+          <div class="clip" aria-hidden="true"><span class="hole"></span></div>
+          <div class="body">
+            <p class="brow"><label class="blab" for="bFirst">first name</label>
+              <input class="bFirst" id="bFirst" maxlength="18" placeholder="First"></p>
+            <p class="brow"><label class="blab" for="bLast">last name</label>
+              <input class="bLast" id="bLast" maxlength="20" placeholder="Last"></p>
+            <p class="bMeta">
+              <input id="bMet" maxlength="24" placeholder="where we met" aria-label="Where we met">
+              <input id="bAffil" maxlength="24" placeholder="these days" aria-label="These days">
+            </p>
+            <p class="blink">
+              <input id="bLink" maxlength="200" aria-label="Your link"
+                     placeholder="link to personal website / social media page (optional)">
+            </p>
+          </div>
+        </div>
+
         <div class="fld">
-          <label id="lblGoing">Are you coming? <span class="opt">&mdash; optional, like everything here</span></label>
+          <label id="lblGoing">Are you coming?</label>
           <div class="seg" id="fGoing" role="radiogroup" aria-labelledby="lblGoing">
             <label class="v-no"><input type="radio" name="going" value="no">Can't</label>
             <label class="v-maybe"><input type="radio" name="going" value="maybe">Maybe</label>
@@ -501,7 +511,7 @@ footer a{color:rgba(240,252,248,.9)}
 
         <div class="fld">
           <label for="fArrive">Median time of arrival</label>
-          <input type="text" id="fArrive" placeholder="any time you like">
+          <input type="time" id="fArrive" aria-label="Median time of arrival">
           <div class="chips" id="hourChips"></div>
           <div class="venue">
             <p class="vwhen">Tuesday, September 8 &middot; 3&ndash;11 PM</p>
@@ -527,11 +537,6 @@ footer a{color:rgba(240,252,248,.9)}
             <label class="v-name"><input type="radio" name="namevote" value="fluxcon">fluxcon</label>
           </div>
           <p class="votetally" id="voteTally"></p>
-        </div>
-
-        <div class="fld">
-          <label for="fLink">Your link <span class="opt">&mdash; shows on the guest wall</span></label>
-          <input type="text" id="fLink" placeholder="yoursite.com">
         </div>
 
         <p class="deadnote">No submit button. Change your mind on the day and just come back here.</p>
@@ -581,7 +586,20 @@ const BACKEND_URL = "https://conflux--a5831fa6a74411f1a2db1607ee4eb77e.web.val.r
 
 const MAPS_URL = "https://www.google.com/maps/place/Lighthaven/@37.8599609,-122.2621757,17z/data=!3m1!4b1!4m6!3m5!1s0x80857d0060538aed:0x80c35642ae135480!8m2!3d37.8599609!4d-122.2596008!16s%2Fg%2F11xrz9phmw";
 const PW_KEY = "confluxcon.pw";
-const HOURS  = ["3pm","4pm","5pm","6pm","7pm","8pm","9pm","late"];
+const HOURS  = [["3pm","15:00"],["4pm","16:00"],["5pm","17:00"],["6pm","18:00"],
+                ["7pm","19:00"],["8pm","20:00"],["9pm","21:00"],["10pm","22:00"]];
+
+/* The field is a time input now, so anything typed in the old free-text days
+   ("3pm", "late") has to be read forward or dropped. */
+const toTime = v => {
+  const s = String(v || "").trim().toLowerCase();
+  const hhmm = s.match(/^(\d{1,2}):(\d{2})$/);
+  if (hhmm) return String(hhmm[1]).padStart(2, "0") + ":" + hhmm[2];
+  const ampm = s.match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)$/);
+  if (!ampm) return "";
+  const h = (+ampm[1] % 12) + (ampm[3] === "pm" ? 12 : 0);
+  return String(h).padStart(2, "0") + ":" + (ampm[2] || "00");
+};
 const RUNGS  = [
   { v:"no",     p:5,  coming:"Can't",      sess:"Probably not" },
   { v:"maybe",  p:40, coming:"Maybe",      sess:"Maybe" },
@@ -689,8 +707,8 @@ function paintVote(animate) {
   const tally = $("voteTally");
   if (tally) {
     tally.textContent = total
-      ? `${yes} of ${total} so far want confluxcon. The con in the header up there fades as that slips.`
-      : "Nobody has voted yet. The con in the header up there fades as fluxcon gains.";
+      ? `${yes} of ${total} so far want confluxcon.`
+      : "Nobody has voted yet.";
   }
 }
 
@@ -844,6 +862,7 @@ function enter(data) {
   $("site").hidden = false;
   adopt(data);
   fillForm();
+  showTab(data.admin ? "console" : "profile");   // the host has a console to run
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(leap);
   else setTimeout(leap, 60);
 }
@@ -866,6 +885,17 @@ function showTab(which) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 Object.keys(TABS).forEach(k => $(TABS[k]).addEventListener("click", () => showTab(k)));
+
+$("pubLink").addEventListener("click", e => {
+  e.preventDefault();
+  showTab("event");
+  setTimeout(() => {
+    const t = $("whoSec");
+    if (t.scrollIntoView) t.scrollIntoView({ behavior:"smooth", block:"start" });
+  }, 90);
+});
+
+$("rsvpBtn").addEventListener("click", () => showTab("profile"));
 
 $("moreBtn").addEventListener("click", () => {
   showTab("profile");
@@ -902,12 +932,9 @@ function drawWall() {
           ? `<a href="${esc(href)}" target="_blank" rel="noopener">${full}</a>` : full}</span>
         ${x.prob == null ? "" : `<span class="wprob ${nearestRung(x.prob).v}">${x.prob}%</span>`}
       </div>
-      ${x.met || x.org
-        ? `<span class="wo">${esc([x.met, x.org].filter(Boolean).join(" · "))}</span>` : ""}
     </div>`;
   }).join("") || `<p class="empty">Nobody has filled theirs in yet.</p>`;
-  const yet = S.guests.filter(x => !x.seen).length;
-  $("wallNote").textContent = yet ? `${yet} more haven't filled theirs in yet.` : "";
+  $("rsvpBtn").hidden = !!(S.me && S.me.seen);   // only while yours is missing
 }
 
 /* ---------- the profile ---------- */
@@ -915,7 +942,6 @@ function drawWall() {
 function autosize(el) {
   el.size = Math.max(4, Math.min(el.maxLength || 30, (el.value || "").length + 1));
 }
-["bMet","bAffil"].forEach(id => $(id).addEventListener("input", () => autosize($(id))));
 
 function fillForm() {
   const me = S.me;
@@ -923,8 +949,8 @@ function fillForm() {
   $("bLast").value   = me.last   || "";
   $("bMet").value    = me.met    || "";
   $("bAffil").value  = me.org    || "";
-  $("fArrive").value = me.arrive || "";
-  $("fLink").value   = me.link   || "";
+  $("bLink").value   = me.link   || "";
+  $("fArrive").value = toTime(me.arrive);
   if (me.prob == null) {
     $("fProbOut").textContent = "—";
   } else {
@@ -935,7 +961,6 @@ function fillForm() {
   if (pick) pick.checked = true;
   const vote = document.querySelector(`#fName input[value="${me.namevote || ""}"]`);
   if (vote) vote.checked = true;
-  ["bMet","bAffil"].forEach(id => autosize($(id)));
   syncChips();
 }
 
@@ -949,7 +974,7 @@ function collect() {
   return {
     first: $("bFirst").value.trim(), last:  $("bLast").value.trim(),
     met:   $("bMet").value.trim(),   org:   $("bAffil").value.trim(),
-    arrive:$("fArrive").value.trim(),link:  $("fLink").value.trim(),
+    arrive:$("fArrive").value.trim(),link:  $("bLink").value.trim(),
     going: picked ? picked.value : "",
     prob:  $("fProbOut").textContent === "—" ? "" : +$("fProb").value,
     namevote: (document.querySelector('#fName input:checked') || {}).value || "",
@@ -990,7 +1015,7 @@ async function flush() {
   }
 }
 
-["fArrive","fLink","bFirst","bLast","bMet","bAffil"]
+["bFirst","bLast","bMet","bAffil","bLink","fArrive"]
   .forEach(id => $(id).addEventListener("input", touched));
 $("fName").addEventListener("change", touched);
 
@@ -1008,10 +1033,10 @@ $("fProb").addEventListener("input", () => {
 $("fProb").addEventListener("change", touched);
 
 /* the presets are a shortcut; any time you type is kept */
-$("hourChips").innerHTML = HOURS.map(h =>
-  `<button type="button" class="chip" data-h="${h}" aria-pressed="false">${h}</button>`).join("");
+$("hourChips").innerHTML = HOURS.map(([label, at]) =>
+  `<button type="button" class="chip" data-h="${at}" aria-pressed="false">${label}</button>`).join("");
 function syncChips() {
-  const v = $("fArrive").value.trim().toLowerCase();
+  const v = $("fArrive").value.trim();
   $("hourChips").querySelectorAll(".chip").forEach(c =>
     c.setAttribute("aria-pressed", String(c.dataset.h === v)));
 }
