@@ -75,8 +75,16 @@ body{
 .pwform button:hover:not([disabled]){background:#ffe9c2;transform:translateY(-1px)}
 .pwform button[disabled]{opacity:.55;cursor:wait}
 .derr{color:#ffd4cd;font-size:.95rem;min-height:1.5em;margin:1rem 0 0}
+/* Button and hints share one grid cell, so the slot is always as tall as the
+   longest line and nothing shifts — not when you type, not when they trade. */
 .doorslot{display:grid;align-items:center;justify-items:stretch;min-height:2.5rem}
-.dhint{margin:0;font-size:.92rem;color:rgba(240,252,248,.72);font-style:italic;line-height:1.55}
+.doorslot > *{grid-area:1/1}
+.dhints{display:grid;justify-items:center}
+.dhints.gone{visibility:hidden}
+.dhint{grid-area:1/1;margin:0;font-size:.92rem;color:rgba(240,252,248,.72);
+  font-style:italic;line-height:1.55;opacity:0;transition:opacity .55s ease}
+.dhint.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.dhint{transition:none}}
 
 /* ---------- signed in ---------- */
 .top{padding:5vh 0 2.4vh;text-align:center;color:#fdfaf3}
@@ -387,7 +395,11 @@ footer a{color:rgba(240,252,248,.9)}
              aria-label="Your password" spellcheck="false" autocapitalize="none">
       <div class="doorslot">
         <button type="submit" id="pwGo" hidden>Let me in</button>
-        <p class="dhint" id="pwHint">text Jacob if you're confused</p>
+        <div class="dhints" id="pwHint">
+          <p class="dhint on">text Jacob if you're confused</p>
+          <p class="dhint">your password is not a puzzle and may have been generated
+            with a minimal amount of thought</p>
+        </div>
       </div>
     </form>
     <p class="derr" id="pwErr" role="status"></p>
@@ -734,8 +746,17 @@ if (!BACKEND_URL) { $("setup").hidden = false; $("pwForm").hidden = true; }
 function doorSlot() {
   const typed = $("pwInput").value.trim().length > 0;
   $("pwGo").hidden = !typed;
-  $("pwHint").hidden = typed;
+  $("pwHint").classList.toggle("gone", typed);   // stays in flow, holds the height
 }
+
+/* The two hints trade places while the door is up. */
+setInterval(function () {
+  if ($("door").hidden) return;
+  const lines = $("pwHint").children;
+  const at = [...lines].findIndex(p => p.classList.contains("on"));
+  lines[at].classList.remove("on");
+  lines[(at + 1) % lines.length].classList.add("on");
+}, 4500);
 $("pwInput").addEventListener("input", doorSlot);
 $("pwInput").addEventListener("change", doorSlot);   // password managers
 addEventListener("pageshow", doorSlot);                 // back/forward restore
@@ -759,7 +780,7 @@ $("pwForm").addEventListener("submit", async e => {
       // No scolding. The slot just goes back to the hint until they retype.
       $("pwErr").textContent = "";
       $("pwGo").hidden = true;
-      $("pwHint").hidden = false;
+      $("pwHint").classList.remove("gone");
     } else {
       $("pwErr").textContent =
         why.includes("timeout")     ? "The server didn't answer. A VPN or content blocker may be eating it." :
