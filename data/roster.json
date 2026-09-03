@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-30T21:31:50+00:00",
+ "generated": "2026-09-03T20:20:46+00:00",
  "guests": {
   "alex": {
    "extras": {},
@@ -25,10 +25,26 @@
    "met": "",
    "org": ""
   },
+  "andrew": {
+   "extras": {},
+   "first": "Andrew",
+   "last": "Imbens",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
   "ariana": {
    "extras": {},
    "first": "Ariana",
    "last": "Azarbal",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "atharva": {
+   "extras": {},
+   "first": "Atharva",
+   "last": "Nihalani",
    "link": "",
    "met": "",
    "org": ""
@@ -41,10 +57,42 @@
    "met": "Proof School",
    "org": "UC Berkeley"
   },
+  "carolanne": {
+   "extras": {},
+   "first": "Carolanne",
+   "last": "Jiang",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "celeste": {
+   "extras": {},
+   "first": "Celeste",
+   "last": "Li",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
   "dylan": {
    "extras": {},
    "first": "Dylan",
    "last": "Ventura",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "ember": {
+   "extras": {},
+   "first": "Ember",
+   "last": "Charette",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "harry": {
+   "extras": {},
+   "first": "Harry",
+   "last": "Waterman",
    "link": "",
    "met": "",
    "org": ""
@@ -81,10 +129,34 @@
    "met": "Birth",
    "org": "SAGA"
   },
+  "jasmine": {
+   "extras": {},
+   "first": "Jasmine",
+   "last": "Li",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
   "jo": {
    "extras": {},
    "first": "Jo",
    "last": "Jiao",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "juliana": {
+   "extras": {},
+   "first": "Juliana",
+   "last": "Eberschlag",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "kaelan": {
+   "extras": {},
+   "first": "Kaelan",
+   "last": "Yim",
    "link": "",
    "met": "",
    "org": ""
@@ -113,6 +185,14 @@
    "met": "",
    "org": ""
   },
+  "mikail": {
+   "extras": {},
+   "first": "Mikail",
+   "last": "Khaishgi",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
   "miles": {
    "extras": {},
    "first": "Miles",
@@ -121,10 +201,58 @@
    "met": "",
    "org": ""
   },
+  "noah": {
+   "extras": {},
+   "first": "Noah",
+   "last": "Birnbaum",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "pi": {
+   "extras": {},
+   "first": "Pi",
+   "last": "Rogers",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "rohan": {
+   "extras": {},
+   "first": "Rohan",
+   "last": "Lingam",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "saul": {
+   "extras": {},
+   "first": "Saul",
+   "last": "Munn",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "stuti": {
+   "extras": {},
+   "first": "Stuti",
+   "last": "Desai",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "thomas": {
+   "extras": {},
+   "first": "Thomas",
+   "last": "Rodskog",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
   "tol": {
    "extras": {},
    "first": "Tol",
-   "last": "Waskan",
+   "last": "Wassman",
    "link": "",
    "met": "",
    "org": ""
@@ -133,6 +261,22 @@
    "extras": {},
    "first": "Verda",
    "last": "Korzeniewski",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "vivek": {
+   "extras": {},
+   "first": "Vivek",
+   "last": "Hebbar",
+   "link": "",
+   "met": "",
+   "org": ""
+  },
+  "yilin": {
+   "extras": {},
+   "first": "Yilin",
+   "last": "Huang",
    "link": "",
    "met": "",
    "org": ""

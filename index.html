@@ -1038,6 +1038,7 @@ $("newSess").addEventListener("keydown", e => {
 let COLS = [
   { key:"ord",    label:"" },
   { key:"name",   label:"Guest" },
+  { key:"tier",   label:"Tier" },
   { key:"met",    label:"Where we met" },
   { key:"org",    label:"Affiliation" },
   { key:"going",  label:"Coming?" },
@@ -1101,6 +1102,7 @@ function drawTable() {
         <button class="arrow" data-act="down" ${i === rows.length-1 ? "disabled" : ""} aria-label="Move down">&darr;</button>
       </td>
       <td>${cell(g, "name", "Full name", ' class="nmin"', NAME(g))}</td>
+      <td>${cell(g, "tier", "—", ' style="width:3em;text-align:center"', g.tier || "")}</td>
       <td>${cell(g, "met", "—")}</td>
       <td>${cell(g, "org", "—")}</td>
       <td><select data-f="going" class="going ${g.going || "idle"}" aria-label="Coming, ${esc(NAME(g))}">

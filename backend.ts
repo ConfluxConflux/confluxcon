@@ -16,7 +16,7 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 const G = "confluxcon_guests_v1";
 const S = "confluxcon_sessions_v1";
 
-const GCOLS = ["ord","slug","first","last","password","admin","met","org","lane",
+const GCOLS = ["ord","slug","first","last","password","admin","met","org","lane","tier",
                "going","prob","arrive","link","run","sessions","namevote","seen","updated"];
 
 const WORDS = ("bellwether cinder driftwood ember fathom girder hearth ingot jetty keystone " +
@@ -30,9 +30,11 @@ const WORDS = ("bellwether cinder driftwood ember fathom girder hearth ingot jet
 async function init() {
   await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${G} (
     ord INTEGER, slug TEXT PRIMARY KEY, first TEXT, last TEXT, password TEXT,
-    admin TEXT, met TEXT, org TEXT, lane TEXT, going TEXT, prob TEXT,
+    admin TEXT, met TEXT, org TEXT, lane TEXT, tier TEXT, going TEXT, prob TEXT,
     arrive TEXT, link TEXT, run TEXT, sessions TEXT, namevote TEXT,
     seen TEXT, updated TEXT)`);
+  // A table made before tiers existed won't have the column above.
+  try { await sqlite.execute(`ALTER TABLE ${G} ADD COLUMN tier TEXT`); } catch (_) {}
   await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${S} (
     name TEXT PRIMARY KEY, by TEXT, host TEXT)`);
 }
@@ -88,6 +90,7 @@ function adminRow(g: any) {
   const c: any = publicCard(g);
   c.password = g.password;
   c.lane = g.lane || "invited";
+  c.tier = g.tier == null ? "" : String(g.tier);
   c.arrive = g.arrive;
   c.order = Number(g.ord) || 0;
   c.admin = isYes(g.admin);
@@ -153,11 +156,12 @@ export default async function (req: Request): Promise<Response> {
     await sqlite.execute(`DELETE FROM ${S}`);
     for (const [i, g] of data.guests.entries()) {
       await sqlite.execute({
-        sql: `INSERT INTO ${G} (ord,slug,first,last,password,admin,met,org,lane,
+        sql: `INSERT INTO ${G} (ord,slug,first,last,password,admin,met,org,lane,tier,
               going,prob,arrive,link,run,sessions,namevote,seen,updated)
-              VALUES (?,?,?,?,?,?,?,?,?,'','','',?,'','{}','','','')`,
+              VALUES (?,?,?,?,?,?,?,?,?,?,'','','',?,'','{}','','','')`,
         args: [i + 1, g.slug, g.first, g.last, g.password, g.admin ? "yes" : "",
-               g.met || "", g.org || "", g.lane || "invited", g.link || ""],
+               g.met || "", g.org || "", g.lane || "invited",
+               String(g.tier ?? ""), g.link || ""],
       });
     }
     for (const n of (data.sessions || [])) {
@@ -231,7 +235,7 @@ export default async function (req: Request): Promise<Response> {
         const g = all.find(x => x.slug === body.slug);
         if (!g) return json({ ok: false, error: "no_guest" });
         let field = body.field === "pw" ? "password" : body.field;
-        const allowed = ["first","last","password","met","org","lane","going",
+        const allowed = ["first","last","password","met","org","lane","tier","going",
                          "prob","arrive","link","run","namevote"];
         if (!allowed.includes(field)) return json({ ok: false, error: "bad_field" });
 
@@ -260,11 +264,11 @@ export default async function (req: Request): Promise<Response> {
         while (taken.has(s)) s = parts[0].toLowerCase().replace(/[^a-z]/g, "") + n++;
         const pw = WORDS.find(w => !pwTaken.has(w)) || "spare" + (all.length + 1);
         await sqlite.execute({
-          sql: `INSERT INTO ${G} (ord,slug,first,last,password,admin,met,org,lane,
+          sql: `INSERT INTO ${G} (ord,slug,first,last,password,admin,met,org,lane,tier,
                 going,prob,arrive,link,run,sessions,namevote,seen,updated)
-                VALUES (?,?,?,?,?,'',?,?,'prospect','','','','','','{}','','','')`,
+                VALUES (?,?,?,?,?,'',?,?,'prospect',?,'','','','','{}','','','')`,
           args: [maxOrder + 1, s, parts[0], parts.slice(1).join(" "), pw,
-                 clean(body.met, 60), clean(body.org, 60)],
+                 clean(body.met, 60), clean(body.org, 60), clean(body.tier, 4)],
         });
       }
 

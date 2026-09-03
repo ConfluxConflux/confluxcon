@@ -40,9 +40,11 @@ ALIASES = [
     ("p_attend",        ("probab", "attend", "likel", "odds", "p(")),
     ("link",            ("website", "link", "profile", "url", "site", "twitter")),
     ("notes",           ("note", "comment")),
+    ("tier",            ("tier", "wave", "round")),
 ]
 # Public unless it is one of these. Everything else in the sheet stays local.
-PRIVATE_FIELDS = ("how_i_know_them", "p_attend", "median_arrival", "notes", "invited", "password")
+PRIVATE_FIELDS = ("how_i_know_them", "p_attend", "median_arrival", "notes", "invited",
+                  "password", "tier")
 
 
 # ---------- column matching -------------------------------------------------
@@ -196,7 +198,7 @@ def fill_passwords(sheet):
     taken = {sheet.get(r, "password").lower() for r in sheet.rows if sheet.get(r, "password")}
     added = 0
     for r in sheet.rows:
-        if not sheet.get(r, "password"):
+        if not sheet.get(r, "password") and sheet.invited(r):
             w = make_password(sheet.get(r, "name"), taken)
             sheet.set(r, "password", w)
             taken.add(w)
@@ -309,11 +311,15 @@ def pull_profiles():
 
 # ---------- seed for the backend --------------------------------------------
 
-def build_seed(sheet, url=None):
+def build_seed(sheet, url=None, force=False):
     """The guest list, for loading into the backend once. Holds passwords, so it
     is written locally and gitignored — never committed. With a URL, POSTs it."""
     slugs, guests = set(), []
-    for r in sorted(sheet.rows, key=lambda r: sheet.get(r, "name").lower()):
+    # tier first, so the Console lists people in the order you'd invite them
+    def order(r):
+        t = sheet.get(r, "tier").strip()
+        return (int(t) if t.isdigit() else 99, sheet.get(r, "name").lower())
+    for r in sorted(sheet.rows, key=order):
         name = sheet.get(r, "name")
         slug = slugify(name, slugs)
         slugs.add(slug)
@@ -326,6 +332,7 @@ def build_seed(sheet, url=None):
             "org": sheet.get(r, "org"),
             "link": norm_link(sheet.get(r, "link")),
             "lane": "invited" if sheet.invited(r) else "prospect",
+            "tier": sheet.get(r, "tier"),
         })
     blob = {"guests": guests,
             "sessions": ["AI Safety Trivia", "Lightning Talks", "Cuddle Puddle"]}
@@ -339,7 +346,11 @@ def build_seed(sheet, url=None):
         print("  Pass the backend URL to load it:  python3 build.py --seed <url>")
         return
 
-    body = json.dumps({"action": "seed", "data": blob}).encode("utf-8")
+    payload = {"action": "seed", "data": blob}
+    if force:
+        admin = next((g["password"] for g in guests if g["admin"]), "")
+        payload.update(password=admin, force=True)
+    body = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=body,
                                  headers={"Content-Type": "text/plain;charset=utf-8"})
     try:
@@ -352,6 +363,7 @@ def build_seed(sheet, url=None):
         print(f"  seeded {out.get('seeded')} guests, {out.get('sessions')} sessions")
     elif out.get("error") == "already_seeded":
         print("  already seeded — the backend has data; refusing to wipe it")
+        print("  (pass --force alongside --seed to replace it anyway)")
     else:
         print(f"  backend said: {out.get('error')}")
 
@@ -415,7 +427,7 @@ def main():
 
     if "--seed" in args:
         urls = [a for a in args if a.startswith("http")]
-        build_seed(sheet, urls[0] if urls else None)
+        build_seed(sheet, urls[0] if urls else None, force="--force" in args)
         return
     if "--report" in args:
         report(sheet)
