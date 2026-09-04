@@ -13,6 +13,10 @@
 
 import { sqlite } from "https://esm.town/v/std/sqlite";
 
+/* Bumped whenever this file changes, so a plain GET on the val says which
+   version is actually pasted in. */
+const BUILD = "2026-09-03 · details, log, rsvped";
+
 const G = "confluxcon_guests_v1";
 const S = "confluxcon_sessions_v1";
 const L = "confluxcon_log_v1";
@@ -213,7 +217,7 @@ export default async function (req: Request): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { headers: HEADERS });
   await init();
 
-  if (req.method !== "POST") return json({ ok: true, hello: "confluxcon" });
+  if (req.method !== "POST") return json({ ok: true, hello: "confluxcon", build: BUILD });
 
   let body: any = {};
   try { body = JSON.parse(await req.text() || "{}"); } catch { return json({ ok: false, error: "bad_json" }); }
