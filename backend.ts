@@ -15,6 +15,7 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 
 const G = "confluxcon_guests_v1";
 const S = "confluxcon_sessions_v1";
+const L = "confluxcon_log_v1";
 
 const GCOLS = ["ord","slug","first","last","password","admin","met","org","lane","tier",
                "going","prob","arrive","link","run","sessions","namevote","note","msg",
@@ -39,8 +40,53 @@ async function init() {
     try { await sqlite.execute(`ALTER TABLE ${G} ADD COLUMN ${col} TEXT`); } catch (_) {}
   }
   await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${S} (
-    name TEXT PRIMARY KEY, by TEXT, host TEXT)`);
+    name TEXT PRIMARY KEY, by TEXT, host TEXT, descr TEXT, sched TEXT)`);
+  // Same story as the guest table: older session tables predate these two.
+  // "descr", not "desc" — DESC is a keyword SQLite won't take bare.
+  for (const col of ["descr", "sched"]) {
+    try { await sqlite.execute(`ALTER TABLE ${S} ADD COLUMN ${col} TEXT`); } catch (_) {}
+  }
+  await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${L} (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT, who TEXT, what TEXT)`);
 }
+
+/* ---------- the log -------------------------------------------------------
+   Every write leaves one line behind, so the console can show what everyone
+   has been doing. Read by the admin only; nothing here is shown to guests. */
+
+const full = (g: any) => `${g.first || ""} ${g.last || ""}`.trim() || g.slug;
+
+async function log(who: string, what: string) {
+  if (!what) return;
+  try {
+    await sqlite.execute({
+      sql: `INSERT INTO ${L} (at, who, what) VALUES (?, ?, ?)`,
+      args: [new Date().toISOString(), clean(who, 60), clean(what, 400)],
+    });
+  } catch (_) { /* a log that fails must never fail the write it describes */ }
+}
+
+const VISIT = "opened the site";
+
+/** Opening the site writes one line, not one per refresh. */
+async function logVisit(who: string) {
+  try {
+    const res = await sqlite.execute({
+      sql: `SELECT at, what FROM ${L} WHERE who = ? ORDER BY id DESC LIMIT 1`,
+      args: [clean(who, 60)],
+    });
+    const last: any = (res.rows as any[][])[0];
+    if (last && String(last[1]) === VISIT &&
+        Date.now() - Date.parse(String(last[0])) < 30 * 60 * 1000) return;
+  } catch (_) {}
+  await log(who, VISIT);
+}
+
+/** Values go in the log short, whatever their length in the sheet. */
+const brief = (v: any) => {
+  const t = String(v == null ? "" : v).replace(/\s+/g, " ").trim();
+  return !t ? "\u2014" : t.length > 44 ? t.slice(0, 43) + "\u2026" : t;
+};
 
 function objs(res: any) {
   const cols = res.columns as string[];
@@ -115,7 +161,15 @@ function adminRow(g: any) {
 }
 
 async function payload(me: any, all: any[], isAdmin: boolean) {
-  const sess = (await sessions()).map(s => ({ name: s.name, by: s.by, host: isYes(s.host) }));
+  /* Whoever put a session up may rewrite its details, and so may the host —
+     which is what lets Jacob edit the four that were seeded with no owner. */
+  const owns = (s: any) => isAdmin || (!!s.by && String(s.by) === String(me.first));
+  const sess = (await sessions()).map(s => ({
+    name: s.name, by: s.by, host: isYes(s.host),
+    descr: s.descr || "",                       // shown to everyone
+    sched: owns(s) ? (s.sched || "") : "",      // only to whoever runs it
+    mine: owns(s),
+  }));
   const out: any = {
     ok: true,
     slug: me.slug,
@@ -199,6 +253,7 @@ export default async function (req: Request): Promise<Response> {
 
   switch (body.action) {
     case "auth":
+      await logVisit(full(me0));
       return json(await payload(me0, all, isAdmin));
 
     /* a guest editing their own RSVP */
@@ -215,8 +270,27 @@ export default async function (req: Request): Promise<Response> {
         msg: cleanLines(p.msg, 2000),
         pay: money(p.pay),
       };
+      const LABEL: Record<string, string> = {
+        first: "first name", last: "last name", met: "how they know Jacob",
+        org: "affiliation", arrive: "arrival", link: "link", going: "answer",
+        prob: "probability", namevote: "name vote", note: "public comment",
+        msg: "private note", pay: "willingness to pay",
+      };
+      const changed: string[] = [];
+      for (const k in fields) {
+        if (String(me0[k] ?? "") === String(fields[k] ?? "")) continue;
+        changed.push(`${LABEL[k] || k}: ${brief(me0[k])} \u2192 ${brief(fields[k])}`);
+      }
       for (const k in fields) await setField(slug, k, fields[k]);
-      if (p.sessions) await setField(slug, "sessions", JSON.stringify(p.sessions).slice(0, 4000));
+      if (p.sessions) {
+        const was = parseSessions(me0.sessions);
+        for (const k of new Set([...Object.keys(was), ...Object.keys(p.sessions)])) {
+          if (String(was[k] || "") === String(p.sessions[k] || "")) continue;
+          changed.push(`${brief(k)}: ${brief(was[k])} \u2192 ${brief(p.sessions[k])}`);
+        }
+        await setField(slug, "sessions", JSON.stringify(p.sessions).slice(0, 4000));
+      }
+      await log(full(me0), changed.join("; "));
       await setField(slug, "seen", "yes");
       await setField(slug, "updated", new Date().toISOString());
       const me = await reread();
@@ -230,9 +304,33 @@ export default async function (req: Request): Promise<Response> {
       const existing = await sessions();
       if (!existing.some(s => String(s.name).toLowerCase() === name.toLowerCase())) {
         await sqlite.execute({
-          sql: `INSERT OR IGNORE INTO ${S} (name,by,host) VALUES (?,?,?)`,
-          args: [name, me0.first, body.host ? "yes" : ""],
+          sql: `INSERT OR IGNORE INTO ${S} (name,by,host,descr,sched) VALUES (?,?,?,?,?)`,
+          args: [name, me0.first, body.host ? "yes" : "",
+                 cleanLines(body.descr, 600), cleanLines(body.sched, 600)],
         });
+        await log(full(me0), `added the activity \u201c${name}\u201d${body.host ? ", and will run it" : ""}`);
+      }
+      return json(await payload(me0, all, isAdmin));
+    }
+
+    /* the blurb and the scheduling notes, after the fact */
+    case "editSession": {
+      const target = clean(body.name, 60).toLowerCase();
+      const list = await sessions();
+      const row = list.find(s => String(s.name).toLowerCase() === target);
+      if (!row) return json({ ok: false, error: "no_session" });
+      const owns = isAdmin || (!!row.by && String(row.by) === String(me0.first));
+      if (!owns) return json({ ok: false, error: "not_yours" });
+      for (const col of ["descr", "sched"]) {
+        if (!(col in body)) continue;
+        const value = cleanLines(body[col], 600);
+        if (value === String(row[col] || "")) continue;
+        await sqlite.execute({
+          sql: `UPDATE ${S} SET ${col} = ? WHERE name = ?`,
+          args: [value, row.name],
+        });
+        await log(full(me0), `${col === "descr" ? "description" : "scheduling notes"} for ` +
+          `\u201c${row.name}\u201d: ${brief(row[col])} \u2192 ${brief(value)}`);
       }
       return json(await payload(me0, all, isAdmin));
     }
@@ -243,6 +341,7 @@ export default async function (req: Request): Promise<Response> {
       const row = list.find(s => String(s.name).toLowerCase() === target);
       if (row && (String(row.by || "") === String(me0.first) || isAdmin)) {
         await sqlite.execute({ sql: `DELETE FROM ${S} WHERE name = ?`, args: [row.name] });
+        await log(full(me0), `removed the activity \u201c${row.name}\u201d`);
       }
       return json(await payload(me0, all, isAdmin));
     }
@@ -268,7 +367,15 @@ export default async function (req: Request): Promise<Response> {
             return json({ ok: false, error: "password_taken" });
           }
         }
-        await setField(g.slug, field, field === "prob" ? num(body.value) : clean(body.value, 200));
+        // The console edits the long fields in a wrapping box now, so a note to
+        // the host must not be flattened to one 200-character line on the way in.
+        const value = field === "prob" ? num(body.value)
+                    : field === "msg"  ? cleanLines(body.value, 2000)
+                    : clean(body.value, 200);
+        if (value !== String(g[field] ?? "")) {
+          await setField(g.slug, field, value);
+          await log(full(me0), `set ${field} for ${full(g)}: ${brief(g[field])} \u2192 ${brief(value)}`);
+        }
       }
 
       if (body.op === "add") {
@@ -290,6 +397,7 @@ export default async function (req: Request): Promise<Response> {
           args: [maxOrder + 1, s, parts[0], parts.slice(1).join(" "), pw,
                  clean(body.met, 60), clean(body.org, 60), clean(body.tier, 4)],
         });
+        await log(full(me0), `added ${nm} to the maybe pile`);
       }
 
       if (body.op === "remove") {
@@ -298,6 +406,7 @@ export default async function (req: Request): Promise<Response> {
         if (g.slug === slug) return json({ ok: false, error: "cannot_remove_self" });
         if (isYes(g.admin)) return json({ ok: false, error: "cannot_remove_admin" });
         await sqlite.execute({ sql: `DELETE FROM ${G} WHERE slug = ?`, args: [g.slug] });
+        await log(full(me0), `removed ${full(g)} from the list`);
       }
 
       if (body.op === "move") {
@@ -309,11 +418,20 @@ export default async function (req: Request): Promise<Response> {
           const a = lane[at], b = lane[to];
           await setField(a.slug, "ord", Number(b.ord) || 0);
           await setField(b.slug, "ord", Number(a.ord) || 0);
+          await log(full(me0), `moved ${full(a)} ${body.dir === "up" ? "up" : "down"} the list`);
         }
       }
 
       const me = await reread();
       return json(await payload(me, all, isAdmin));
+    }
+
+    /* what everyone has been doing — the console's live log */
+    case "log": {
+      if (!isAdmin) return json({ ok: false, error: "not_admin" });
+      const res = await sqlite.execute(
+        `SELECT id, at, who, what FROM ${L} ORDER BY id DESC LIMIT 200`);
+      return json({ ok: true, log: objs(res) });
     }
   }
 

@@ -138,6 +138,7 @@ body{
 h2{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,3.4vw,2rem);margin:0 0 1.1rem;
   color:var(--ink);text-wrap:balance}
 h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
+.subhead{font-family:var(--display);font-weight:500;font-size:1.4rem;margin:0 0 .9rem;color:var(--ink)}
 .plan{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.6rem}
 .plan li{display:flex;align-items:baseline;gap:.7rem;font-size:1.04rem}
 .plan .tick{color:var(--gold-deep);flex:none;font-size:.8em}
@@ -146,7 +147,8 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .by a{color:var(--teal);text-decoration:underline;text-underline-offset:2px;
   border-bottom:1px solid transparent;transition:color .16s,border-color .16s}
 .by a:hover{border-bottom-color:var(--teal)}
-.plan .interest{color:var(--teal);font-size:.86rem;white-space:nowrap;flex:none;margin-left:auto}
+.plan .interest{color:var(--teal);font-size:.86rem;white-space:nowrap;flex:none;margin-left:auto;
+  cursor:help}
 .morebtn{margin-top:1.3rem;font-family:var(--body);font-size:.72rem;letter-spacing:.18em;
   text-transform:uppercase;padding:.68em 1.6em;border-radius:999px;cursor:pointer;
   border:1px solid var(--rule);background:#fff;color:var(--teal);transition:background .18s,color .18s}
@@ -172,11 +174,10 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .wcard .wo{display:none;font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;
   color:var(--ink-3);line-height:1.3;overflow-wrap:anywhere}
 @container (min-width:430px){ .wcard .wo{display:block} }
-.prose{max-width:64ch;font-size:1.05rem;line-height:1.62}
+.prose{font-size:1.05rem;line-height:1.62}
 .prose p{margin:0 0 1.1rem}
 .prose p:last-child{margin-bottom:0}
-/* The agenda blurb runs the full column, like the list of activities under it. */
-.prose.blurb{max-width:none;margin-bottom:1.6rem}
+.prose.blurb{margin-bottom:1.6rem}
 .donate{display:inline-block;margin-top:1.3rem;font-size:.72rem;letter-spacing:.18em;
   text-transform:uppercase;color:var(--teal);text-decoration:none;background:#fff;
   border:1px solid var(--rule);border-radius:999px;padding:.72em 1.8em;
@@ -288,6 +289,30 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .venue .vnote{max-width:44ch;margin:0 auto .55rem;font-size:.9rem;line-height:1.45;color:var(--ink-2)}
 .venue .vwhere{font-size:.95rem;color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(18,101,106,.3)}
 .venue .vwhere:hover{border-bottom-color:var(--teal)}
+.rundetails{margin-top:.9rem;padding:.9rem 1rem;border:1px solid var(--rule-soft);
+  border-radius:6px;background:var(--paper-2)}
+.rundetails label{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin:0 0 .4rem}
+.rundetails label + textarea{margin-bottom:.9rem}
+.rundetails textarea{width:100%;font-family:var(--body);font-size:.95rem;line-height:1.5;
+  color:var(--ink);padding:.6em .7em;border:1px solid var(--rule);border-radius:5px;
+  background:#fff;resize:vertical}
+.rundetails textarea:focus{border-color:var(--teal);outline:none}
+.runhint{margin:0;font-size:.88rem;font-style:italic;color:var(--ink-3);line-height:1.5}
+.sessrow details{margin-top:.6rem}
+.sessrow summary{display:inline-block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--teal);cursor:pointer;list-style:none}
+.sessrow summary::-webkit-details-marker{display:none}
+.sessrow summary::before{content:"+ ";font-family:var(--mono)}
+.sessrow details[open] summary::before{content:"\2212 "}
+.sessrow details .rundetails{margin-top:.7rem}
+.plan .pdesc{display:block;margin-top:.35rem;font-size:.95rem;line-height:1.55;color:var(--ink-2)}
+.sessrow .sdesc{display:block;margin:.45rem 0 .1rem;font-size:.94rem;line-height:1.55;color:var(--ink-2)}
+.descbtn{font-family:var(--body);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--teal);background:#fff;border:1px solid var(--rule);border-radius:999px;
+  padding:.28em .8em;margin-left:.45em;cursor:pointer;white-space:nowrap;
+  transition:background .16s,color .16s,border-color .16s}
+.descbtn:hover{background:var(--teal);border-color:var(--teal);color:var(--paper)}
 .sess{display:flex;flex-direction:column;gap:1.1rem}
 .sessrow .snm{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;
   font-size:1rem;margin-bottom:.4rem;line-height:1.25}
@@ -326,6 +351,26 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   padding-top:1.2rem;border-top:1px solid var(--rule-soft)}
 
 /* ---------- console ---------- */
+.logsec{margin-top:2.2rem;padding-top:1.6rem;border-top:1px solid var(--rule-soft)}
+.loghead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;margin-bottom:.9rem}
+.loghead h3{font-family:var(--display);font-weight:500;font-size:1.3rem;margin:0;color:var(--ink)}
+.logstate{font-size:.8rem;color:var(--ink-3);font-style:italic}
+.log{list-style:none;margin:0;padding:0;max-height:min(46vh,420px);overflow:auto;
+  border:1px solid var(--rule-soft);border-radius:6px;background:#fff;
+  overscroll-behavior:contain}
+.log li{display:flex;align-items:baseline;gap:.7rem;padding:.5rem .8rem;
+  border-bottom:1px solid var(--rule-soft);font-size:.92rem;line-height:1.45}
+.log li:last-child{border-bottom:0}
+.log .lwho{font-family:var(--display);font-size:1rem;color:var(--ink);flex:none;
+  max-width:11em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log .lwhat{flex:1;min-width:0;color:var(--ink-2);overflow-wrap:anywhere}
+.log .lat{flex:none;font-family:var(--mono);font-size:.76rem;color:var(--ink-3);
+  white-space:nowrap;margin-left:auto}
+.log li.fresh{background:var(--go-bg);animation:cool 6s ease-out forwards}
+@keyframes cool{to{background:#fff}}
+@media (prefers-reduced-motion:reduce){.log li.fresh{animation:none}}
+.log .empty{display:block;padding:.9rem .8rem;color:var(--ink-3);font-style:italic}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:1px;
   background:var(--rule-soft);border:1px solid var(--rule-soft);border-radius:6px;
   overflow:hidden;margin-bottom:1.8rem}
@@ -345,17 +390,23 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .lanes .count{font-family:var(--mono);font-size:.9em;opacity:.65;margin-left:.5em}
 .tablewrap{overflow:auto;border:1px solid var(--rule-soft);border-radius:6px;background:#fff;
   max-height:min(62vh,580px);overscroll-behavior:contain}
-table{border-collapse:separate;border-spacing:0;width:100%;min-width:1620px;font-size:.95rem}
-th:nth-child(2),td:nth-child(2){min-width:12em}
-th:nth-child(3),td:nth-child(3){min-width:12em}
-th:nth-child(4),td:nth-child(4){min-width:12em}
-th:nth-child(5),td:nth-child(5){min-width:9.5em}
-th:nth-child(6),td:nth-child(6){min-width:4.5em}
-th:nth-child(7),td:nth-child(7){min-width:6.5em}
-th:nth-child(8),td:nth-child(8){min-width:19em}
-th:nth-child(9),td:nth-child(9){min-width:16em}
-th:nth-child(10),td:nth-child(10){min-width:9em}
-th:nth-child(11),td:nth-child(11){min-width:8.5em}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1700px;font-size:.95rem}
+/* name, password, tier, met, org, coming, P, arrives, attending, would run,
+   public comment, for you, pay, name vote */
+th:nth-child(2),td:nth-child(2){min-width:11em}
+th:nth-child(3),td:nth-child(3){min-width:8em}
+th:nth-child(4),td:nth-child(4){min-width:4em}
+th:nth-child(5),td:nth-child(5){min-width:11em}
+th:nth-child(6),td:nth-child(6){min-width:10em}
+th:nth-child(7),td:nth-child(7){min-width:8.5em}
+th:nth-child(8),td:nth-child(8){min-width:5em}
+th:nth-child(9),td:nth-child(9){min-width:6.5em}
+th:nth-child(10),td:nth-child(10){min-width:13em}
+th:nth-child(11),td:nth-child(11){min-width:11em}
+th:nth-child(12),td:nth-child(12){min-width:13em}
+th:nth-child(13),td:nth-child(13){min-width:14em}
+th:nth-child(14),td:nth-child(14){min-width:5em}
+th:nth-child(15),td:nth-child(15){min-width:9em}
 thead th{position:sticky;top:0;z-index:3;background:var(--paper-2);text-align:left;
   font-family:var(--body);font-weight:600;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink-2);padding:.6rem .7rem;border-bottom:1px solid var(--rule)}
@@ -364,7 +415,8 @@ thead th{position:sticky;top:0;z-index:3;background:var(--paper-2);text-align:le
   border-radius:4px;padding:.2em .35em;transition:background .15s,border-color .15s}
 .hin:hover{background:#fff;border-color:var(--rule-soft)}
 .hin:focus{background:#fff;border-color:var(--teal);outline:none}
-tbody td{padding:.42rem .7rem;border-bottom:1px solid var(--rule-soft);vertical-align:middle}
+tbody td{padding:.42rem .7rem;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+tbody td .going,tbody td select,tbody td input{vertical-align:middle}
 tbody tr:last-child td{border-bottom:0}
 tbody tr:hover{background:#fcfaf5}
 tbody td:first-child{border-left:3px solid transparent}
@@ -373,13 +425,15 @@ tr.r-likely td:first-child{border-left-color:var(--likely)}
 tr.r-maybe td:first-child{border-left-color:var(--maybe)}
 tr.r-no td:first-child{border-left-color:var(--no)}
 tr.r-idle td:first-child{border-left-color:var(--rule-soft)}
-td input[type=text],td input[type=number],td select{font-family:var(--body);font-size:.94rem;color:var(--ink);
-  width:100%;background:transparent;border:1px solid transparent;border-radius:4px;padding:.34em .45em;
-  transition:background .15s,border-color .15s}
-td input:hover,td select:hover{background:var(--paper-2);border-color:var(--rule-soft)}
-td input:focus,td select:focus{background:#fff;border-color:var(--teal);outline:none}
-td input[readonly]{color:var(--ink-2);cursor:default}
-td input[readonly]:hover{background:transparent;border-color:transparent}
+td input[type=text],td input[type=number],td select,td textarea{font-family:var(--body);font-size:.94rem;
+  color:var(--ink);width:100%;background:transparent;border:1px solid transparent;border-radius:4px;
+  padding:.34em .45em;transition:background .15s,border-color .15s}
+td textarea{display:block;line-height:1.4;resize:vertical;overflow-wrap:anywhere;
+  min-height:2.6em;max-height:11em;field-sizing:content}
+td input:hover,td select:hover,td textarea:hover{background:var(--paper-2);border-color:var(--rule-soft)}
+td input:focus,td select:focus,td textarea:focus{background:#fff;border-color:var(--teal);outline:none}
+td input[readonly],td textarea[readonly]{color:var(--ink-2);cursor:default}
+td input[readonly]:hover,td textarea[readonly]:hover{background:transparent;border-color:transparent}
 td input[type=number]{width:4.6em;font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
 td .nmin{font-family:var(--display);font-size:1.04rem}
 td .pwin{font-family:var(--mono);font-size:.84rem;color:var(--gold-deep)}
@@ -508,6 +562,7 @@ footer a{color:rgba(240,252,248,.9)}
               built-in room and built-in audience) so if you have any ideas, this is a
               great time!</p>
           </div>
+          <h3 class="subhead">Opt-in Activities</h3>
           <ul class="plan" id="planList"></ul>
           <button type="button" class="morebtn" id="moreBtn">More &rarr;</button>
         </section>
@@ -606,6 +661,15 @@ footer a{color:rgba(240,252,248,.9)}
             <label class="runflag"><input type="checkbox" id="newRun"> I'd run it</label>
             <button type="button" id="addSess">Add</button>
           </div>
+          <div class="rundetails" id="runFields" hidden>
+            <label for="newDesc">Event description (public)</label>
+            <textarea id="newDesc" rows="3" maxlength="600"
+                      placeholder="What is it, and who is it for?"></textarea>
+            <label for="newSched">Other information that might be helpful for scheduling this event</label>
+            <textarea id="newSched" rows="3" maxlength="600" placeholder="optional"></textarea>
+            <p class="runhint">Do you have a preference between Bayes Ground/Median/Attic?
+              How many people are you hoping for? How excited are you to run this?</p>
+          </div>
         </div>
 
         <div class="fld">
@@ -668,6 +732,14 @@ footer a{color:rgba(240,252,248,.9)}
           <input id="newMet" type="text" placeholder="Where you know them from" aria-label="Where you know them from">
           <button class="mini go" id="addBtn">Add to the list</button>
           <span class="hint">Lands in “Thinking about it”. Nothing is sent until you say so.</span>
+        </div>
+
+        <div class="logsec">
+          <div class="loghead">
+            <h3>Live log</h3>
+            <span class="logstate" id="logState">Waiting&hellip;</span>
+          </div>
+          <ol class="log" id="logList"></ol>
         </div>
       </div>
     </div>
@@ -1014,6 +1086,7 @@ function showTab(which) {
     $(PANES[k]).hidden = k !== which;
     $(TABS[k]).setAttribute("aria-selected", String(k === which));
   });
+  logPolling(which === "console" && !!(S && S.admin));
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 Object.keys(TABS).forEach(k => $(TABS[k]).addEventListener("click", () => showTab(k)));
@@ -1042,14 +1115,48 @@ $("moreBtn").addEventListener("click", () => {
 const interestIn = name =>
   S.guests.filter(x => ["yes","likely"].includes((x.sessions || {})[name])).length;
 
+/* Which descriptions are open, by session name, so both lists agree and a
+   redraw doesn't close what you just opened. */
+const DESC_OPEN = new Set();
+
+function descToggleHTML(r) {
+  if (!r.descr) return "";
+  const on = DESC_OPEN.has(r.name);
+  return `<button type="button" class="descbtn" data-desc="${esc(r.name)}"
+            aria-expanded="${on}">${on ? "Hide" : "Description"}</button>`;
+}
+const descBodyHTML = (r, cls) => r.descr
+  ? `<span class="${cls}"${DESC_OPEN.has(r.name) ? "" : " hidden"}>${esc(r.descr)}</span>` : "";
+
+function toggleDesc(name, redraw) {
+  DESC_OPEN.has(name) ? DESC_OPEN.delete(name) : DESC_OPEN.add(name);
+  redraw();
+}
+
+/* The split behind the count — numbers only, never who answered what. */
+const interestSplit = name => RUNGS.slice().reverse()
+  .map(r => `${r.sess} ${S.guests.filter(x => (x.sessions || {})[name] === r.v).length}`)
+  .join("  \u00b7  ");
+
+/* Most wanted first. Ties hold the order they were added in, so the list only
+   moves when the interest behind it actually moves. */
 function drawPlan() {
-  $("planList").innerHTML = S.sessions.map(r => {
-    const n = interestIn(r.name);
+  const ranked = S.sessions
+    .map((r, i) => ({ r, i, n: interestIn(r.name) }))
+    .sort((a, b) => b.n - a.n || a.i - b.i);
+  $("planList").innerHTML = ranked.map(({ r, n }) => {
     return `<li><span class="tick" aria-hidden="true">&#9670;</span>
-      <span>${esc(r.name)} <span class="by">&mdash; run by ${runByHTML(r)}</span></span>
-      ${n ? `<span class="interest">${n} in</span>` : ""}</li>`;
+      <span>${esc(r.name)} <span class="by">&mdash; run by ${runByHTML(r)}</span>
+        ${descToggleHTML(r)}
+        ${descBodyHTML(r, "pdesc")}</span>
+      ${n ? `<span class="interest" title="${esc(interestSplit(r.name))}">${n} in</span>` : ""}</li>`;
   }).join("") || `<li><span class="empty">Nothing planned yet.</span></li>`;
 }
+
+$("planList").addEventListener("click", e => {
+  const b = e.target.closest("[data-desc]");
+  if (b) toggleDesc(b.dataset.desc, drawPlan);
+});
 
 const hrefOf = v => {
   const t = String(v || "").trim();
@@ -1249,43 +1356,99 @@ $("fArrive").addEventListener("input", syncChips);
 
 /* ---------- sessions: one shared list ---------- */
 
+/* Redrawing wipes whatever is half-typed, so leave the list alone while a
+   details field has the cursor, and put back the ones that were open. */
 function drawSessions() {
+  const box = $("fSessions");
+  const live = document.activeElement;
+  if (live && live.dataset && live.dataset.sfield && box.contains(live)) return;
+  const open = new Set([...box.querySelectorAll("details[open]")].map(d => d.dataset.sess));
+
   const mine = (S.me && S.me.sessions) || {};
-  $("fSessions").innerHTML = S.sessions.map((s, i) => {
+  box.innerHTML = S.sessions.map((s, i) => {
     const want = mine[s.name] || "";
     const isMine = s.by && s.by === S.me.first;
     return `<div class="sessrow">
       <p class="snm">
         <span>${esc(s.name)}</span>
         <span class="by">&mdash; run by ${runByHTML(s)}</span>
+        ${descToggleHTML(s)}
         ${isMine || S.admin ? `<button type="button" class="drop" data-drop="${esc(s.name)}"
                  aria-label="Remove ${esc(s.name)}">&times;</button>` : ""}
       </p>
+      ${descBodyHTML(s, "sdesc")}
       <div class="seg small" role="radiogroup" aria-label="${esc(s.name)}">
         ${RUNGS.map(r => `<label class="v-${r.v}"><input type="radio" name="sess${i}"
           value="${r.v}" data-sess="${i}"${want === r.v ? " checked" : ""}>${r.sess}</label>`).join("")}
       </div>
+      ${s.mine ? `<details data-sess="${esc(s.name)}"${open.has(s.name) ? " open" : ""}>
+        <summary>Details for the activity you're running</summary>
+        <div class="rundetails">
+          <label for="d-${i}">Event description (public)</label>
+          <textarea id="d-${i}" rows="3" maxlength="600" data-sfield="descr"
+                    data-name="${esc(s.name)}"
+                    placeholder="What is it, and who is it for?">${esc(s.descr || "")}</textarea>
+          <label for="s-${i}">Other information that might be helpful for scheduling this event</label>
+          <textarea id="s-${i}" rows="3" maxlength="600" data-sfield="sched"
+                    data-name="${esc(s.name)}" placeholder="optional">${esc(s.sched || "")}</textarea>
+          <p class="runhint">Do you have a preference between Bayes Ground/Median/Attic?
+            How many people are you hoping for? How excited are you to run this?</p>
+        </div>
+      </details>` : ""}
     </div>`;
   }).join("");
 }
+
+/* One field at a time, debounced, and the list is not redrawn underneath it —
+   only the agenda, which is where the public blurb shows up. */
+const sessTimers = {};
+function pushSession(name, field, value) {
+  const key = name + ":" + field;
+  clearTimeout(sessTimers[key]);
+  sessTimers[key] = setTimeout(async () => {
+    try {
+      S = await api("editSession", { name, [field]: value });
+      drawPlan();
+    } catch (err) {
+      toast(String(err.message).includes("unknown_action")
+        ? "The backend needs the new version pasted in before details will save."
+        : "Couldn't save that just now.");
+    }
+  }, 700);
+}
+
+$("fSessions").addEventListener("input", e => {
+  const t = e.target.closest("textarea[data-sfield]");
+  if (t) pushSession(t.dataset.name, t.dataset.sfield, t.value);
+});
 
 $("fSessions").addEventListener("change", e => {
   if (e.target.closest("[data-sess]")) touched();
 });
 $("fSessions").addEventListener("click", async e => {
+  const d = e.target.closest("[data-desc]");
+  if (d) { toggleDesc(d.dataset.desc, drawSessions); return; }
   const b = e.target.closest("[data-drop]");
   if (!b) return;
   try { adopt(await api("dropSession", { name: b.dataset.drop })); }
   catch (_) { toast("Couldn't remove that."); }
 });
 
+$("newRun").addEventListener("change", () => {
+  $("runFields").hidden = !$("newRun").checked;
+});
+
 $("addSess").addEventListener("click", async () => {
   const name = $("newSess").value.trim();
   if (!name) { $("newSess").focus(); return; }
   const host = $("newRun").checked;
+  const descr = $("newDesc").value.trim();
+  const sched = $("newSched").value.trim();
   $("newSess").value = ""; $("newRun").checked = false;
+  $("newDesc").value = ""; $("newSched").value = "";
+  $("runFields").hidden = true;
   try {
-    adopt(await api("addSession", { name, host }));
+    adopt(await api("addSession", { name, host, descr, sched }));
     const at = S.sessions.findIndex(x => x.name === name);
     if (at >= 0) {
       const pick = document.querySelector(`#fSessions input[data-sess="${at}"][value="yes"]`);
@@ -1326,6 +1489,66 @@ const attendOf = x => Object.entries(x.sessions || {})
 
 function drawConsole() { drawStats(); drawTable(); }
 
+/* ---------- the live log ----------
+   Every write on the backend leaves a line; the console asks for the last of
+   them every few seconds, but only while it is the tab you're looking at. */
+
+let LOG = [], logTimer = null, logHigh = 0, logPrimed = false;
+
+const ago = iso => {
+  const t = Date.parse(iso);
+  if (isNaN(t)) return "";
+  const s = Math.max(0, (Date.now() - t) / 1000);
+  if (s < 45)    return "just now";
+  if (s < 3600)  return Math.round(s / 60) + "m ago";
+  if (s < 86400) return Math.round(s / 3600) + "h ago";
+  return new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+};
+
+function drawLog() {
+  if (!LOG.length) {
+    $("logList").innerHTML = `<li><span class="empty">Nothing yet. Anything anyone does
+      &mdash; an answer, a comment, a new activity &mdash; lands here.</span></li>`;
+    return;
+  }
+  $("logList").innerHTML = LOG.map(e => `
+    <li class="${logPrimed && +e.id > logHigh ? "fresh" : ""}">
+      <span class="lwho">${esc(e.who)}</span>
+      <span class="lwhat">${esc(e.what)}</span>
+      <span class="lat" title="${esc(e.at)}">${esc(ago(e.at))}</span>
+    </li>`).join("");
+  logHigh = Math.max(logHigh, ...LOG.map(e => +e.id || 0));
+  logPrimed = true;
+}
+
+async function pollLog() {
+  if (!S || !S.admin) return;
+  try {
+    const data = await api("log");
+    LOG = data.log || [];
+    $("logState").textContent = `${LOG.length} entr${LOG.length === 1 ? "y" : "ies"} · updated ${
+      new Date().toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}`;
+    drawLog();
+  } catch (err) {
+    $("logState").textContent = String(err.message).includes("unknown_action")
+      ? "Paste the new backend.ts into Val Town to switch this on"
+      : "Can't reach the log right now";
+  }
+}
+
+/* Polling runs only while the console is the open tab and the window is in
+   front, so a page left open overnight isn't hammering the backend. */
+function logPolling(on) {
+  clearInterval(logTimer);
+  logTimer = null;
+  if (!on) return;
+  pollLog();
+  logTimer = setInterval(() => { if (!document.hidden) pollLog(); }, 8000);
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && logTimer) pollLog();
+});
+
 function drawStats() {
   const inv = S.roster.filter(g => g.lane === "invited");
   const pro = S.roster.filter(g => g.lane === "prospect");
@@ -1365,6 +1588,12 @@ function drawTable() {
     `<input type="text" value="${esc(val)}" data-f="${f}" placeholder="${ph}"
             aria-label="${esc(f)} for ${esc(NAME(g))}"${extra}>`;
 
+  /* Anything that can run long gets a box that wraps rather than a line that
+     hides its own end. */
+  const area = (g, f, ph, val = g[f]) =>
+    `<textarea rows="2" data-f="${f}" placeholder="${ph}"
+               aria-label="${esc(f)} for ${esc(NAME(g))}">${esc(val || "")}</textarea>`;
+
   $("tbody").innerHTML = rows.map((g, i) => `
     <tr data-slug="${esc(g.slug)}" class="r-${g.going || "idle"}">
       <td class="ord">
@@ -1374,8 +1603,8 @@ function drawTable() {
       <td>${cell(g, "name", "Full name", ' class="nmin"', NAME(g))}</td>
       <td>${cell(g, "password", "word", ' class="pwin"')}</td>
       <td>${cell(g, "tier", "—", ' style="width:3em;text-align:center"', g.tier || "")}</td>
-      <td>${cell(g, "met", "—")}</td>
-      <td>${cell(g, "org", "—")}</td>
+      <td>${area(g, "met", "—")}</td>
+      <td>${area(g, "org", "—")}</td>
       <td><select data-f="going" class="going ${g.going || "idle"}" aria-label="Coming, ${esc(NAME(g))}">
         <option value=""${g.going === "" ? " selected" : ""}>No answer</option>
         ${RUNGS.map(r => `<option value="${r.v}"${g.going === r.v ? " selected" : ""}>${r.coming}</option>`).join("")}
@@ -1383,11 +1612,11 @@ function drawTable() {
       <td><input type="number" min="0" max="100" step="1" data-f="prob" placeholder="—"
                  value="${g.prob == null ? "" : g.prob}" aria-label="Probability for ${esc(NAME(g))}"></td>
       <td>${cell(g, "arrive", "—", ' style="width:6em"')}</td>
-      <td><input type="text" value="${esc(attendOf(g))}" readonly
-                 aria-label="Wants to attend" title="What they picked on their own profile"></td>
-      <td>${cell(g, "run", "—")}</td>
-      <td>${cell(g, "note", "—", "", g.note || "")}</td>
-      <td>${cell(g, "msg", "—", "", g.msg || "")}</td>
+      <td><textarea rows="2" readonly aria-label="Wants to attend"
+                    title="What they picked on their own profile">${esc(attendOf(g))}</textarea></td>
+      <td>${area(g, "run", "—")}</td>
+      <td>${area(g, "note", "—", g.note || "")}</td>
+      <td>${area(g, "msg", "—", g.msg || "")}</td>
       <td>${cell(g, "pay", "—", ' style="width:5em"', g.pay || "")}</td>
       <td><select data-f="namevote" aria-label="Name vote, ${esc(NAME(g))}">
         <option value=""${!g.namevote ? " selected" : ""}>—</option>
@@ -1505,7 +1734,7 @@ function pushCell(slug, field, value) {
 }
 
 $("tbody").addEventListener("input", e => {
-  const inp = e.target.closest("input[data-f]:not([readonly])");
+  const inp = e.target.closest("input[data-f]:not([readonly]),textarea[data-f]:not([readonly])");
   if (!inp) return;
   const slug = inp.closest("tr").dataset.slug;
   if (inp.dataset.f === "name") {
