@@ -173,7 +173,8 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .prose{max-width:64ch;font-size:1.05rem;line-height:1.62}
 .prose p{margin:0 0 1.1rem}
 .prose p:last-child{margin-bottom:0}
-.prose.blurb{margin-bottom:1.6rem}
+/* The agenda blurb runs the full column, like the list of activities under it. */
+.prose.blurb{max-width:none;margin-bottom:1.6rem}
 .donate{display:inline-block;margin-top:1.3rem;font-size:.72rem;letter-spacing:.18em;
   text-transform:uppercase;color:var(--teal);text-decoration:none;background:#fff;
   border:1px solid var(--rule);border-radius:999px;padding:.72em 1.8em;
