@@ -251,8 +251,18 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   color:var(--ink-3);margin-bottom:.55rem}
 .slider{display:flex;align-items:center;gap:.9rem}
 .slider input[type=range]{flex:1;accent-color:var(--teal);height:22px}
-.slider .pct{font-family:var(--mono);font-size:1.02rem;color:var(--ink);min-width:3.2em;
-  text-align:right;font-variant-numeric:tabular-nums}
+.slider .pct{display:flex;align-items:baseline;gap:.05em;font-family:var(--mono);font-size:1.02rem;
+  color:var(--ink);font-variant-numeric:tabular-nums}
+.slider .pct input{font:inherit;color:inherit;width:2.4em;text-align:right;padding:.2em .15em;
+  background:transparent;border:1px solid transparent;border-radius:4px;
+  font-variant-numeric:tabular-nums;transition:background .15s,border-color .15s;
+  -moz-appearance:textfield;appearance:textfield}
+.slider .pct input::-webkit-outer-spin-button,
+.slider .pct input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.slider .pct input:hover{background:#fff;border-color:var(--rule-soft)}
+.slider .pct input:focus{background:#fff;border-color:var(--teal);outline:none}
+.slider .pct i{font-style:normal}
+.slider .pct:has(input:placeholder-shown) i{opacity:0}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:.6rem}
 .chip{font-size:.85rem;padding:.34em .8em;border-radius:999px;cursor:pointer;border:1px solid var(--rule);
   background:#fff;color:var(--ink-2);transition:background .16s,color .16s,border-color .16s}
@@ -511,8 +521,9 @@ footer a{color:rgba(240,252,248,.9)}
           </div>
           <div class="fine">
             <div class="slider">
-              <input type="range" id="fProb" min="0" max="100" step="5" value="50" aria-label="Probability you turn up">
-              <span class="pct" id="fProbOut">&mdash;</span>
+              <input type="range" id="fProb" min="0" max="100" step="1" value="50" aria-label="Probability you turn up">
+              <span class="pct"><input type="number" id="fProbOut" min="0" max="100" step="1"
+                     placeholder="&mdash;" aria-label="Probability you turn up, per cent"><i>%</i></span>
             </div>
           </div>
         </div>
@@ -1034,10 +1045,10 @@ function fillForm() {
   $("fPay").value    = me.pay    || "";
   $("fArrive").value = toTime(me.arrive);
   if (me.prob == null) {
-    $("fProbOut").textContent = "—";
+    $("fProbOut").value = "";
   } else {
     $("fProb").value = me.prob;
-    $("fProbOut").textContent = me.prob + "%";
+    $("fProbOut").value = me.prob;
   }
   const pick = document.querySelector(`#fGoing input[value="${me.going || ""}"]`);
   if (pick) pick.checked = true;
@@ -1060,7 +1071,7 @@ function collect() {
     note:  $("fNote").value.trim(),   msg:   $("fMsg").value,
     pay:   $("fPay").value.trim(),
     going: picked ? picked.value : "",
-    prob:  $("fProbOut").textContent === "—" ? "" : +$("fProb").value,
+    prob:  $("fProbOut").value === "" ? "" : clampPct($("fProbOut").value),
     namevote: (document.querySelector('#fName input:checked') || {}).value || "",
     sessions
   };
@@ -1113,7 +1124,7 @@ $("fName").addEventListener("change", touched);
 
 $("fGoing").addEventListener("change", e => {
   const rung = RUNGS.find(r => r.v === e.target.value);
-  if (rung) { $("fProb").value = rung.p; $("fProbOut").textContent = rung.p + "%"; }
+  if (rung) setProb(rung.p);
   touched();
 });
 
@@ -1131,17 +1142,46 @@ $("fGoing").addEventListener("click", e => {
   if (!r || goingWas !== r.value) return;
   r.checked = false;
   goingWas = null;
-  $("fProb").value = 50;
-  $("fProbOut").textContent = "\u2014";
+  setProb("");
   touched();
 });
-$("fProb").addEventListener("input", () => {
-  const n = +$("fProb").value;
-  $("fProbOut").textContent = n + "%";
+/* The slider and the number next to it are one control: whichever you move,
+   the other follows, and the answer above them lands on the matching rung.
+   Typing is the only way to say something as fine as 98. */
+function clampPct(v) { return Math.max(0, Math.min(100, Math.round(+v || 0))); }
+
+function setProb(n) {
+  if (n === "") { $("fProb").value = 50; $("fProbOut").value = ""; return; }
+  $("fProb").value = n;
+  $("fProbOut").value = n;
+}
+
+function pickRungFor(n) {
   const pick = document.querySelector(`#fGoing input[value="${nearestRung(n).v}"]`);
   if (pick) pick.checked = true;
+}
+
+$("fProb").addEventListener("input", () => {
+  const n = +$("fProb").value;
+  $("fProbOut").value = n;
+  pickRungFor(n);
 });
 $("fProb").addEventListener("change", touched);
+
+$("fProbOut").addEventListener("input", () => {
+  const raw = $("fProbOut").value.trim();
+  if (raw === "") return;                     // mid-edit, or clearing the answer
+  const n = clampPct(raw);
+  if (String(n) !== raw) $("fProbOut").value = n;   // only rewrites what's out of range
+  $("fProb").value = n;
+  pickRungFor(n);
+  touched();
+});
+/* Blurring an empty field is the deliberate "no answer", not a half-typed one. */
+$("fProbOut").addEventListener("change", () => {
+  if ($("fProbOut").value.trim() === "") { setProb(""); }
+  touched();
+});
 
 /* the presets are a shortcut; any time you type is kept */
 $("hourChips").innerHTML = HOURS.map(([label, at]) =>
@@ -1293,7 +1333,7 @@ function drawTable() {
         <option value=""${g.going === "" ? " selected" : ""}>No answer</option>
         ${RUNGS.map(r => `<option value="${r.v}"${g.going === r.v ? " selected" : ""}>${r.coming}</option>`).join("")}
       </select></td>
-      <td><input type="number" min="0" max="100" step="5" data-f="prob" placeholder="—"
+      <td><input type="number" min="0" max="100" step="1" data-f="prob" placeholder="—"
                  value="${g.prob == null ? "" : g.prob}" aria-label="Probability for ${esc(NAME(g))}"></td>
       <td>${cell(g, "arrive", "—", ' style="width:6em"')}</td>
       <td><input type="text" value="${esc(attendOf(g))}" readonly
