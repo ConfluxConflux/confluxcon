@@ -151,6 +151,11 @@ needs a redeploy, and `--seed` must never run again.
 `guests.csv` goes stale the moment you add someone in the Console, so `--links`
 only knows the people it seeded. Read a later guest's password off the Console.
 
+**Download CSV**, above the table, writes the whole roster — both lanes, every
+column, under whatever you've renamed the headers to — straight from what the
+table is showing. That is the way to get a spreadsheet out once the backend is
+the database; `guests.csv` is not it.
+
 ### The wordmark is the vote
 
 The header mark plays once per visit: a `con` leaps off the front of *conflux*

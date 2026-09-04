@@ -309,7 +309,9 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .stat .v{font-family:var(--display);font-size:1.75rem;line-height:1;color:var(--ink);
   font-variant-numeric:tabular-nums;margin:0}
 .stat .v small{font-family:var(--body);font-size:.9rem;color:var(--ink-3);margin-left:.25em}
-.lanes{display:flex;gap:6px;margin-bottom:1.2rem;flex-wrap:wrap}
+.lanebar{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;margin-bottom:1.2rem}
+.lanes{display:flex;gap:6px;flex-wrap:wrap}
 .lanes button{font-family:var(--body);font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;
   padding:.6em 1.3em;border-radius:999px;cursor:pointer;border:1px solid var(--rule);
   background:#fff;color:var(--ink-2);transition:background .18s,color .18s}
@@ -604,9 +606,12 @@ footer a{color:rgba(240,252,248,.9)}
       <div class="panel">
         <h2>The console</h2>
         <div class="stats" id="stats"></div>
-        <div class="lanes" role="tablist">
-          <button role="tab" data-lane="invited" aria-selected="true">Invited <span class="count" id="cInv"></span></button>
-          <button role="tab" data-lane="prospect" aria-selected="false">Thinking about it <span class="count" id="cPro"></span></button>
+        <div class="lanebar">
+          <div class="lanes" role="tablist">
+            <button role="tab" data-lane="invited" aria-selected="true">Invited <span class="count" id="cInv"></span></button>
+            <button role="tab" data-lane="prospect" aria-selected="false">Thinking about it <span class="count" id="cPro"></span></button>
+          </div>
+          <button class="mini" id="csvBtn" title="Every column of both lists, as it stands right now">Download CSV</button>
         </div>
         <div class="tablewrap">
           <table><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table>
@@ -1327,6 +1332,65 @@ document.querySelectorAll(".lanes button").forEach(b =>
       x.setAttribute("aria-selected", String(x === b)));
     drawTable();
   }));
+
+/* ---------- the table, as a file ----------
+   Everything the console holds, both lanes, in the column order on screen and
+   under whatever the headers have been renamed to. Read straight off S.roster,
+   so it's the same data the table is drawing — no extra call to the backend. */
+
+const CSV_CELL = {
+  name:     g => NAME(g),
+  pw:       g => g.password,
+  tier:     g => g.tier,
+  met:      g => g.met,
+  org:      g => g.org,
+  going:    g => (RUNGS.find(r => r.v === g.going) || {}).coming || "",
+  prob:     g => g.prob == null ? "" : g.prob,
+  arrive:   g => g.arrive,
+  attend:   g => attendOf(g),
+  run:      g => g.run,
+  note:     g => g.note,
+  msg:      g => g.msg,
+  pay:      g => g.pay,
+  namevote: g => g.namevote
+};
+
+/* A field carrying a comma, a quote or a newline has to be quoted, and its own
+   quotes doubled. Everything else goes through bare. */
+const csvField = v => {
+  const t = String(v == null ? "" : v);
+  return /[",\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+};
+const csvRow = cells => cells.map(csvField).join(",");
+
+function rosterCSV() {
+  const cols = COLS.filter(c => CSV_CELL[c.key]);
+  const lines = [csvRow(["List", ...cols.map(c => c.label)])];
+  for (const lane of ["invited", "prospect"]) {
+    const label = lane === "invited" ? "Invited" : "Thinking about it";
+    for (const g of S.roster.filter(x => x.lane === lane))
+      lines.push(csvRow([label, ...cols.map(c => CSV_CELL[c.key](g))]));
+  }
+  return lines.join("\r\n") + "\r\n";
+}
+
+$("csvBtn").addEventListener("click", () => {
+  if (!S || !S.roster) return;
+  const d = new Date();
+  const stamp = [d.getFullYear(), d.getMonth() + 1, d.getDate()]
+    .map(n => String(n).padStart(2, "0")).join("-");
+  // The BOM is what makes Excel read it as UTF-8 rather than mangling accents.
+  const url = URL.createObjectURL(
+    new Blob(["\uFEFF" + rosterCSV()], { type: "text/csv;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `confluxcon-guests-${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(`Downloaded &mdash; <b>${S.roster.length}</b> ${S.roster.length === 1 ? "person" : "people"}, every column`);
+});
 
 /* Console edits go to the sheet a field at a time, debounced per field so
    typing a name doesn't fire a write per keystroke. */
