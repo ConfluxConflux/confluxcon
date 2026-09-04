@@ -300,6 +300,21 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   background:#fff;resize:vertical}
 .rundetails textarea:focus{border-color:var(--teal);outline:none}
 .runhint{margin:0;font-size:.88rem;font-style:italic;color:var(--ink-3);line-height:1.5}
+.whohead{margin:1.1rem 0 .5rem;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3)}
+.norsvp{margin:0;font-size:.9rem;font-style:italic;color:var(--ink-3)}
+.whoin{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px;
+  background:var(--rule-soft);border:1px solid var(--rule-soft);border-radius:5px;overflow:hidden}
+.whoin li{display:flex;align-items:baseline;gap:.6rem;padding:.42rem .6rem;background:#fff;
+  font-size:.9rem;line-height:1.4}
+.whoin .wlab{flex:none;min-width:7.5em;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase}
+.whoin .wct{flex:none;font-family:var(--mono);font-size:.78rem;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;min-width:1.6em;text-align:right}
+.whoin .wnames{flex:1;min-width:0;color:var(--ink-2);overflow-wrap:anywhere}
+.whoin .w-yes .wlab{color:var(--go)}
+.whoin .w-likely .wlab{color:var(--likely)}
+.whoin .w-maybe .wlab{color:var(--maybe)}
+.whoin .w-no .wlab{color:var(--no)}
 .sessrow details{margin-top:.6rem}
 .sessrow summary{display:inline-block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
   color:var(--teal);cursor:pointer;list-style:none}
@@ -1384,6 +1399,24 @@ $("fArrive").addEventListener("input", syncChips);
 
 /* ---------- sessions: one shared list ---------- */
 
+/* Names against answers, for whoever runs the activity and for the host. The
+   count on the event page stays anonymous — this is the version with names. */
+function respondentsHTML(name) {
+  const rows = RUNGS.slice().reverse().map(r => ({
+    v: r.v, label: r.sess,
+    who: S.guests.filter(x => (x.sessions || {})[name] === r.v).map(NAME),
+  }));
+  if (!rows.some(r => r.who.length)) {
+    return `<p class="norsvp">Nobody has said either way yet.</p>`;
+  }
+  return `<ul class="whoin">${rows.map(r => `
+    <li class="w-${r.v}">
+      <span class="wlab">${r.label}</span>
+      <span class="wct">${r.who.length}</span>
+      <span class="wnames">${r.who.length ? esc(r.who.join(", ")) : "&mdash;"}</span>
+    </li>`).join("")}</ul>`;
+}
+
 const SESS_ORDER = new Map();
 const sessOrder = name => {
   if (!SESS_ORDER.has(name)) SESS_ORDER.set(name, Math.random());
@@ -1433,6 +1466,8 @@ function drawSessions() {
                     data-name="${esc(s.name)}" placeholder="optional">${esc(s.sched || "")}</textarea>
           <p class="runhint">Do you have a preference between Bayes Ground/Median/Attic/outside?
             How many people are you hoping for? How excited are you to run this?</p>
+          <p class="whohead">Who has said what</p>
+          ${respondentsHTML(s.name)}
         </div>
       </details>` : ""}
     </div>`;
