@@ -15,7 +15,11 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 
 /* Bumped whenever this file changes, so a plain GET on the val says which
    version is actually pasted in. */
-const BUILD = "2026-09-03 · details, log, rsvped";
+const BUILD = "2026-09-04 · wall order";
+
+/* Stamps older than this were guessed from a last-edit time, not recorded when
+   someone actually answered. They are cleared once and never written again. */
+const BACKFILL_CUTOFF = "2026-09-04T06:42:01Z";
 
 const G = "confluxcon_guests_v1";
 const S = "confluxcon_sessions_v1";
@@ -44,11 +48,15 @@ async function init() {
     try { await sqlite.execute(`ALTER TABLE ${G} ADD COLUMN ${col} TEXT`); } catch (_) {}
   }
   /* "rsvped" is when someone first answered, which is the order the guest wall
-     reads in. Anyone who answered before the column existed gets their last
-     edit instead — the best guess available, and only ever set once. */
+     reads in. Nobody who answered before the column existed has one, and the
+     wall shows those people first, in the order the console lists them — a
+     last-edit time was tried and it put people in the wrong order. Anything
+     stamped before this build is one of those guesses, so it goes. */
   try {
-    await sqlite.execute(`UPDATE ${G} SET rsvped = updated
-      WHERE (rsvped IS NULL OR rsvped = '') AND going <> '' AND updated <> ''`);
+    await sqlite.execute({
+      sql: `UPDATE ${G} SET rsvped = '' WHERE rsvped <> '' AND rsvped < ?`,
+      args: [BACKFILL_CUTOFF],
+    });
   } catch (_) {}
   await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${S} (
     name TEXT PRIMARY KEY, by TEXT, host TEXT, descr TEXT, sched TEXT)`);
@@ -153,7 +161,7 @@ function publicCard(g: any) {
     run: g.run, sessions: parseSessions(g.sessions),
     namevote: g.namevote || "",
     note: g.note || "",
-    rsvped: g.rsvped || g.updated || "",
+    rsvped: g.rsvped || "",
     seen: isYes(g.seen),
   };
 }

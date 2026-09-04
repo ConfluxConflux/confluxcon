@@ -1163,10 +1163,11 @@ const hrefOf = v => {
   return t ? (/^[a-z][a-z0-9+.-]*:\/\//i.test(t) ? t : "https://" + t) : "";
 };
 
-/* In the order people answered. Anyone the backend has no stamp for sits at
-   the end, in roster order, rather than jumping to the front. */
+/* In the order people answered. Everyone who answered before the site started
+   recording that has no stamp, so they come first, in the order the console
+   lists them — which is the order you set with its arrows. */
 function drawWall() {
-  const when = x => Date.parse(x.rsvped || "") || Infinity;
+  const when = x => Date.parse(x.rsvped || "") || -Infinity;
   const going = S.guests
     .filter(x => x.going && x.going !== "no")
     .map((x, i) => ({ x, i }))
