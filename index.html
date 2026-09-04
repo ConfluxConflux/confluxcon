@@ -134,6 +134,9 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .plan .tick{color:var(--gold-deep);flex:none;font-size:.8em}
 .plan li>span:nth-child(2){flex:1;min-width:0;overflow-wrap:anywhere}
 .plan .by{color:var(--ink-3);font-size:.88rem;font-style:italic}
+.by a{color:var(--teal);text-decoration:underline;text-underline-offset:2px;
+  border-bottom:1px solid transparent;transition:color .16s,border-color .16s}
+.by a:hover{border-bottom-color:var(--teal)}
 .plan .interest{color:var(--teal);font-size:.86rem;white-space:nowrap;flex:none;margin-left:auto}
 .morebtn{margin-top:1.3rem;font-family:var(--body);font-size:.72rem;letter-spacing:.18em;
   text-transform:uppercase;padding:.68em 1.6em;border-radius:999px;cursor:pointer;
@@ -703,13 +706,25 @@ const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g,
 const NAME = x => `${x.first || ""} ${x.last || ""}`.trim();
 
 /* Sessions record only a first name, and the seeded ones record nothing at all
-   — those are the host's. Resolve to a full name where the roster makes it
-   unambiguous, so every activity can say who is running it. */
+   — those are the host's. Resolve to the guest where the roster makes it
+   unambiguous, so every activity can say who is running it, in full, and link
+   to their own site the way the guest wall does. */
 const HOST_NAME = "Jacob Cohen";
+function runner(s) {
+  const all = S.guests || [];
+  const hits = s.by ? all.filter(g => g.first === s.by)
+                    : all.filter(g => NAME(g) === HOST_NAME);
+  return hits.length === 1 ? hits[0] : null;
+}
 function runBy(s) {
-  if (!s.by) return HOST_NAME;
-  const hits = (S.guests || []).filter(g => g.first === s.by);
-  return hits.length === 1 ? NAME(hits[0]) : s.by;
+  const g = runner(s);
+  return g ? NAME(g) : (s.by || HOST_NAME);
+}
+function runByHTML(s) {
+  const g = runner(s);
+  const href = g ? hrefOf(g.link) : "";
+  const name = esc(runBy(s));
+  return href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${name}</a>` : name;
 }
 
 let PW = "";      // this browser's password
@@ -1013,7 +1028,7 @@ function drawPlan() {
   $("planList").innerHTML = S.sessions.map(r => {
     const n = interestIn(r.name);
     return `<li><span class="tick" aria-hidden="true">&#9670;</span>
-      <span>${esc(r.name)} <span class="by">&mdash; run by ${esc(runBy(r))}</span></span>
+      <span>${esc(r.name)} <span class="by">&mdash; run by ${runByHTML(r)}</span></span>
       ${n ? `<span class="interest">${n} in</span>` : ""}</li>`;
   }).join("") || `<li><span class="empty">Nothing planned yet.</span></li>`;
 }
@@ -1224,7 +1239,7 @@ function drawSessions() {
     return `<div class="sessrow">
       <p class="snm">
         <span>${esc(s.name)}</span>
-        <span class="by">&mdash; run by ${esc(runBy(s))}</span>
+        <span class="by">&mdash; run by ${runByHTML(s)}</span>
         ${isMine || S.admin ? `<button type="button" class="drop" data-drop="${esc(s.name)}"
                  aria-label="Remove ${esc(s.name)}">&times;</button>` : ""}
       </p>
