@@ -15,11 +15,11 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 
 /* Bumped whenever this file changes, so a plain GET on the val says which
    version is actually pasted in. */
-const BUILD = "2026-09-04 · wall order";
+const BUILD = "2026-09-04 · wall order 2";
 
 /* Stamps older than this were guessed from a last-edit time, not recorded when
    someone actually answered. They are cleared once and never written again. */
-const BACKFILL_CUTOFF = "2026-09-04T06:42:01Z";
+const BACKFILL_CUTOFF = "2026-09-04T06:44:21Z";
 
 const G = "confluxcon_guests_v1";
 const S = "confluxcon_sessions_v1";
@@ -313,8 +313,14 @@ export default async function (req: Request): Promise<Response> {
       await log(full(me0), changed.join("; "));
       await setField(slug, "seen", "yes");
       const now = new Date().toISOString();
-      // Stamped the first time an answer lands, and never moved after that.
-      if (fields.going && !String(me0.rsvped || "")) await setField(slug, "rsvped", now);
+      /* Stamped only as an answer first appears — going from nothing to
+         something — never when an existing one is edited. Everyone who
+         answered before the column existed stays unstamped for good, which is
+         what keeps them in the console's order instead of leaping to the end
+         the next time they touch their RSVP. */
+      if (fields.going && !String(me0.going || "") && !String(me0.rsvped || "")) {
+        await setField(slug, "rsvped", now);
+      }
       await setField(slug, "updated", now);
       const me = await reread();
       return json(await payload(me, all, isAdmin));
