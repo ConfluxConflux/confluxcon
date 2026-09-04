@@ -539,10 +539,10 @@ footer a{color:rgba(240,252,248,.9)}
         <div class="fld">
           <label id="lblGoing">Are you coming?</label>
           <div class="seg" id="fGoing" role="radiogroup" aria-labelledby="lblGoing">
-            <label class="v-no"><input type="radio" name="going" value="no">Can't</label>
-            <label class="v-maybe"><input type="radio" name="going" value="maybe">Maybe</label>
+            <label class="v-no"><input type="radio" name="going" value="no">Probably not&nbsp;:(</label>
+            <label class="v-maybe"><input type="radio" name="going" value="maybe">Maybe&hellip;</label>
             <label class="v-likely"><input type="radio" name="going" value="likely">Probably</label>
-            <label class="v-yes"><input type="radio" name="going" value="yes">Definitely</label>
+            <label class="v-yes"><input type="radio" name="going" value="yes">Definitely!</label>
           </div>
           <div class="fine">
             <div class="slider">
@@ -701,10 +701,10 @@ const toTime = v => {
   return String(h).padStart(2, "0") + ":" + (ampm[2] || "00");
 };
 const RUNGS  = [
-  { v:"no",     p:10, coming:"Can't",      sess:"Probably not" },
-  { v:"maybe",  p:40, coming:"Maybe",      sess:"Maybe" },
-  { v:"likely", p:75, coming:"Probably",   sess:"Probably" },
-  { v:"yes",    p:95, coming:"Definitely", sess:"Definitely" }
+  { v:"no",     p:10, coming:"Probably not :(", sess:"Probably not" },
+  { v:"maybe",  p:40, coming:"Maybe\u2026",       sess:"Maybe" },
+  { v:"likely", p:75, coming:"Probably",         sess:"Probably" },
+  { v:"yes",    p:95, coming:"Definitely!",      sess:"Definitely" }
 ];
 const nearestRung = n => RUNGS.reduce((a,b) => Math.abs(b.p-n) < Math.abs(a.p-n) ? b : a);
 
