@@ -124,6 +124,13 @@ body{
 .ewhen{font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2);margin:1.5rem 0 .4rem}
 .ewhere{font-size:1rem;color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(18,101,106,.3)}
 .ewhere:hover{border-bottom-color:var(--teal)}
+@media (max-width:540px){
+  .ewhere{display:inline-flex;flex-direction:column;align-items:center;gap:.3rem;
+    border-bottom:0}
+  .ewhere .sep{display:none}
+  .ewhere span{border-bottom:1px solid rgba(18,101,106,.3)}
+  .ewhere:hover span{border-bottom-color:var(--teal)}
+}
 .esec{padding:2rem 0;border-bottom:1px solid var(--rule-soft)}
 .esec:last-child{border-bottom:0;padding-bottom:0}
 h2{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,3.4vw,2rem);margin:0 0 1.1rem;
@@ -473,7 +480,7 @@ footer a{color:rgba(240,252,248,.9)}
         <div class="ehero">
           <p class="eslogan">a farewell party to capture why Jacob fell in love with Berkeley</p>
           <p class="ewhen">Tuesday, September 8</p>
-          <a class="ewhere" id="mapsTop" target="_blank" rel="noopener">Lighthaven (Bayes Hall) &middot; 2740 Telegraph Ave, Berkeley &nearr;</a>
+          <a class="ewhere" id="mapsTop" target="_blank" rel="noopener"><span>Lighthaven (Bayes Hall)</span><span class="sep"> &middot; </span><span>2740 Telegraph Ave, Berkeley &nearr;</span></a>
         </div>
 
         <section class="esec" id="whoSec">
