@@ -674,7 +674,7 @@ footer a{color:rgba(240,252,248,.9)}
                       placeholder="What is it, and who is it for?"></textarea>
             <label for="newSched">Other information that might be helpful for scheduling this event</label>
             <textarea id="newSched" rows="3" maxlength="600" placeholder="optional"></textarea>
-            <p class="runhint">Do you have a preference between Bayes Ground/Median/Attic?
+            <p class="runhint">Do you have a preference between Bayes Ground/Median/Attic/outside?
               How many people are you hoping for? How excited are you to run this?</p>
           </div>
         </div>
@@ -1406,7 +1406,7 @@ function drawSessions() {
           <label for="s-${i}">Other information that might be helpful for scheduling this event</label>
           <textarea id="s-${i}" rows="3" maxlength="600" data-sfield="sched"
                     data-name="${esc(s.name)}" placeholder="optional">${esc(s.sched || "")}</textarea>
-          <p class="runhint">Do you have a preference between Bayes Ground/Median/Attic?
+          <p class="runhint">Do you have a preference between Bayes Ground/Median/Attic/outside?
             How many people are you hoping for? How excited are you to run this?</p>
         </div>
       </details>` : ""}
