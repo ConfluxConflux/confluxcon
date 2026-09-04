@@ -135,6 +135,30 @@ force a retry, then tick **Enforce HTTPS**.
 Note that a URL Redirect Record hides behind **SHOW MORE** in Namecheap's host
 records table, and is not listed as an A record even though it publishes one.
 
+### Activities carry their own details
+
+Ticking **I'd run it** when you add an activity opens two more boxes: an event
+description, which everyone can read, and scheduling notes, which only you and
+the person running it can. Whoever put an activity up can rewrite both later
+from the **Details** panel on their own RSVP tab — and so can you, for any of
+them, which is what lets you edit the four that were seeded with no owner.
+
+The activity list sorts itself by how many people are in, and hovering the count
+shows how the answers split (definitely / probably / maybe / probably not)
+without saying who answered what.
+
+### The live log
+
+The bottom of the Console shows what everyone has been doing — every RSVP
+change, activity, and console edit, newest first, with the before-and-after of
+whatever changed. Opening the site logs one line per person per half hour, not
+one per refresh. It polls every eight seconds while the Console is the open tab
+and the window is in front, and stops otherwise. Guests can't read it.
+
+**This needs the new `backend.ts` pasted into the val.** Until then the site
+works exactly as before, the log says so instead of filling in, and activity
+details won't save.
+
 ### After that, the backend is the database
 
 `guests.csv` and `build.py` are only for seeding and for working offline. Once
