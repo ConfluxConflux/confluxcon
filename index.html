@@ -1167,15 +1167,31 @@ const hrefOf = v => {
   return t ? (/^[a-z][a-z0-9+.-]*:\/\//i.test(t) ? t : "https://" + t) : "";
 };
 
-/* In the order people answered. Everyone who answered before the site started
-   recording that has no stamp, so they come first, in the order the console
-   lists them — which is the order you set with its arrows. */
+/* The seven who answered before the site recorded when anyone answered, in the
+   order they actually came in — which nothing in the data knows, so it is
+   written down here. Everyone after them sorts by their own stamp. */
+const FIRST_IN = [
+  ["jacob",  "jacob cohen"],
+  ["helena", "helena tran"],
+  ["jo",     "jo jiao"],
+  ["miles",  "miles kodama"],
+  ["ian",    "ian habich"],
+  ["kaelan", "kaelan yim"],
+  ["harry",  "harry waterman"],
+];
+
 function drawWall() {
-  const when = x => Date.parse(x.rsvped || "") || -Infinity;
+  const seat = x => {
+    const nm = NAME(x).toLowerCase();
+    const at = FIRST_IN.findIndex(([slug, full]) => x.slug === slug || nm === full);
+    return at < 0 ? FIRST_IN.length : at;
+  };
+  // A missing stamp sorts last rather than poisoning the comparison with NaN.
+  const when = x => { const t = Date.parse(x.rsvped || ""); return isNaN(t) ? 8.64e15 : t; };
   const going = S.guests
     .filter(x => x.going && x.going !== "no")
     .map((x, i) => ({ x, i }))
-    .sort((a, b) => when(a.x) - when(b.x) || a.i - b.i)
+    .sort((a, b) => seat(a.x) - seat(b.x) || when(a.x) - when(b.x) || a.i - b.i)
     .map(o => o.x);
   $("wall").innerHTML = going.map(x => {
     const full = esc(NAME(x));
