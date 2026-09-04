@@ -1163,8 +1163,15 @@ const hrefOf = v => {
   return t ? (/^[a-z][a-z0-9+.-]*:\/\//i.test(t) ? t : "https://" + t) : "";
 };
 
+/* In the order people answered. Anyone the backend has no stamp for sits at
+   the end, in roster order, rather than jumping to the front. */
 function drawWall() {
-  const going = S.guests.filter(x => x.going && x.going !== "no");
+  const when = x => Date.parse(x.rsvped || "") || Infinity;
+  const going = S.guests
+    .filter(x => x.going && x.going !== "no")
+    .map((x, i) => ({ x, i }))
+    .sort((a, b) => when(a.x) - when(b.x) || a.i - b.i)
+    .map(o => o.x);
   $("wall").innerHTML = going.map(x => {
     const full = esc(NAME(x));
     const href = hrefOf(x.link);

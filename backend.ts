@@ -19,7 +19,7 @@ const L = "confluxcon_log_v1";
 
 const GCOLS = ["ord","slug","first","last","password","admin","met","org","lane","tier",
                "going","prob","arrive","link","run","sessions","namevote","note","msg",
-               "pay","seen","updated"];
+               "pay","seen","updated","rsvped"];
 
 const WORDS = ("bellwether cinder driftwood ember fathom girder hearth ingot jetty keystone " +
   "lodestar mantle nectar obelisk parapet quiver rampart sextant tallow undertow vellum " +
@@ -36,9 +36,16 @@ async function init() {
     arrive TEXT, link TEXT, run TEXT, sessions TEXT, namevote TEXT,
     note TEXT, msg TEXT, pay TEXT, seen TEXT, updated TEXT)`);
   // Older tables predate these columns; adding one that exists throws, harmlessly.
-  for (const col of ["tier", "note", "msg", "pay"]) {
+  for (const col of ["tier", "note", "msg", "pay", "rsvped"]) {
     try { await sqlite.execute(`ALTER TABLE ${G} ADD COLUMN ${col} TEXT`); } catch (_) {}
   }
+  /* "rsvped" is when someone first answered, which is the order the guest wall
+     reads in. Anyone who answered before the column existed gets their last
+     edit instead — the best guess available, and only ever set once. */
+  try {
+    await sqlite.execute(`UPDATE ${G} SET rsvped = updated
+      WHERE (rsvped IS NULL OR rsvped = '') AND going <> '' AND updated <> ''`);
+  } catch (_) {}
   await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${S} (
     name TEXT PRIMARY KEY, by TEXT, host TEXT, descr TEXT, sched TEXT)`);
   // Same story as the guest table: older session tables predate these two.
@@ -142,6 +149,7 @@ function publicCard(g: any) {
     run: g.run, sessions: parseSessions(g.sessions),
     namevote: g.namevote || "",
     note: g.note || "",
+    rsvped: g.rsvped || g.updated || "",
     seen: isYes(g.seen),
   };
 }
@@ -292,7 +300,10 @@ export default async function (req: Request): Promise<Response> {
       }
       await log(full(me0), changed.join("; "));
       await setField(slug, "seen", "yes");
-      await setField(slug, "updated", new Date().toISOString());
+      const now = new Date().toISOString();
+      // Stamped the first time an answer lands, and never moved after that.
+      if (fields.going && !String(me0.rsvped || "")) await setField(slug, "rsvped", now);
+      await setField(slug, "updated", now);
       const me = await reread();
       return json(await payload(me, all, isAdmin));
     }
