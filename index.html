@@ -1368,6 +1368,12 @@ $("fArrive").addEventListener("input", syncChips);
 
 /* ---------- sessions: one shared list ---------- */
 
+const SESS_ORDER = new Map();
+const sessOrder = name => {
+  if (!SESS_ORDER.has(name)) SESS_ORDER.set(name, Math.random());
+  return SESS_ORDER.get(name);
+};
+
 /* Redrawing wipes whatever is half-typed, so leave the list alone while a
    details field has the cursor, and put back the ones that were open. */
 function drawSessions() {
@@ -1377,7 +1383,13 @@ function drawSessions() {
   const open = new Set([...box.querySelectorAll("details[open]")].map(d => d.dataset.sess));
 
   const mine = (S.me && S.me.sessions) || {};
-  box.innerHTML = S.sessions.map((s, i) => {
+  /* Shuffled, so the order they were added in doesn't decide what gets picked.
+     The key is drawn once per activity and kept for the visit, so the list
+     holds still while you answer and one added mid-visit lands anywhere. */
+  box.innerHTML = S.sessions
+    .map((s, i) => ({ s, i }))                 // i stays the index into S.sessions
+    .sort((a, b) => sessOrder(a.s.name) - sessOrder(b.s.name))
+    .map(({ s, i }) => {
     const want = mine[s.name] || "";
     const isMine = s.by && s.by === S.me.first;
     return `<div class="sessrow">
