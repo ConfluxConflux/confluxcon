@@ -423,6 +423,16 @@ th:nth-child(12),td:nth-child(12){min-width:13em}
 th:nth-child(13),td:nth-child(13){min-width:14em}
 th:nth-child(14),td:nth-child(14){min-width:5em}
 th:nth-child(15),td:nth-child(15){min-width:9em}
+.lanebtns{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hcell{display:flex;align-items:center;gap:.2rem}
+.sortbtn{flex:none;cursor:pointer;background:none;border:0;border-radius:4px;padding:.15em .3em;
+  font-size:.82rem;line-height:1;color:var(--ink-3);opacity:.35;
+  transition:opacity .15s,color .15s,background .15s}
+th:hover .sortbtn{opacity:1}
+.sortbtn:hover{color:var(--teal);background:#fff}
+.sortbtn:focus-visible{opacity:1;outline:1px solid var(--teal)}
+.sortbtn.on{opacity:1;color:var(--teal)}
+thead th.sorted{background:#fff;box-shadow:inset 0 -2px 0 var(--teal)}
 thead th{position:sticky;top:0;z-index:3;background:var(--paper-2);text-align:left;
   font-family:var(--body);font-weight:600;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
   color:var(--ink-2);padding:.6rem .7rem;border-bottom:1px solid var(--rule)}
@@ -740,7 +750,10 @@ footer a{color:rgba(240,252,248,.9)}
             <button role="tab" data-lane="invited" aria-selected="true">Invited <span class="count" id="cInv"></span></button>
             <button role="tab" data-lane="prospect" aria-selected="false">Thinking about it <span class="count" id="cPro"></span></button>
           </div>
-          <button class="mini" id="csvBtn" title="Every column of both lists, as it stands right now">Download CSV</button>
+          <div class="lanebtns">
+            <button class="mini quiet" id="sortClear" hidden></button>
+            <button class="mini" id="csvBtn" title="Every column of both lists, as it stands right now">Download CSV</button>
+          </div>
         </div>
         <div class="tablewrap">
           <table><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table>
@@ -801,6 +814,14 @@ const toTime = v => {
   const h = (+ampm[1] % 12) + (ampm[3] === "pm" ? 12 : 0);
   return String(h).padStart(2, "0") + ":" + (ampm[2] || "00");
 };
+/* ...and back out again, because "14:00" is not how anyone says it. */
+const fromTime = v => {
+  const m = String(v || "").trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return String(v || "").trim();
+  const h = +m[1];
+  return ((h % 12) || 12) + ":" + m[2] + (h < 12 ? "am" : "pm");
+};
+
 const RUNGS  = [
   { v:"no",     p:10, coming:"Probably not :(", sess:"Probably not" },
   { v:"maybe",  p:40, coming:"Maybe\u2026",       sess:"Maybe" },
@@ -1567,6 +1588,54 @@ let COLS = [
 const attendOf = x => Object.entries(x.sessions || {})
   .filter(([, v]) => v === "yes" || v === "likely").map(([k]) => k).join(", ");
 
+/* ---------- sorting ----------
+   Click a head and the list reorders under it, again to flip it, a third time
+   to give the order back to the arrows. Empty cells sink either way, and rows
+   that tie keep the order you put them in by hand. */
+let SORT = null;                       // { key, dir: 1 | -1 }
+
+/* The night runs 11am to 1am, so 1am is late, not early. */
+const timeRank = v => {
+  const m = String(v || "").trim().match(/^(\d{1,2}):(\d{2})$/);
+  return m ? ((+m[1] * 60 + +m[2]) - 11 * 60 + 1440) % 1440 : null;
+};
+
+const SORT_VAL = {
+  name:     g => NAME(g),
+  pw:       g => g.password,
+  tier:     g => g.tier,
+  met:      g => g.met,
+  org:      g => g.org,
+  going:    g => { const i = RUNGS.findIndex(r => r.v === g.going); return i < 0 ? null : i; },
+  prob:     g => g.prob == null || g.prob === "" ? null : +g.prob,
+  arrive:   g => timeRank(g.arrive),
+  attend:   g => attendOf(g),
+  run:      g => g.run,
+  note:     g => g.note,
+  msg:      g => g.msg,
+  pay:      g => g.pay,
+  namevote: g => g.namevote
+};
+
+const blankVal = v => v == null || (typeof v === "string" && !v.trim());
+
+function sortRows(rows) {
+  const val = SORT && SORT_VAL[SORT.key];
+  if (!val) return rows;
+  return rows
+    .map((g, i) => ({ g, i }))
+    .sort((x, y) => {
+      const a = val(x.g), b = val(y.g);
+      if (blankVal(a) || blankVal(b))
+        return blankVal(a) && blankVal(b) ? x.i - y.i : (blankVal(a) ? 1 : -1);
+      const d = typeof a === "number" && typeof b === "number"
+        ? a - b
+        : String(a).localeCompare(String(b), undefined, { numeric:true, sensitivity:"base" });
+      return d ? d * SORT.dir : x.i - y.i;
+    })
+    .map(x => x.g);
+}
+
 function drawConsole() { drawStats(); drawTable(); }
 
 /* ---------- the live log ----------
@@ -1649,13 +1718,31 @@ function drawStats() {
 }
 
 function drawTable() {
-  $("thead").innerHTML = COLS.map((c, i) =>
-    (c.key === "ord" || c.key === "acts")
-      ? `<th></th>`
-      : `<th><input class="hin" value="${esc(c.label)}" data-col="${i}"
-                   placeholder="Untitled" aria-label="Rename this column"></th>`).join("");
+  $("thead").innerHTML = COLS.map((c, i) => {
+    if (c.key === "ord" || c.key === "acts") return `<th></th>`;
+    const on = !!SORT && SORT.key === c.key && !!SORT_VAL[c.key];
+    const named = c.label || "this column";
+    return `<th${on ? ` class="sorted"` : ""}><div class="hcell">
+      <input class="hin" value="${esc(c.label)}" data-col="${i}"
+             placeholder="Untitled" aria-label="Rename this column">
+      ${SORT_VAL[c.key] ? `<button class="sortbtn${on ? " on" : ""}" data-sort="${c.key}"
+              aria-label="Sort by ${esc(named)}" title="${
+                !on ? `Sort by ${esc(named)}`
+                    : SORT.dir > 0 ? "Sorted up &mdash; click to flip"
+                                   : "Sorted down &mdash; click to clear"
+              }">${!on ? "&#8597;" : SORT.dir > 0 ? "&uarr;" : "&darr;"}</button>` : ""}
+    </div></th>`;
+  }).join("");
 
-  const rows = S.roster.filter(g => g.lane === LANE);
+  const sc = $("sortClear");
+  sc.hidden = !SORT;
+  if (SORT) {
+    const c = COLS.find(x => x.key === SORT.key);
+    sc.innerHTML = `Sorted by ${esc((c && c.label) || SORT.key)} ${
+      SORT.dir > 0 ? "&uarr;" : "&darr;"} &middot; clear`;
+  }
+
+  const rows = sortRows(S.roster.filter(g => g.lane === LANE));
   if (!rows.length) {
     $("tbody").innerHTML = `<tr><td colspan="${COLS.length}"><span class="empty">${
       LANE === "prospect" ? "Nobody on the maybe pile. Add someone below and they land here."
@@ -1676,9 +1763,9 @@ function drawTable() {
 
   $("tbody").innerHTML = rows.map((g, i) => `
     <tr data-slug="${esc(g.slug)}" class="r-${g.going || "idle"}">
-      <td class="ord">
-        <button class="arrow" data-act="up"   ${i === 0 ? "disabled" : ""} aria-label="Move up">&uarr;</button>
-        <button class="arrow" data-act="down" ${i === rows.length-1 ? "disabled" : ""} aria-label="Move down">&darr;</button>
+      <td class="ord"${SORT ? ` title="Clear the sort to reorder by hand"` : ""}>
+        <button class="arrow" data-act="up"   ${SORT || i === 0 ? "disabled" : ""} aria-label="Move up">&uarr;</button>
+        <button class="arrow" data-act="down" ${SORT || i === rows.length-1 ? "disabled" : ""} aria-label="Move down">&darr;</button>
       </td>
       <td>${cell(g, "name", "Full name", ' class="nmin"', NAME(g))}</td>
       <td>${cell(g, "password", "word", ' class="pwin"')}</td>
@@ -1691,7 +1778,7 @@ function drawTable() {
       </select></td>
       <td><input type="number" min="0" max="100" step="1" data-f="prob" placeholder="—"
                  value="${g.prob == null ? "" : g.prob}" aria-label="Probability for ${esc(NAME(g))}"></td>
-      <td>${cell(g, "arrive", "—", ' style="width:6em"')}</td>
+      <td>${cell(g, "arrive", "—", ' data-time="1" style="width:6em"', fromTime(g.arrive))}</td>
       <td><textarea rows="2" readonly aria-label="Wants to attend"
                     title="What they picked on their own profile">${esc(attendOf(g))}</textarea></td>
       <td>${area(g, "run", "—")}</td>
@@ -1715,6 +1802,18 @@ function drawTable() {
     ? `${rows.length} on this list — scroll it, or scroll sideways for the rest of the columns.`
     : "";
 }
+
+$("thead").addEventListener("click", e => {
+  const b = e.target.closest("[data-sort]");
+  if (!b) return;
+  const k = b.dataset.sort;
+  SORT = !SORT || SORT.key !== k ? { key:k, dir:1 }
+       : SORT.dir === 1          ? { key:k, dir:-1 }
+       : null;
+  drawTable();
+});
+
+$("sortClear").addEventListener("click", () => { SORT = null; drawTable(); });
 
 $("thead").addEventListener("input", e => {
   const inp = e.target.closest("[data-col]");
@@ -1742,7 +1841,7 @@ const CSV_CELL = {
   org:      g => g.org,
   going:    g => (RUNGS.find(r => r.v === g.going) || {}).coming || "",
   prob:     g => g.prob == null ? "" : g.prob,
-  arrive:   g => g.arrive,
+  arrive:   g => fromTime(g.arrive),
   attend:   g => attendOf(g),
   run:      g => g.run,
   note:     g => g.note,
@@ -1815,7 +1914,7 @@ function pushCell(slug, field, value) {
 
 $("tbody").addEventListener("input", e => {
   const inp = e.target.closest("input[data-f]:not([readonly]),textarea[data-f]:not([readonly])");
-  if (!inp) return;
+  if (!inp || inp.dataset.time) return;   // half-typed times wait for the blur
   const slug = inp.closest("tr").dataset.slug;
   if (inp.dataset.f === "name") {
     const [first, ...rest] = inp.value.trim().split(/\s+/);
@@ -1827,6 +1926,21 @@ $("tbody").addEventListener("input", e => {
 });
 
 $("tbody").addEventListener("change", async e => {
+  const tin = e.target.closest("input[data-time]");
+  if (tin) {
+    const slug = tin.closest("tr").dataset.slug;
+    const raw  = tin.value.trim();
+    const norm = raw ? toTime(raw) : "";
+    if (raw && !norm) {                   // couldn't read it — put back what was there
+      const g = S.roster.find(x => x.slug === slug);
+      tin.value = fromTime(g ? g.arrive : "");
+      toast("Times read like <b>2:00pm</b> or <b>14:00</b>.");
+      return;
+    }
+    tin.value = fromTime(norm);
+    pushCell(slug, "arrive", norm);
+    return;
+  }
   const sel = e.target.closest("select[data-f]");
   if (!sel) return;
   const slug = sel.closest("tr").dataset.slug;
