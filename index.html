@@ -1131,8 +1131,16 @@ $("moreBtn").addEventListener("click", () => {
 
 /* ---------- the event page ---------- */
 
-const interestIn = name =>
-  S.guests.filter(x => ["yes","likely"].includes((x.sessions || {})[name])).length;
+/* Expected heads, not raised hands: everyone counts as their own chance of
+   turning up times how likely they are to sit in on this one. */
+const SESS_W = { yes:1, likely:.7, maybe:.3, no:0 };
+const interestIn = name => S.guests.reduce((n, x) =>
+  n + (x.prob == null ? 0 : x.prob / 100) * (SESS_W[(x.sessions || {})[name]] || 0), 0);
+
+const heads = n => {
+  const s = n.toFixed(1).replace(/\.0$/, "");
+  return `${s} ${s === "1" ? "person" : "people"} so far`;
+};
 
 /* Which descriptions are open, by session name, so both lists agree and a
    redraw doesn't close what you just opened. */
@@ -1168,7 +1176,7 @@ function drawPlan() {
       <span>${esc(r.name)} <span class="by">&mdash; run by ${runByHTML(r)}</span>
         ${descToggleHTML(r)}
         ${descBodyHTML(r, "pdesc")}</span>
-      ${n ? `<span class="interest" title="${esc(interestSplit(r.name))}">${n} in</span>` : ""}</li>`;
+      ${n >= .05 ? `<span class="interest" title="${esc(interestSplit(r.name))}">${heads(n)}</span>` : ""}</li>`;
   }).join("") || `<li><span class="empty">Nothing planned yet.</span></li>`;
 }
 
