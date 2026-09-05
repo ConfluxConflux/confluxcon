@@ -15,7 +15,7 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 
 /* Bumped whenever this file changes, so a plain GET on the val says which
    version is actually pasted in. */
-const BUILD = "2026-09-04 · wall order 2";
+const BUILD = "2026-09-04 · add guest fix";
 
 /* Stamps older than this were guessed from a last-edit time, not recorded when
    someone actually answered. They are cleared once and never written again. */
@@ -422,7 +422,7 @@ export default async function (req: Request): Promise<Response> {
         await sqlite.execute({
           sql: `INSERT INTO ${G} (ord,slug,first,last,password,admin,met,org,lane,tier,
                 going,prob,arrive,link,run,sessions,namevote,note,msg,pay,seen,updated)
-                VALUES (?,?,?,?,?,'',?,?,'prospect',?,'','','','','{}','','','','','','')`,
+                VALUES (?,?,?,?,?,'',?,?,'prospect',?,'','','','','','{}','','','','','','')`,
           args: [maxOrder + 1, s, parts[0], parts.slice(1).join(" "), pw,
                  clean(body.met, 60), clean(body.org, 60), clean(body.tier, 4)],
         });
