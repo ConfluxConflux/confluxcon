@@ -203,8 +203,6 @@ a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
   .pick .sm{display:none}
   .pickrow{flex:0 1 348px}
 }
-.expect{font-family:var(--mono);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--teal);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pick{font-family:var(--mono);font-size:.57rem;letter-spacing:.06em;text-transform:uppercase;
   padding:.45em .1em;line-height:1.2;border:1px solid var(--rule);border-radius:3px;
   background:var(--paper);color:var(--ink-3);cursor:pointer;
@@ -1355,12 +1353,6 @@ $("rsvpBtn").addEventListener("click", () => showTab("profile"));
 const BOARD_RUNGS = [["yes","Def","Definitely"], ["likely","Prob","Probably"],
                      ["maybe","Maybe","Maybe"],  ["no","No","Probably not"]];
 
-/* Expected heads, not raised hands: everyone counts as their own chance of
-   turning up times how likely they are to sit in on this one. */
-const SESS_W = { yes:1, likely:.7, maybe:.3, no:0 };
-const expectedAt = key => (S.guests || []).reduce((n, g) =>
-  n + (g.prob == null ? 0 : g.prob / 100) * (SESS_W[(g.sessions || {})[key]] || 0), 0);
-
 function drawBoard() {
   const mine = (S.me && S.me.sessions) || {};
   document.querySelectorAll(".ev[data-key]").forEach(ev => {
@@ -1370,14 +1362,13 @@ function drawBoard() {
       wrap = document.createElement("div");
       wrap.className = "pickwrap";
       wrap.innerHTML = `<div class="pickrow" role="group"
-        aria-label="Do you want to be at ${esc(key)}?"></div><span class="expect"></span>`;
+        aria-label="Do you want to be at ${esc(key)}?"></div>`;
       ev.appendChild(wrap);
     }
     wrap.querySelector(".pickrow").innerHTML = BOARD_RUNGS.map(([v, short, long]) =>
       `<button type="button" class="pick v-${v}" data-v="${v}" aria-label="${esc(long)}"
          aria-pressed="${want === v}"><span class="sm">${short}</span><span
          class="lg">${long}</span></button>`).join("");
-    wrap.querySelector(".expect").textContent = expectedAt(key).toFixed(2) + " people";
   });
 }
 
