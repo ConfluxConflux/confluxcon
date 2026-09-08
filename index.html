@@ -140,16 +140,25 @@ h2{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,3.4vw,2rem)
 h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .subhead{font-family:var(--display);font-style:italic;font-weight:500;font-size:1.4rem;
   margin:1.6rem 0 .9rem;color:var(--ink)}
-.plan{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.6rem}
-.plan li{display:flex;align-items:baseline;gap:.7rem;font-size:1.04rem}
-.plan .tick{color:var(--gold-deep);flex:none;font-size:.8em}
-.plan li>span:nth-child(2){flex:1;min-width:0;overflow-wrap:anywhere}
-.plan .by{color:var(--ink-3);font-size:.88rem;font-style:italic}
+.daypart{margin-bottom:2.2rem}
+.daypart:last-child{margin-bottom:0}
+.dpname{font-family:var(--display);font-weight:600;font-size:1.5rem;margin:0;line-height:1.1;
+  color:var(--teal-deep)}
+.dpname .fl{color:var(--gold-deep)}
+.dptag{font-family:var(--display);font-style:italic;font-size:1.05rem;color:var(--ink-2);
+  margin:.15rem 0 1rem}
+.agenda{list-style:none;margin:0;padding:0;display:grid;gap:.7rem;
+  grid-template-columns:repeat(auto-fill,minmax(258px,1fr))}
+.ev{background:var(--paper-2);border:1px solid var(--rule-soft);border-left:3px solid var(--gold);
+  padding:.85rem 1rem .95rem}
+.evwhen{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;
+  color:var(--gold-deep);font-variant-numeric:tabular-nums}
+.evname{font-family:var(--display);font-weight:500;font-size:1.14rem;line-height:1.25;
+  margin:.3rem 0 0;color:var(--ink)}
+.evdesc{font-style:italic;font-size:.95rem;line-height:1.5;color:var(--ink-2);margin:.4rem 0 0}
 .by a{color:var(--teal);text-decoration:underline;text-underline-offset:2px;
   border-bottom:1px solid transparent;transition:color .16s,border-color .16s}
 .by a:hover{border-bottom-color:var(--teal)}
-.plan .interest{color:var(--teal);font-size:.86rem;white-space:nowrap;flex:none;margin-left:auto;
-  cursor:help}
 .morebtn{margin-top:1.3rem;font-family:var(--body);font-size:.72rem;letter-spacing:.18em;
   text-transform:uppercase;padding:.68em 1.6em;border-radius:999px;cursor:pointer;
   border:1px solid var(--rule);background:#fff;color:var(--teal);transition:background .18s,color .18s}
@@ -322,7 +331,6 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .sessrow summary::before{content:"+ ";font-family:var(--mono)}
 .sessrow details[open] summary::before{content:"\2212 "}
 .sessrow details .rundetails{margin-top:.7rem}
-.plan .pdesc{display:block;margin-top:.35rem;font-size:.95rem;line-height:1.55;color:var(--ink-2)}
 .sessrow .sdesc{display:block;margin:.45rem 0 .1rem;font-size:.94rem;line-height:1.55;color:var(--ink-2)}
 .descbtn{font-family:var(--body);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--teal);background:#fff;border:1px solid var(--rule);border-radius:999px;
@@ -567,33 +575,69 @@ footer a{color:rgba(240,252,248,.9)}
           <a class="ewhere" id="mapsTop" target="_blank" rel="noopener"><span>Lighthaven (Bayes Hall)</span><span class="sep"> &middot; </span><span>2740 Telegraph Ave, Berkeley &nearr;</span></a>
         </div>
 
+        <section class="esec">
+          <h2>Agenda</h2>
+          <div class="daypart">
+            <h3 class="dpname"><span class="fl">flux</span>con</h3>
+            <p class="dptag">a morning/afternoon in flux</p>
+            <ul class="agenda">
+            <li class="ev">
+              <span class="evwhen">10:00&ndash;12:30ish</span>
+              <h4 class="evname">Coworking at Lighthaven</h4>
+            </li>
+            <li class="ev">
+              <span class="evwhen">1:00&ndash;2:00ish</span>
+              <h4 class="evname">Lunch at the Butcher's Son</h4>
+            </li>
+            <li class="ev">
+              <span class="evwhen">Afternoon</span>
+              <h4 class="evname">Spontaneous adventure</h4>
+              <p class="evdesc">leaning toward either a bike ride or thrifting / fashion shopping, depending on the desires of the crowd</p>
+            </li>
+            <li class="ev">
+              <span class="evwhen">5:30&ndash;6:00</span>
+              <h4 class="evname">Reception</h4>
+            </li>
+            </ul>
+          </div>
+          <div class="daypart">
+            <h3 class="dpname">con<span class="fl">flux</span>con</h3>
+            <p class="dptag">an evening in conflux</p>
+            <ul class="agenda">
+            <li class="ev">
+              <span class="evwhen">6:00&ndash;7:00</span>
+              <h4 class="evname">Dinner</h4>
+              <p class="evdesc">I'm planning to order pizza but this is only because I'm fundamentally uncreative</p>
+            </li>
+            <li class="ev">
+              <span class="evwhen">7:00&ndash;8:00</span>
+              <h4 class="evname">AI Safety Trivia!</h4>
+              <p class="evdesc">I've actually been wanting to do this for awhile!</p>
+            </li>
+            <li class="ev">
+              <span class="evwhen">8:10&ndash;8:30</span>
+              <h4 class="evname">Jacob appreciation circle</h4>
+            </li>
+            <li class="ev">
+              <span class="evwhen">8:30&ndash;10:00</span>
+              <h4 class="evname">Blood on the Clocktower OR Authentic Relating Games</h4>
+            </li>
+            <li class="ev">
+              <span class="evwhen">10:30&ndash;11:00</span>
+              <h4 class="evname">Cuddle Puddle</h4>
+            </li>
+            <li class="ev">
+              <span class="evwhen">11:00&ndash;1:00ish</span>
+              <h4 class="evname">Nighthaven</h4>
+            </li>
+            </ul>
+          </div>
+        </section>
+
         <section class="esec" id="whoSec">
           <h2>RSVPs so far</h2>
           <div class="wall" id="wall"></div>
           <button type="button" class="morebtn" id="rsvpBtn" hidden>RSVP</button>
-        </section>
-
-        <section class="esec">
-          <h2>Agenda</h2>
-          <div class="prose blurb">
-            <p>I'm renting out Building B of Lighthaven for the whole day! I expect things
-              to be low-key in the morning/afternoon, with most of the programming and
-              socializing in the evening. The activities are not mandatory and you can
-              always socialize / take a break; Lighthaven is great for this.</p>
-            <p>There will be a variety of snacks, and probably some form of dinner. There
-              might be lunch, depending on interest.</p>
-          </div>
-          <h3 class="subhead">Opt-in activities</h3>
-          <div class="prose blurb">
-            <p>Here are some activities that might happen, depending on interest. You are
-              free (and encouraged!) to run your own activities. I've always found running
-              my own 1-hour-ish activities to be a delightful aspect of Lighthaven
-              unconferences (it's such an easy place to run things because you'll have a
-              built-in room and built-in audience) so if you have any ideas, this is a
-              great time!</p>
-          </div>
-          <ul class="plan" id="planList"></ul>
-          <button type="button" class="morebtn" id="moreBtn">More &rarr;</button>
         </section>
 
         <section class="esec">
@@ -890,7 +934,7 @@ function adopt(payload) {
   S = payload;
   $("tabConsole").hidden = !S.admin;
   $("whoName").textContent = NAME(S.me) + (S.admin ? " · host" : "");
-  drawPlan(); drawWall(); drawSessions();
+  drawWall(); drawSessions();
   paintVote(false);                       // keep the mark honest as votes land
   if (S.admin) drawConsole();
 }
@@ -1142,23 +1186,7 @@ $("pubLink").addEventListener("click", e => {
 
 $("rsvpBtn").addEventListener("click", () => showTab("profile"));
 
-$("moreBtn").addEventListener("click", () => {
-  showTab("profile");
-  setTimeout(() => {
-    const t = $("lblSess");
-    if (t.scrollIntoView) t.scrollIntoView({ behavior:"smooth", block:"start" });
-  }, 90);
-});
-
 /* ---------- the event page ---------- */
-
-/* Expected heads, not raised hands: everyone counts as their own chance of
-   turning up times how likely they are to sit in on this one. */
-const SESS_W = { yes:1, likely:.7, maybe:.3, no:0 };
-const interestIn = name => S.guests.reduce((n, x) =>
-  n + (x.prob == null ? 0 : x.prob / 100) * (SESS_W[(x.sessions || {})[name]] || 0), 0);
-
-const heads = n => `${n.toFixed(2)} ${n.toFixed(2) === "1.00" ? "person" : "people"} so far`;
 
 /* Which descriptions are open, by session name, so both lists agree and a
    redraw doesn't close what you just opened. */
@@ -1177,31 +1205,6 @@ function toggleDesc(name, redraw) {
   DESC_OPEN.has(name) ? DESC_OPEN.delete(name) : DESC_OPEN.add(name);
   redraw();
 }
-
-/* The split behind the count — numbers only, never who answered what. */
-const interestSplit = name => RUNGS.slice().reverse()
-  .map(r => `${r.sess} ${S.guests.filter(x => (x.sessions || {})[name] === r.v).length}`)
-  .join("  \u00b7  ");
-
-/* Most wanted first. Ties hold the order they were added in, so the list only
-   moves when the interest behind it actually moves. */
-function drawPlan() {
-  const ranked = S.sessions
-    .map((r, i) => ({ r, i, n: interestIn(r.name) }))
-    .sort((a, b) => b.n - a.n || a.i - b.i);
-  $("planList").innerHTML = ranked.map(({ r, n }) => {
-    return `<li><span class="tick" aria-hidden="true">&#9670;</span>
-      <span>${esc(r.name)} <span class="by">&mdash; run by ${runByHTML(r)}</span>
-        ${descToggleHTML(r)}
-        ${descBodyHTML(r, "pdesc")}</span>
-      ${n >= .005 ? `<span class="interest" title="${esc(interestSplit(r.name))}">${heads(n)}</span>` : ""}</li>`;
-  }).join("") || `<li><span class="empty">Nothing planned yet.</span></li>`;
-}
-
-$("planList").addEventListener("click", e => {
-  const b = e.target.closest("[data-desc]");
-  if (b) toggleDesc(b.dataset.desc, drawPlan);
-});
 
 const hrefOf = v => {
   const t = String(v || "").trim();
@@ -1320,7 +1323,7 @@ async function flush() {
     const data = await api("save", { patch });
     S = data;                                   // adopt without stomping the open form
     $("whoName").textContent = NAME(S.me) + (S.admin ? " · host" : "");
-    drawPlan(); drawWall(); drawSessions();
+    drawWall(); drawSessions();
     paintVote(true);                      // your own vote moves it immediately
     if (S.admin) drawConsole();
     setSaver("saved", "Saved just now");
@@ -1509,7 +1512,6 @@ function pushSession(name, field, value) {
   sessTimers[key] = setTimeout(async () => {
     try {
       S = await api("editSession", { name, [field]: value });
-      drawPlan();
     } catch (err) {
       toast(String(err.message).includes("unknown_action")
         ? "The backend needs the new version pasted in before details will save."
