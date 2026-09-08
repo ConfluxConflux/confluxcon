@@ -155,6 +155,14 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .agenda>.ev{grid-column:1/-1}
 .agenda>.ev.half{grid-column:auto}
 .half .pickrow{max-width:none}
+/* Dinner's lower arm: pulled up over the gap and stripped of its top edge, so
+   the two boxes read as one L with AI Safety Trivia notched into the corner. */
+.ev.ltail{margin-top:calc(-.7rem - 1px);border-top:0}
+.ev.ltail .evdesc{margin-top:0}
+@media (max-width:640px){
+  .agenda{grid-template-columns:1fr}
+  .agenda>.ev.half{grid-column:1/-1}
+}
 .loc.gate{color:var(--gold-deep);letter-spacing:.1em}
 .ev{background:var(--paper-2);border:1px solid var(--rule-soft);border-left:3px solid var(--gold);
   padding:.85rem 1rem .95rem;display:flex;flex-wrap:wrap;gap:.5rem .9rem;
@@ -665,7 +673,12 @@ footer a{color:rgba(240,252,248,.9)}
                     <span class="loc">Bayes House</span>
                   </div>
                 </li>
-                <li data-key="AI Safety Trivia" class="ev">
+                <li class="ev half ltail" aria-hidden="true">
+                  <div class="evmain">
+                    <p class="evdesc">you can keep eating / socializing if you don't want to do AI Safety Trivia</p>
+                  </div>
+                </li>
+                <li data-key="AI Safety Trivia" class="ev half">
                   <div class="evmain">
                     <span class="evwhen">7:00&ndash;7:50</span>
                     <h4 class="evname">AI Safety Trivia!</h4>
