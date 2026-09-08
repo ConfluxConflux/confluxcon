@@ -140,15 +140,15 @@ h2{font-family:var(--display);font-weight:500;font-size:clamp(1.5rem,3.4vw,2rem)
 h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .subhead{font-family:var(--display);font-style:italic;font-weight:500;font-size:1.4rem;
   margin:1.6rem 0 .9rem;color:var(--ink)}
-.daypart{margin-bottom:2.2rem}
-.daypart:last-child{margin-bottom:0}
+.dayparts{display:grid;gap:2.2rem 1.9rem;align-items:start;
+  grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:640px){.dayparts{grid-template-columns:1fr}}
 .dpname{font-family:var(--display);font-weight:600;font-size:1.5rem;margin:0;line-height:1.1;
   color:var(--teal-deep)}
 .dpname .fl{color:var(--gold-deep)}
 .dptag{font-family:var(--display);font-style:italic;font-size:1.05rem;color:var(--ink-2);
   margin:.15rem 0 1rem}
-.agenda{list-style:none;margin:0;padding:0;display:grid;gap:.7rem;
-  grid-template-columns:repeat(auto-fill,minmax(258px,1fr))}
+.agenda{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.7rem}
 .ev{background:var(--paper-2);border:1px solid var(--rule-soft);border-left:3px solid var(--gold);
   padding:.85rem 1rem .95rem}
 .evwhen{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;
@@ -577,6 +577,7 @@ footer a{color:rgba(240,252,248,.9)}
 
         <section class="esec">
           <h2>Agenda</h2>
+          <div class="dayparts">
           <div class="daypart">
             <h3 class="dpname"><span class="fl">flux</span>con</h3>
             <p class="dptag">a morning/afternoon in flux</p>
@@ -631,6 +632,7 @@ footer a{color:rgba(240,252,248,.9)}
               <h4 class="evname">Nighthaven</h4>
             </li>
             </ul>
+          </div>
           </div>
         </section>
 
