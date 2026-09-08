@@ -414,6 +414,9 @@ a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
   font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
 .sessrow.sub{margin-left:1.4rem;border-left:2px solid var(--rule-soft);padding-left:.9rem}
 .sessrow .sdesc.board{font-style:italic;margin:.3rem 0 .15rem}
+.dietfld{margin:.8rem 0 .1rem}
+.dietfld label{display:block;font-family:var(--body);font-size:.66rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:.35rem}
 .descbtn{font-family:var(--body);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--teal);background:#fff;border:1px solid var(--rule);border-radius:999px;
   padding:.28em .8em;margin-left:.45em;cursor:pointer;white-space:nowrap;
@@ -669,7 +672,7 @@ footer a{color:rgba(240,252,248,.9)}
                 afternoon at <a href="https://www.google.com/maps/place/Downtown+Berkeley/@37.8700733,-122.2681998,17.96z/data=!4m6!3m5!1s0x80857e9dcbbcfba7:0xad74c1e4918cbdb6!8m2!3d37.8701083!4d-122.2681007!16s%2Fg%2F11rdhls7w?hl=en&amp;entry=ttu&amp;g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">Constellation/Downtown Berkeley BART</a> for the
                 bike adventure!</p>
               <ul class="agenda">
-                <li data-key="Coworking" class="ev">
+                <li data-key="Coworking" class="ev" data-start="10:00" data-end="12:15">
                   <div class="evwhere">
                     <span class="loc">Bayes Ground</span>
                   </div>
@@ -679,7 +682,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <p class="evdesc">Come be productive together! In a better world I'd be working on SAGA stuff or blogging, but I fear I might be writing the AI safety trivia...</p>
                   </div>
                 </li>
-                <li data-key="Lunch (maybe we'll walk somewhere, like The Butcher's Son?)" class="ev">
+                <li data-key="Lunch (maybe we'll walk somewhere, like The Butcher's Son?)" class="ev" data-start="12:45" data-end="13:45">
                   <div class="evwhere">
                     <a class="loc" href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son &nearr;<span class="off">(NOT LIGHTHAVEN)</span></a>
                   </div>
@@ -689,7 +692,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <p class="evdesc">I used to say <a href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son</a> was my favorite restaurant in Berkeley. Now I don't say that as much, but it's not obvious to me which restaurant is better...</p>
                   </div>
                 </li>
-                <li data-key="Bike adventure" class="ev">
+                <li data-key="Bike adventure" class="ev" data-start="14:00" data-end="17:00">
                   <div class="evwhere">
                     <a class="loc" href="https://www.google.com/maps/place/Downtown+Berkeley/@37.8700733,-122.2681998,17.96z/data=!4m6!3m5!1s0x80857e9dcbbcfba7:0xad74c1e4918cbdb6!8m2!3d37.8701083!4d-122.2681007!16s%2Fg%2F11rdhls7w?hl=en&amp;entry=ttu&amp;g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">Meet in front of Constellation &nearr;<span class="off plain">(Downtown Berkeley BART)</span></a>
                   </div>
@@ -709,7 +712,7 @@ footer a{color:rgba(240,252,248,.9)}
                 8pm, but coming later is also totally fine. I will try to stick to the schedule,
                 but there may still be flux, as per the will of the conflux.</p>
               <ul class="agenda">
-                <li data-key="Reception" class="ev">
+                <li data-key="Reception" class="ev" data-start="18:00" data-end="18:30">
                   <div class="evwhere">
                     <span class="loc">Bayes House</span>
                   </div>
@@ -718,7 +721,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <h4 class="evname">Reception</h4>
                   </div>
                 </li>
-                <li data-key="Dinner" class="ev">
+                <li data-key="Dinner" class="ev" data-start="18:30" data-end="19:50">
                   <div class="evwhere">
                     <span class="loc">Bayes House</span>
                   </div>
@@ -730,7 +733,7 @@ footer a{color:rgba(240,252,248,.9)}
                 </li>
                 <li class="split">
                   <div class="col">
-                    <div data-key="AI Safety Trivia" class="ev">
+                    <div data-key="AI Safety Trivia" class="ev" data-start="20:00" data-end="20:50">
                       <div class="evwhere">
                         <span class="loc">Bayes Attic</span>
                       </div>
@@ -740,7 +743,7 @@ footer a{color:rgba(240,252,248,.9)}
                         <p class="evdesc">Warmup: How many of the seven Anthropic cofounders can you name?</p>
                       </div>
                     </div>
-                    <div data-key="Authentic Relating Games" data-options="Hot Seat|Circling|Conflict Improv|Lightning Talks|Sock Wrestling" class="ev">
+                    <div data-key="Authentic Relating Games" data-options="Hot Seat|Circling|Conflict Improv|Lightning Talks|Sock Wrestling" class="ev" data-start="21:00" data-end="21:50">
                       <div class="evwhere">
                         <span class="loc">Bayes Attic</span>
                       </div>
@@ -751,7 +754,7 @@ footer a{color:rgba(240,252,248,.9)}
                       </div>
                     </div>
                   </div>
-                  <div data-key="Blood on the Clocktower" class="ev">
+                  <div data-key="Blood on the Clocktower" class="ev" data-start="20:00" data-end="21:50">
                     <div class="evwhere">
                       <span class="loc">Bayes Ground</span>
                     </div>
@@ -763,7 +766,7 @@ footer a{color:rgba(240,252,248,.9)}
                     </div>
                   </div>
                 </li>
-                <li data-key="Jacob appreciation circle" class="ev">
+                <li data-key="Jacob appreciation circle" class="ev" data-start="22:00" data-end="22:20">
                   <div class="evwhere">
                     <span class="loc">Bayes Attic</span>
                   </div>
@@ -773,7 +776,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <p class="evby">run by Jo Jiao</p>
                   </div>
                 </li>
-                <li data-key="Cuddle Puddle" class="ev">
+                <li data-key="Cuddle Puddle" class="ev" data-start="22:30" data-end="23:00">
                   <div class="evwhere">
                     <span class="loc">Bayes Attic</span>
                   </div>
@@ -782,7 +785,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <h4 class="evname">Cuddle Puddle</h4>
                   </div>
                 </li>
-                <li data-key="Nighthaven" class="ev">
+                <li data-key="Nighthaven" class="ev" data-start="23:00" data-end="25:00">
                   <div class="evwhere">
                     <span class="loc">Bayes House</span>
                   </div>
@@ -847,12 +850,6 @@ footer a{color:rgba(240,252,248,.9)}
         </div>
 
         <div class="fld">
-          <label for="fDiet">Dietary restrictions</label>
-          <input type="text" id="fDiet" maxlength="200"
-                 placeholder="anything I should know when I order food">
-        </div>
-
-        <div class="fld">
           <label id="lblProfile">Your profile</label>
         <div class="badge">
           <div class="clip" aria-hidden="true"><span class="hole"></span></div>
@@ -896,6 +893,11 @@ footer a{color:rgba(240,252,248,.9)}
         <div class="fld">
           <label id="lblSess">Sessions you want to attend</label>
           <div class="sess" id="fSessions"></div>
+          <div class="fld dietfld" id="dietFld" hidden>
+            <label for="fDiet">Dietary restrictions / dinner preferences</label>
+            <input type="text" id="fDiet" maxlength="200"
+                   placeholder="anything I should know when I order food">
+          </div>
           <div class="adder">
             <input type="text" id="newSess" maxlength="60"
                    placeholder="Something else you'd want to see &mdash; or run" aria-label="Add another session">
@@ -1387,14 +1389,30 @@ const tipEl = document.createElement("div");
 tipEl.id = "picktip";
 document.body.appendChild(tipEl);
 
-const whoPicked = (key, v) => (S.guests || [])
-  .filter(g => onWall(g) && ((g.sessions || {})[key] || "") === v)
+/* Minutes from midnight, on the party's clock: anything before 10am is the
+   small hours of the next morning, not the start of the day. */
+function partyMin(hhmm) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(hhmm || "").trim());
+  if (!m) return null;
+  const t = +m[1] * 60 + +m[2];
+  return t < 10 * 60 ? t + 24 * 60 : t;
+}
+
+/* Someone who turns up after a thing has finished isn't at it, whatever they
+   answered — they drop out of the list rather than showing as a no. An
+   unstated arrival can't rule anyone out, so it doesn't. */
+const whoPicked = (key, v, endsAt) => (S.guests || [])
+  .filter(g => {
+    if (!onWall(g) || ((g.sessions || {})[key] || "") !== v) return false;
+    const a = partyMin(g.arrive);
+    return !(a != null && endsAt != null && a >= endsAt);
+  })
   .map(NAME).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
 function showPickTip(b, x, y) {
   const ev = b.closest(".ev[data-key]");
   if (!ev) return;
-  const v = b.dataset.v, who = whoPicked(ev.dataset.key, v);
+  const v = b.dataset.v, who = whoPicked(ev.dataset.key, v, partyMin(ev.dataset.end));
   const label = (BOARD_RUNGS.find(r => r[0] === v) || ["", "", v])[2];
   tipEl.innerHTML = `<b>${esc(label)} \u00b7 ${who.length}</b>` +
     (who.length ? who.map(n => `<span class="who">${esc(n)}</span>`).join("")
@@ -1725,6 +1743,7 @@ function drawSessions() {
   const box = $("fSessions");
   const live = document.activeElement;
   if (live && live.dataset && live.dataset.sfield && box.contains(live)) return;
+  if (live === $("fDiet")) return;      // moving it would blur what you're typing
   const open = new Set([...box.querySelectorAll("details[open]")].map(d => d.dataset.sess));
 
   const mine = (S.me && S.me.sessions) || {};
@@ -1746,10 +1765,13 @@ function drawSessions() {
     .sort((a, b) => sessOrder(a.s.name) - sessOrder(b.s.name))
     .forEach(o => rows.push({ s: o.s, i: o.i, when: "", label: o.s.name }));
 
+  const diet = $("dietFld");
+  if (diet) diet.parentNode.removeChild(diet);   // survive the innerHTML wipe
+
   box.innerHTML = rows.map(({ s, i, when, label, sub, descs }) => {
     const want = mine[s.name] || "";
     const isMine = s.by && s.by === S.me.first;
-    return `<div class="sessrow${sub ? " sub" : ""}">
+    return `<div class="sessrow${sub ? " sub" : ""}" data-row="${esc(s.name)}">
       <p class="snm">
         ${when ? `<span class="swhen">${esc(when)}</span>` : ""}
         <span class="sname">${esc(label || s.name)}</span>
@@ -1782,6 +1804,13 @@ function drawSessions() {
       </details>` : ""}
     </div>`;
   }).join("");
+
+  /* The dinner preferences belong with the dinner, so the field is re-homed
+     into that row after every redraw rather than living on its own. */
+  if (diet) {
+    (box.querySelector('.sessrow[data-row="Dinner"]') || box).appendChild(diet);
+    diet.hidden = false;
+  }
 }
 
 /* One field at a time, debounced, and the list is not redrawn underneath it —

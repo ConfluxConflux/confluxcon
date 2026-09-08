@@ -15,7 +15,7 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 
 /* Bumped whenever this file changes, so a plain GET on the val says which
    version is actually pasted in. */
-const BUILD = "2026-09-08 · dietary restrictions";
+const BUILD = "2026-09-08 · diet + public arrival";
 
 /* Stamps older than this were guessed from a last-edit time, not recorded when
    someone actually answered. They are cleared once and never written again. */
@@ -158,6 +158,9 @@ function publicCard(g: any) {
     slug: g.slug, first: g.first, last: g.last,
     met: g.met, org: g.org, link: g.link,
     going: g.going, prob: g.prob === "" ? null : Number(g.prob),
+    /* The board hides an answer from someone who turns up after the thing has
+       finished, so every browser needs the arrival time to do that sum. */
+    arrive: g.arrive || "",
     run: g.run, sessions: parseSessions(g.sessions),
     namevote: g.namevote || "",
     note: g.note || "",
@@ -175,7 +178,6 @@ function adminRow(g: any) {
   c.msg = g.msg || "";                 // never leaves adminRow
   c.pay = g.pay || "";                 // nor does this
   c.diet = g.diet || "";               // nor does this
-  c.arrive = g.arrive;
   c.order = Number(g.ord) || 0;
   c.admin = isYes(g.admin);
   return c;
