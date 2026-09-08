@@ -150,7 +150,17 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   margin:.15rem 0 1rem}
 .agenda{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.7rem}
 .ev{background:var(--paper-2);border:1px solid var(--rule-soft);border-left:3px solid var(--gold);
-  padding:.85rem 1rem .95rem}
+  padding:.85rem 1rem .95rem;display:flex;flex-wrap:wrap;gap:.5rem .9rem;
+  justify-content:space-between;align-items:flex-start}
+.evmain{flex:1 1 58%;min-width:0}
+.evwhere{flex:0 1 auto;margin-left:auto;display:flex;flex-direction:column;
+  align-items:flex-end;gap:.3rem}
+.loc{font-family:var(--mono);font-size:.63rem;letter-spacing:.05em;line-height:1.35;
+  padding:.22rem .55rem;border-radius:999px;background:var(--likely-bg);color:var(--teal);
+  border:1px solid #c8dedc;text-align:right}
+a.loc{text-decoration:none;transition:border-color .16s,color .16s}
+a.loc:hover,a.loc:focus-visible{border-color:var(--teal);color:var(--teal-deep)}
+.loc .off{display:block;color:var(--gold-deep);letter-spacing:.08em}
 .evwhen{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;
   color:var(--gold-deep);font-variant-numeric:tabular-nums}
 .evname{font-family:var(--display);font-weight:500;font-size:1.14rem;line-height:1.25;
@@ -578,61 +588,106 @@ footer a{color:rgba(240,252,248,.9)}
         <section class="esec">
           <h2>Agenda</h2>
           <div class="dayparts">
-          <div class="daypart">
-            <h3 class="dpname"><span class="fl">flux</span>con</h3>
-            <p class="dptag">a morning/afternoon in flux</p>
-            <ul class="agenda">
-            <li class="ev">
-              <span class="evwhen">10:00&ndash;12:30ish</span>
-              <h4 class="evname">Coworking at Lighthaven</h4>
-            </li>
-            <li class="ev">
-              <span class="evwhen">1:00&ndash;2:00ish</span>
-              <h4 class="evname">Lunch at the Butcher's Son</h4>
-            </li>
-            <li class="ev">
-              <span class="evwhen">Afternoon</span>
-              <h4 class="evname">Spontaneous adventure</h4>
-              <p class="evdesc">leaning toward either a bike ride or thrifting / fashion shopping, depending on the desires of the crowd</p>
-            </li>
-            <li class="ev">
-              <span class="evwhen">5:30&ndash;6:00</span>
-              <h4 class="evname">Reception</h4>
-            </li>
-            </ul>
-          </div>
-          <div class="daypart">
-            <h3 class="dpname">con<span class="fl">flux</span>con</h3>
-            <p class="dptag">an evening in conflux</p>
-            <ul class="agenda">
-            <li class="ev">
-              <span class="evwhen">6:00&ndash;7:00</span>
-              <h4 class="evname">Dinner</h4>
-              <p class="evdesc">I'm planning to order pizza but this is only because I'm fundamentally uncreative</p>
-            </li>
-            <li class="ev">
-              <span class="evwhen">7:00&ndash;8:00</span>
-              <h4 class="evname">AI Safety Trivia!</h4>
-              <p class="evdesc">I've actually been wanting to do this for awhile!</p>
-            </li>
-            <li class="ev">
-              <span class="evwhen">8:10&ndash;8:30</span>
-              <h4 class="evname">Jacob appreciation circle</h4>
-            </li>
-            <li class="ev">
-              <span class="evwhen">8:30&ndash;10:00</span>
-              <h4 class="evname">Blood on the Clocktower OR Authentic Relating Games</h4>
-            </li>
-            <li class="ev">
-              <span class="evwhen">10:30&ndash;11:00</span>
-              <h4 class="evname">Cuddle Puddle</h4>
-            </li>
-            <li class="ev">
-              <span class="evwhen">11:00&ndash;1:00ish</span>
-              <h4 class="evname">Nighthaven</h4>
-            </li>
-            </ul>
-          </div>
+            <div class="daypart">
+              <h3 class="dpname"><span class="fl">flux</span>con</h3>
+              <p class="dptag">a morning/afternoon in flux</p>
+              <ul class="agenda">
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">10:00&ndash;12:30ish</span>
+                  <h4 class="evname">Coworking</h4>
+                </div>
+                <div class="evwhere">
+                <span class="loc">Bayes Ground</span>
+                </div>
+              </li>
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">1:00&ndash;2:00ish</span>
+                  <h4 class="evname">Lunch</h4>
+                </div>
+                <div class="evwhere">
+                <a class="loc" href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son <span class="off">(NOT LIGHTHAVEN)</span> &nearr;</a>
+                </div>
+              </li>
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">Afternoon</span>
+                  <h4 class="evname">Spontaneous adventure</h4>
+                  <p class="evdesc">leaning toward either a bike ride or thrifting / fashion shopping, depending on the desires of the crowd</p>
+                </div>
+              </li>
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">5:30&ndash;6:00</span>
+                  <h4 class="evname">Reception</h4>
+                </div>
+                <div class="evwhere">
+                <span class="loc">Bayes Hall</span>
+                </div>
+              </li>
+              </ul>
+            </div>
+            <div class="daypart">
+              <h3 class="dpname">con<span class="fl">flux</span>con</h3>
+              <p class="dptag">an evening in conflux</p>
+              <ul class="agenda">
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">6:00&ndash;7:00</span>
+                  <h4 class="evname">Dinner</h4>
+                  <p class="evdesc">I'm planning to order pizza but this is only because I'm fundamentally uncreative</p>
+                </div>
+                <div class="evwhere">
+                <span class="loc">Bayes Hall</span>
+                </div>
+              </li>
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">7:00&ndash;8:00</span>
+                  <h4 class="evname">AI Safety Trivia!</h4>
+                  <p class="evdesc">I've actually been wanting to do this for awhile!</p>
+                </div>
+                <div class="evwhere">
+                <span class="loc">Bayes Ground</span>
+                </div>
+              </li>
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">8:10&ndash;8:30</span>
+                  <h4 class="evname">Jacob appreciation circle</h4>
+                </div>
+                <div class="evwhere">
+                <span class="loc">Bayes Ground</span>
+                </div>
+              </li>
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">8:30&ndash;10:00</span>
+                  <h4 class="evname">Blood on the Clocktower OR Authentic Relating Games</h4>
+                </div>
+                <div class="evwhere">
+                <span class="loc">Blood on the Clocktower: Bayes Ground</span>
+                <span class="loc">Authentic Relating Games: Bayes Attic</span>
+                </div>
+              </li>
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">10:30&ndash;11:00</span>
+                  <h4 class="evname">Cuddle Puddle</h4>
+                </div>
+                <div class="evwhere">
+                <span class="loc">Bayes Attic</span>
+                </div>
+              </li>
+              <li class="ev">
+                <div class="evmain">
+                  <span class="evwhen">11:00&ndash;1:00ish</span>
+                  <h4 class="evname">Nighthaven</h4>
+                </div>
+              </li>
+              </ul>
+            </div>
           </div>
         </section>
 
