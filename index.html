@@ -166,11 +166,12 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   .agenda>.split{grid-template-columns:1fr}
 }
 .ev{background:var(--paper-2);border:1px solid var(--rule-soft);border-left:3px solid var(--gold);
-  padding:.85rem 1rem .95rem;display:flex;flex-wrap:wrap;gap:.5rem .9rem;align-content:flex-start;
-  justify-content:space-between;align-items:flex-start}
-.evmain{flex:1 1 58%;min-width:0}
-.evwhere{flex:0 1 auto;margin-left:auto;display:flex;flex-direction:column;
-  align-items:flex-end;gap:.3rem}
+  padding:.85rem 1rem .95rem}
+.ev::after{content:"";display:block;clear:both}
+/* Floated, not a flex sibling: the room sits in the top corner at every width
+   and the copy wraps beside it instead of being shoved onto its own line. */
+.evwhere{float:right;margin:.1rem 0 .4rem 1rem;max-width:54%;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.3rem}
 .loc{font-family:var(--mono);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;
   line-height:1.5;color:var(--ink-3);text-align:right}
 .loc::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;
@@ -623,23 +624,23 @@ footer a{color:rgba(240,252,248,.9)}
               <p class="dptag">a morning/afternoon in flux</p>
               <ul class="agenda">
                 <li class="ev">
-                  <div class="evmain">
-                    <span class="evwhen">10:00&ndash;12:30ish</span>
-                    <h4 class="evname">Coworking</h4>
-                    <p class="evdesc">Come be productive together! In a better world I'd be working on SAGA stuff or blogging, but I fear I might be writing the AI safety trivia...</p>
-                  </div>
                   <div class="evwhere">
                     <span class="loc">Bayes Ground</span>
                   </div>
+                  <div class="evmain">
+                    <span class="evwhen">10:00&ndash;12:15ish</span>
+                    <h4 class="evname">Coworking</h4>
+                    <p class="evdesc">Come be productive together! In a better world I'd be working on SAGA stuff or blogging, but I fear I might be writing the AI safety trivia...</p>
+                  </div>
                 </li>
                 <li class="ev">
-                  <div class="evmain">
-                    <span class="evwhen">1:00&ndash;2:00ish</span>
-                    <h4 class="evname">Lunch at The Butcher's Son</h4>
-                    <p class="evdesc">I used to say The Butcher's Son was my favorite restaurant in Berkeley. Now I don't say that as much, but it's not obvious to me which restaurant is better...</p>
-                  </div>
                   <div class="evwhere">
                     <a class="loc" href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son &nearr;<span class="off">(NOT LIGHTHAVEN)</span></a>
+                  </div>
+                  <div class="evmain">
+                    <span class="evwhen">12:45&ndash;1:45ish</span>
+                    <h4 class="evname">Lunch at The Butcher's Son</h4>
+                    <p class="evdesc">I used to say The Butcher's Son was my favorite restaurant in Berkeley. Now I don't say that as much, but it's not obvious to me which restaurant is better...</p>
                   </div>
                 </li>
                 <li class="ev">
@@ -656,84 +657,84 @@ footer a{color:rgba(240,252,248,.9)}
               <p class="dptag">an evening in conflux</p>
               <ul class="agenda">
                 <li class="ev">
+                  <div class="evwhere">
+                    <span class="loc">Bayes House</span>
+                  </div>
                   <div class="evmain">
                     <span class="evwhen">6:00&ndash;6:30</span>
                     <h4 class="evname">Reception</h4>
                   </div>
+                </li>
+                <li class="ev">
                   <div class="evwhere">
                     <span class="loc">Bayes House</span>
                   </div>
-                </li>
-                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">6:30&ndash;7:50</span>
                     <h4 class="evname">Dinner and socializing</h4>
                     <p class="evdesc">I'm planning to order pizza but this is only because I'm fundamentally uncreative, so lmk if you have any better ideas!</p>
                   </div>
-                  <div class="evwhere">
-                    <span class="loc">Bayes House</span>
-                  </div>
                 </li>
                 <li class="split">
                   <div class="col">
                     <div class="ev">
+                      <div class="evwhere">
+                        <span class="loc">Bayes Attic</span>
+                      </div>
                       <div class="evmain">
                         <span class="evwhen">8:00&ndash;8:50</span>
                         <h4 class="evname">AI Safety Trivia!</h4>
                         <p class="evdesc">Warmup: How many of the seven Anthropic cofounders can you name?</p>
                       </div>
+                    </div>
+                    <div class="ev">
                       <div class="evwhere">
                         <span class="loc">Bayes Attic</span>
                       </div>
-                    </div>
-                    <div class="ev">
                       <div class="evmain">
                         <span class="evwhen">9:00&ndash;9:50</span>
                         <h4 class="evname">Hot Seat / Circling / Conflict Improv / Lightning Talks / etc</h4>
                         <p class="evdesc">We'll vote on which to do!</p>
                       </div>
-                      <div class="evwhere">
-                        <span class="loc">Bayes Attic</span>
-                      </div>
                     </div>
                   </div>
                   <div class="ev">
+                    <div class="evwhere">
+                      <span class="loc">Bayes Ground</span>
+                    </div>
                     <div class="evmain">
                       <span class="evwhen">8:00&ndash;9:50</span>
                       <h4 class="evname">Blood on the Clocktower</h4>
                       <p class="evby">run by Ian Habich</p>
                     </div>
-                    <div class="evwhere">
-                      <span class="loc">Bayes Ground</span>
-                    </div>
                   </div>
                 </li>
                 <li class="ev">
+                  <div class="evwhere">
+                    <span class="loc">Bayes Attic</span>
+                  </div>
                   <div class="evmain">
                     <span class="evwhen">10:00&ndash;10:20</span>
                     <h4 class="evname">Jacob appreciation circle</h4>
                     <p class="evby">run by Jo Jiao</p>
                   </div>
+                </li>
+                <li class="ev">
                   <div class="evwhere">
                     <span class="loc">Bayes Attic</span>
                   </div>
-                </li>
-                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">10:30&ndash;11:00</span>
                     <h4 class="evname">Cuddle Puddle</h4>
                   </div>
-                  <div class="evwhere">
-                    <span class="loc">Bayes Attic</span>
-                  </div>
                 </li>
                 <li class="ev">
+                  <div class="evwhere">
+                    <span class="loc">Bayes House</span>
+                  </div>
                   <div class="evmain">
                     <span class="evwhen">11:00&ndash;1:00ish</span>
                     <h4 class="evname">Nighthaven</h4>
-                  </div>
-                  <div class="evwhere">
-                    <span class="loc">Bayes House</span>
                   </div>
                 </li>
               </ul>
