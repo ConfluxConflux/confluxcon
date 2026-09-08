@@ -733,6 +733,17 @@ td.acts{white-space:nowrap;display:flex;gap:5px;align-items:center}
   border:1px solid var(--rule-soft);border-radius:4px;padding:.28em .2em;background:#fff;color:var(--ink)}
 .marks .sc:focus{outline:none;border-color:var(--teal)}
 .marks .sc::placeholder{color:var(--ink-3);opacity:.55}
+.loosebtn{display:flex;align-items:center;gap:.5em;font-family:var(--body);font-size:.92rem;
+  color:var(--ink-2);background:none;border:0;padding:.2em 0;cursor:pointer;text-align:left}
+.loosebtn:hover{color:var(--ink)}
+.loosebtn .caret{font-size:.8em;color:var(--ink-3);flex:none}
+.loosewrap{display:flex;flex-direction:column;gap:4px;margin-top:.6rem;
+  max-height:min(38vh,300px);overflow:auto;overscroll-behavior:contain;
+  border:1px solid var(--rule-soft);border-radius:5px;background:#fff;padding:.5rem .6rem}
+.looserow{display:flex;gap:8px;align-items:center;font-size:.92rem}
+.looserow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.looserow select{font-family:var(--body);font-size:.88rem;padding:.25em .4em;flex:none;
+  border:1px solid var(--rule-soft);border-radius:4px;background:#fff;max-width:11em}
 .qtags{display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex:none}
 .qsrc{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
   padding:.22em .55em;border-radius:999px;background:var(--maybe-bg);color:var(--gold-deep);
@@ -2555,6 +2566,9 @@ let tvSaveT = null;
    a pile of pasted questions, a team name being thought about. A poll lands
    every five seconds and would otherwise wipe them. */
 const TV_DRAFTS = {};
+/* Which fold-outs are open. A poll redraws the panel; a list that snapped shut
+   under the cursor every five seconds would be worse than no list. */
+const TV_OPEN = new Set();
 
 const PHASES = [["off","Off"], ["teams","Teams"], ["play","Playing"], ["done","Done"]];
 const PHASE_WORD = { off:"not started", teams:"picking teams", play:"in play", done:"finished" };
@@ -2835,12 +2849,20 @@ function tvDrawHost() {
     </div>` : ""}
     ${un.length ? `<div class="hostrow" style="align-items:flex-start">
       <span class="lbl">Loose</span>
-      <div style="flex:1;display:flex;flex-direction:column;gap:5px">${un.map(g => `
-        <div style="display:flex;gap:8px;align-items:center;font-size:.92rem">
-          <span style="flex:1;min-width:0">${esc(g.name)}</span>
-          <select data-put="${esc(g.slug)}" style="font-family:var(--body);font-size:.88rem;
-            padding:.25em .4em;border:1px solid var(--rule-soft);border-radius:4px;background:#fff">${opts}</select>
-        </div>`).join("")}</div>
+      <div class="loose" style="flex:1">
+        <button class="loosebtn" data-open="loose" aria-expanded="${TV_OPEN.has("loose")}">
+          <span class="caret">${TV_OPEN.has("loose") ? "▾" : "▸"}</span>
+          ${un.length} ${un.length === 1 ? "person isn't" : "people aren't"} on a team${
+            teams.length ? "" : " — and there are no teams yet"}
+        </button>
+        ${TV_OPEN.has("loose") ? `<div class="loosewrap">${un.map(g => `
+          <div class="looserow">
+            <span>${esc(g.name)}</span>
+            <select data-put="${esc(g.slug)}">${opts}</select>
+          </div>`).join("")}</div>
+          <p class="hint" style="margin:.5rem 0 0">Only worth doing for whoever
+            never picked. Everyone else can join a team themselves.</p>` : ""}
+      </div>
     </div>` : ""}
     <div class="hostrow">
       <span class="lbl"></span>
@@ -2975,6 +2997,10 @@ $("pTrivia").addEventListener("click", async e => {
   if (d.dropround) {
     if (!confirm("Delete the whole round and its questions?")) return;
     return void tvDo("triviaAdmin", { op: "roundDrop", n: +d.dropround });
+  }
+  if (d.open) {
+    TV_OPEN.has(d.open) ? TV_OPEN.delete(d.open) : TV_OPEN.add(d.open);
+    return void tvKeepFocus(drawTrivia);
   }
   if (d.unpreview) return void tvDo("triviaAdmin", { op: "preview", slug: d.unpreview, on: false });
   if (b.id === "tvAddRound") return void tvDo("triviaAdmin", { op: "roundAdd" });

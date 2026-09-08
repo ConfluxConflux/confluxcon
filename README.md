@@ -176,7 +176,9 @@ The evening runs in four phases you click between:
 starts it is the captain and is the only one who can rename it. Anyone on a
 team can type that team's answer, and the last one typed is the one that
 counts, with the name of whoever typed it beside it. You can rename or disband
-any team, and place anyone who never got round to picking.
+any team. **Loose** folds away a list of everyone not yet on one — at the start
+that is the whole room, so it stays shut until you open it; it is there for
+mopping up whoever never picked, not for seating people.
 
 **Questions** sit in numbered rounds and are worth one point unless you say
 otherwise. Paste them in a line at a time:
