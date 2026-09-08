@@ -156,13 +156,6 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   grid-template-columns:repeat(12,minmax(0,1fr))}
 .agenda>.ev{grid-column:1/-1}
 .agenda>.ev.half{grid-column:span 6}
-.agenda>.ev.w8{grid-column:span 8}
-.agenda>.ev.w4{grid-column:span 4}
-.half .pickrow,.w8 .pickrow{max-width:none}
-/* Dinner's lower arm: pulled up over the gap and stripped of its top edge, so
-   the two boxes read as one L with AI Safety Trivia notched into the corner. */
-.ev.ltail{margin-top:calc(-.7rem - 1px);border-top:0;border-left:1px solid var(--rule-soft)}
-.ev.ltail .evdesc{margin-top:0}
 @media (max-width:640px){
   .agenda{grid-template-columns:1fr}
   .agenda>.ev{grid-column:1/-1}
@@ -182,25 +175,6 @@ a.loc{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent
 a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 .loc .off{display:block;color:var(--gold-deep)}
 
-/* An activity keeps its answer folded away until you open it. */
-.ev[data-key]{cursor:pointer}
-.evfoot{flex:1 1 100%;display:flex;justify-content:flex-end;margin-top:.55rem}
-.evstate{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;
-  padding:.34em .75em;border:1px solid var(--rule);border-radius:3px;background:var(--paper);
-  color:var(--ink-3);cursor:pointer;transition:border-color .14s,color .14s}
-.evstate.none{border-style:dashed}
-.ev[data-key]:hover .evstate{border-color:var(--ink-3);color:var(--ink-2)}
-.evstate.v-yes{background:var(--go-bg);border-color:var(--go);color:var(--go);font-weight:600}
-.evstate.v-likely{background:var(--likely-bg);border-color:var(--likely);color:var(--likely);font-weight:600}
-.evstate.v-maybe{background:var(--maybe-bg);border-color:var(--maybe);color:var(--maybe);font-weight:600}
-.evstate.v-no{background:var(--no-bg);border-color:var(--no);color:var(--no);font-weight:600}
-.ev.open{border-color:var(--rule);background:var(--paper);position:relative;z-index:2;
-  box-shadow:0 6px 22px rgba(29,47,49,.13);padding-bottom:1.05rem}
-.ev.open .evfoot{display:none}
-
-.pickrow{flex:1 1 100%;display:none;grid-template-columns:repeat(4,1fr);gap:3px;
-  margin-top:.7rem;max-width:264px}
-.ev.open .pickrow{display:grid}
 .pick{font-family:var(--mono);font-size:.57rem;letter-spacing:.06em;text-transform:uppercase;
   padding:.42em .1em;line-height:1.2;border:1px solid var(--rule);border-radius:3px;
   background:var(--paper);color:var(--ink-3);cursor:pointer;
@@ -638,12 +612,12 @@ footer a{color:rgba(240,252,248,.9)}
 
         <section class="esec">
           <h2>Agenda</h2>
-          <div class="dayparts" id="agendaBoard">
+          <div class="dayparts">
             <div class="daypart">
               <h3 class="dpname"><span class="fl">flux</span>con</h3>
               <p class="dptag">a morning/afternoon in flux</p>
               <ul class="agenda">
-                <li data-key="Coworking" class="ev">
+                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">10:00&ndash;12:30ish</span>
                     <h4 class="evname">Coworking</h4>
@@ -652,7 +626,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <span class="loc">Bayes Ground</span>
                   </div>
                 </li>
-                <li data-key="Lunch (maybe we'll walk somewhere, like The Butcher's Son?)" class="ev">
+                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">1:00&ndash;2:00ish</span>
                     <h4 class="evname">Lunch at The Butcher's Son</h4>
@@ -661,14 +635,14 @@ footer a{color:rgba(240,252,248,.9)}
                     <a class="loc" href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son &nearr;<span class="off">(NOT LIGHTHAVEN)</span></a>
                   </div>
                 </li>
-                <li data-key="Bike adventure" class="ev">
+                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">2:00ish&ndash;5:00ish</span>
                     <h4 class="evname">Bike adventure</h4>
                     <p class="evdesc">Leaving from The Butcher's Son and exploring! We might go to the Berkeley Marina, Solano Ave, or beyond... I'm also interested in doing some thrifting / fashion improvement</p>
                   </div>
                 </li>
-                <li data-key="Reception" class="ev">
+                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">5:30&ndash;6:00</span>
                     <h4 class="evname">Reception</h4>
@@ -683,7 +657,7 @@ footer a{color:rgba(240,252,248,.9)}
               <h3 class="dpname">con<span class="fl">flux</span>con</h3>
               <p class="dptag">an evening in conflux</p>
               <ul class="agenda">
-                <li data-key="Dinner" class="ev">
+                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">6:00&ndash;6:50</span>
                     <h4 class="evname">Dinner</h4>
@@ -693,7 +667,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <span class="loc">Bayes House</span>
                   </div>
                 </li>
-                <li data-key="AI Safety Trivia" class="ev w8">
+                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">7:00&ndash;7:50</span>
                     <h4 class="evname">AI Safety Trivia!</h4>
@@ -703,12 +677,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <span class="loc">Bayes Ground</span>
                   </div>
                 </li>
-                <li class="ev w4 ltail" aria-hidden="true">
-                  <div class="evmain">
-                    <p class="evdesc">you can keep eating / socializing if you don't want to do AI Safety Trivia</p>
-                  </div>
-                </li>
-                <li data-key="Jacob appreciation circle" class="ev">
+                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">8:00&ndash;8:20</span>
                     <h4 class="evname">Jacob appreciation circle</h4>
@@ -718,7 +687,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <span class="loc">Bayes Ground</span>
                   </div>
                 </li>
-                <li data-key="Blood on the Clocktower" class="ev half">
+                <li class="ev half">
                   <div class="evmain">
                     <span class="evwhen">8:30&ndash;10:20</span>
                     <h4 class="evname">Blood on the Clocktower</h4>
@@ -728,7 +697,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <span class="loc">Bayes Ground</span>
                   </div>
                 </li>
-                <li data-key="Authentic Relating Games" class="ev half">
+                <li class="ev half">
                   <div class="evmain">
                     <span class="evwhen">8:30&ndash;10:20</span>
                     <h4 class="evname">Authentic Relating Games</h4>
@@ -737,7 +706,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <span class="loc">Bayes Attic</span>
                   </div>
                 </li>
-                <li data-key="Cuddle Puddle" class="ev">
+                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">10:30&ndash;11:00</span>
                     <h4 class="evname">Cuddle Puddle</h4>
@@ -746,7 +715,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <span class="loc">Bayes Attic</span>
                   </div>
                 </li>
-                <li data-key="Nighthaven" class="ev">
+                <li class="ev">
                   <div class="evmain">
                     <span class="evwhen">11:00&ndash;1:00ish</span>
                     <h4 class="evname">Nighthaven</h4>
@@ -1060,7 +1029,7 @@ function adopt(payload) {
   S = payload;
   $("tabConsole").hidden = !S.admin;
   $("whoName").textContent = NAME(S.me) + (S.admin ? " · host" : "");
-  drawWall(); drawSessions(); drawBoard();
+  drawWall(); drawSessions();
   paintVote(false);                       // keep the mark honest as votes land
   if (S.admin) drawConsole();
 }
@@ -1312,67 +1281,6 @@ $("pubLink").addEventListener("click", e => {
 
 $("rsvpBtn").addEventListener("click", () => showTab("profile"));
 
-/* ---------- the agenda board ---------- */
-
-/* Short labels: four of these have to fit across a room column. */
-const BOARD_RUNGS = [["yes","Yes"],["likely","Likely"],["maybe","Maybe"],["no","No"]];
-
-const RUNG_LABEL = Object.fromEntries(BOARD_RUNGS);
-
-function drawBoard() {
-  const mine = (S.me && S.me.sessions) || {};
-  document.querySelectorAll(".ev[data-key]").forEach(ev => {
-    const key = ev.dataset.key, want = mine[key] || "";
-    let foot = ev.querySelector(".evfoot");
-    if (!foot) {
-      foot = document.createElement("div");
-      foot.className = "evfoot";
-      foot.innerHTML = '<button type="button" class="evstate"></button>';
-      ev.appendChild(foot);
-    }
-    const chip = foot.firstChild;
-    chip.className = "evstate " + (want ? "v-" + want : "none");
-    chip.textContent = want ? RUNG_LABEL[want] : "RSVP";
-    chip.setAttribute("aria-expanded", String(ev.classList.contains("open")));
-    chip.setAttribute("aria-label",
-      (want ? "You answered " + RUNG_LABEL[want] + ". " : "") + "Answer for " + key);
-
-    let row = ev.querySelector(".pickrow");
-    if (!row) {
-      row = document.createElement("div");
-      row.className = "pickrow";
-      row.setAttribute("role", "group");
-      row.setAttribute("aria-label", "Do you want to be at " + key + "?");
-      ev.appendChild(row);
-    }
-    row.innerHTML = BOARD_RUNGS.map(([v, label]) =>
-      `<button type="button" class="pick v-${v}" data-v="${v}"
-         aria-pressed="${want === v}">${label}</button>`).join("");
-  });
-}
-
-/* One open at a time, so the board keeps its shape while you answer. */
-function openEvent(ev) {
-  const was = ev && ev.classList.contains("open");
-  document.querySelectorAll(".ev.open").forEach(o => o.classList.remove("open"));
-  if (ev && !was) ev.classList.add("open");
-  drawBoard();
-}
-
-/* Pressing the answer you already gave takes it back off. */
-$("agendaBoard").addEventListener("click", e => {
-  const b = e.target.closest(".pick");
-  if (b) {
-    const key = b.closest(".ev[data-key]").dataset.key;
-    const now = (S.me.sessions || (S.me.sessions = {}))[key] || "";
-    S.me.sessions[key] = now === b.dataset.v ? "" : b.dataset.v;
-    drawBoard(); drawSessions(); touched();
-    return;
-  }
-  if (e.target.closest("a")) return;            // the map link is not a toggle
-  openEvent(e.target.closest(".ev[data-key]"));
-});
-
 /* ---------- the event page ---------- */
 
 /* Which descriptions are open, by session name, so both lists agree and a
@@ -1508,7 +1416,7 @@ async function flush() {
     const data = await api("save", { patch });
     S = data;                                   // adopt without stomping the open form
     $("whoName").textContent = NAME(S.me) + (S.admin ? " · host" : "");
-    drawWall(); drawSessions(); drawBoard(); drawBoard();
+    drawWall(); drawSessions();
     paintVote(true);                      // your own vote moves it immediately
     if (S.admin) drawConsole();
     setSaver("saved", "Saved just now");
@@ -1714,7 +1622,7 @@ $("fSessions").addEventListener("change", e => {
   const i = e.target.closest("input[data-sess]");
   if (!i) return;
   const s = S.sessions[+i.dataset.sess];
-  if (s) { (S.me.sessions || (S.me.sessions = {}))[s.name] = i.value; drawBoard(); }
+  if (s) (S.me.sessions || (S.me.sessions = {}))[s.name] = i.value;
   touched();
 });
 $("fSessions").addEventListener("click", async e => {
