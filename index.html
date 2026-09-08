@@ -1001,7 +1001,7 @@ const MAPS_URL = "https://www.google.com/maps/place/Lighthaven/@37.8599609,-122.
 const PW_KEY = "confluxcon.pw";
 /* 11am through 1am the next morning, on the hour */
 const HOURS  = Array.from({ length: 15 }, (_, i) => {
-  const h = (11 + i) % 24;
+  const h = (10 + i) % 24;
   return [((h % 12) || 12) + (h < 12 ? "am" : "pm"), String(h).padStart(2, "0") + ":00"];
 });
 
