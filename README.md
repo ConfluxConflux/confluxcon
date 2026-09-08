@@ -159,6 +159,48 @@ and the window is in front, and stops otherwise. Guests can't read it.
 works exactly as before, the log says so instead of filling in, and activity
 details won't save.
 
+### Trivia
+
+A fourth tab, **Trivia**, hidden from everyone until you switch it on. Only you
+can see it to begin with; the **Guests ▸ Can see the tab** button in *Running
+it* is what puts it in front of the room.
+
+The evening runs in four phases you click between:
+
+    Off      nobody but you can see anything
+    Teams    people are picking sides
+    Playing  questions are being asked
+    Done     final scores, nothing more to answer
+
+**Teams.** A guest either joins one that exists or starts their own; whoever
+starts it is the captain and is the only one who can rename it. Anyone on a
+team can type that team's answer, and the last one typed is the one that
+counts, with the name of whoever typed it beside it. You can rename or disband
+any team, and place anyone who never got round to picking.
+
+**Questions** sit in numbered rounds and are worth one point unless you say
+otherwise. Paste them in a line at a time:
+
+    Who wrote "Superintelligence"? | Bostrom | Nick Bostrom
+
+Everything after the first pipe is an answer the question will take. Marking
+ignores case, punctuation, accents and a leading "the"/"a"/"of", so
+`nick BOSTROM.` matches `Nick Bostrom` — and anything it still gets wrong you
+flip by hand with the ✓ and ✗ beside each team's answer. Clicking the mark
+that is already on puts that answer back to automatic.
+
+**Ask this** opens a question to the room — one at a time, and it switches the
+phase to Playing for you. **Close & score** is what puts the points on the
+board, reveals the answer to everyone, and stops any more coming in. Nothing
+scores until you close it, and **Un-score** takes it back off. The scoreboard
+updates itself for everybody every five seconds while the tab is open.
+
+**Clear every answer** wipes what the teams typed and puts every question back
+to unasked, keeping the questions themselves — for a second run at it.
+
+**This needs the new `backend.ts` pasted into the val.** Until then the tab is
+yours alone and says so; nothing else on the site is affected.
+
 ### After that, the backend is the database
 
 `guests.csv` and `build.py` are only for seeding and for working offline. Once

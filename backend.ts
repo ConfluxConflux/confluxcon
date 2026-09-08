@@ -15,7 +15,7 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 
 /* Bumped whenever this file changes, so a plain GET on the val says which
    version is actually pasted in. */
-const BUILD = "2026-09-08 · diet + public arrival";
+const BUILD = "2026-09-08 · trivia";
 
 /* Stamps older than this were guessed from a last-edit time, not recorded when
    someone actually answered. They are cleared once and never written again. */
@@ -25,9 +25,15 @@ const G = "confluxcon_guests_v1";
 const S = "confluxcon_sessions_v1";
 const L = "confluxcon_log_v1";
 
+/* trivia: a key/value state doc, the teams, the questions, the answers */
+const T  = "confluxcon_trivia_v1";
+const TT = "confluxcon_teams_v1";
+const TQ = "confluxcon_tquestions_v1";
+const TA = "confluxcon_tanswers_v1";
+
 const GCOLS = ["ord","slug","first","last","password","admin","met","org","lane","tier",
                "going","prob","arrive","link","run","sessions","namevote","note","msg",
-               "pay","seen","updated","rsvped","diet"];
+               "pay","seen","updated","rsvped","diet","team"];
 
 const WORDS = ("bellwether cinder driftwood ember fathom girder hearth ingot jetty keystone " +
   "lodestar mantle nectar obelisk parapet quiver rampart sextant tallow undertow vellum " +
@@ -44,7 +50,7 @@ async function init() {
     arrive TEXT, link TEXT, run TEXT, sessions TEXT, namevote TEXT,
     note TEXT, msg TEXT, pay TEXT, seen TEXT, updated TEXT)`);
   // Older tables predate these columns; adding one that exists throws, harmlessly.
-  for (const col of ["tier", "note", "msg", "pay", "rsvped", "diet"]) {
+  for (const col of ["tier", "note", "msg", "pay", "rsvped", "diet", "team"]) {
     try { await sqlite.execute(`ALTER TABLE ${G} ADD COLUMN ${col} TEXT`); } catch (_) {}
   }
   /* "rsvped" is when someone first answered, which is the order the guest wall
@@ -67,6 +73,19 @@ async function init() {
   }
   await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${L} (
     id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT, who TEXT, what TEXT)`);
+
+  /* Trivia. The state doc is key/value so one setting can be written without
+     reading the rest back first. Everything else is a plain row per thing. */
+  await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${T} (k TEXT PRIMARY KEY, v TEXT)`);
+  await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${TT} (
+    id TEXT PRIMARY KEY, name TEXT, captain TEXT, created TEXT)`);
+  await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${TQ} (
+    id TEXT PRIMARY KEY, rnd INTEGER, ord INTEGER, prompt TEXT, answer TEXT,
+    points TEXT, state TEXT, note TEXT)`);
+  /* One answer per team per question — the id is both together, so a second
+     member of the same team overwrites rather than adding a second row. */
+  await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${TA} (
+    id TEXT PRIMARY KEY, qid TEXT, team TEXT, text TEXT, by TEXT, at TEXT, mark TEXT)`);
 }
 
 /* ---------- the log -------------------------------------------------------
@@ -204,6 +223,10 @@ async function payload(me: any, all: any[], isAdmin: boolean) {
   if (isAdmin) {
     out.roster = [...all].sort((a, b) => (Number(a.ord) || 0) - (Number(b.ord) || 0)).map(adminRow);
   }
+  /* Two values, so the browser knows whether to draw the trivia tab at all
+     before it has polled for anything. */
+  const st = await tstate();
+  out.trivia = { phase: st.phase, visible: st.visible === "yes", title: st.title };
   return out;
 }
 
@@ -212,6 +235,167 @@ const byPassword = (all: any[], pw: any) => {
   if (!p) return null;
   return all.find(g => String(g.password || "").trim().toLowerCase() === p) || null;
 };
+
+
+/* ---------- trivia --------------------------------------------------------
+   A question, a team, a typed answer, right or wrong, one point unless said
+   otherwise. Questions sit in numbered rounds; the host opens one at a time
+   and closes it when the room has had long enough. Closing is what puts the
+   points on the board, so nothing scores until the host says it does. */
+
+const TSTATE_DEFAULTS: Record<string, string> = {
+  phase: "off",      // off | teams | play | done
+  visible: "",       // "yes" once guests may see the tab at all
+  active: "",        // the question currently taking answers
+  last: "",          // the one most recently closed, for the reveal
+  title: "AI safety trivia",
+};
+
+async function tstate() {
+  const rows = objs(await sqlite.execute(`SELECT k, v FROM ${T}`));
+  const o: Record<string, string> = { ...TSTATE_DEFAULTS };
+  for (const r of rows) o[String(r.k)] = String(r.v ?? "");
+  return o;
+}
+
+async function tset(k: string, v: any) {
+  await sqlite.execute({
+    sql: `INSERT INTO ${T} (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v`,
+    args: [k, clean(v, 300)],
+  });
+}
+
+const teamsAll = async () => objs(await sqlite.execute(`SELECT * FROM ${TT} ORDER BY created`));
+const questAll = async () => objs(await sqlite.execute(`SELECT * FROM ${TQ} ORDER BY rnd, ord`));
+const answAll  = async () => objs(await sqlite.execute(`SELECT * FROM ${TA}`));
+
+/* An id nobody has to type, short enough to read in a log line. */
+const newId = (p: string) =>
+  p + Date.now().toString(36).slice(-6) + Math.random().toString(36).slice(2, 5);
+
+/* Marking is generous about the things that are never the point: case,
+   punctuation, accents, leading articles, doubled spaces. It is strict about
+   everything else — the host has the last word on anything it gets wrong. */
+const tnorm = (v: any) =>
+  String(v == null ? "" : v)
+    .toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/\b(the|a|an|of)\b/g, " ")
+    .replace(/\s+/g, " ").trim();
+
+/** Everything the key will take, one per line or split on a pipe. */
+const accepted = (q: any) =>
+  String(q?.answer || "").split(/[\n|]+/).map(tnorm).filter(Boolean);
+
+/** Right or wrong: the host's mark if there is one, otherwise the key. */
+function correct(q: any, a: any) {
+  if (!a) return false;
+  if (a.mark === "yes") return true;
+  if (a.mark === "no") return false;
+  const t = tnorm(a.text);
+  return !!t && accepted(q).includes(t);
+}
+
+const points = (q: any) => {
+  const n = Number(q?.points);
+  return isNaN(n) || n <= 0 ? 1 : Math.min(99, Math.round(n));
+};
+
+/** Round names live in the state doc under rnd:1, rnd:2, … */
+function roundsOf(st: Record<string, string>, qs: any[]) {
+  const ns = new Set<number>();
+  for (const k in st) if (/^rnd:\d+$/.test(k)) ns.add(Number(k.slice(4)));
+  for (const q of qs) ns.add(Number(q.rnd) || 1);
+  if (!ns.size) ns.add(1);
+  return [...ns].sort((a, b) => a - b)
+    .map(n => ({ n, name: st["rnd:" + n] || `Round ${n}` }));
+}
+
+/** A question as a guest may see it — no key until the question is closed. */
+function askCard(q: any, reveal: boolean) {
+  return {
+    id: q.id, rnd: Number(q.rnd) || 1, ord: Number(q.ord) || 0,
+    prompt: q.prompt || "", points: points(q), state: q.state || "todo",
+    answer: reveal ? (q.answer || "") : "",
+    note: reveal ? (q.note || "") : "",
+  };
+}
+
+async function triviaPayload(me: any, isAdmin: boolean) {
+  const st = await tstate();
+  const teams = await teamsAll();
+  const qs = await questAll();
+  const ans = await answAll();
+  const all = await guests();
+
+  const byQ: Record<string, any[]> = {};
+  for (const a of ans) (byQ[String(a.qid)] ||= []).push(a);
+  const answerFor = (qid: string, team: string) =>
+    (byQ[qid] || []).find(a => String(a.team) === String(team));
+
+  /* Only closed questions count, which is what makes "close it" the host's
+     scoring gesture rather than a separate step to forget. */
+  const scored = qs.filter(q => q.state === "done");
+  const table = teams.map(t => {
+    let score = 0, right = 0;
+    for (const q of scored) {
+      if (correct(q, answerFor(String(q.id), String(t.id)))) { score += points(q); right++; }
+    }
+    const members = all.filter(g => String(g.team || "") === String(t.id));
+    return {
+      id: t.id, name: t.name || "Unnamed team", captain: t.captain || "",
+      members: members.map(g => ({ slug: g.slug, name: full(g) })),
+      score, right, of: scored.length,
+    };
+  }).sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+
+  const mine = String(me?.team || "");
+  const active = qs.find(q => String(q.id) === st.active && q.state === "open") || null;
+
+  const out: any = {
+    ok: true,
+    trivia: {
+      phase: st.phase, visible: st.visible === "yes", title: st.title,
+      rounds: roundsOf(st, qs),
+      teams: table,
+      team: mine,
+      /* Guests get the open question with the key withheld, plus whatever
+         their team has typed so far — every member sees the same box. */
+      active: active ? askCard(active, false) : null,
+      answer: active && mine
+        ? (a => a ? { text: a.text || "", by: a.by || "", at: a.at || "" } : null)(
+            answerFor(String(active.id), mine))
+        : null,
+      /* The one most recently closed, so the room can see what it should have
+         said. Recorded when it closes, because the host does not always work
+         straight down the list. */
+      last: (r => r ? {
+        ...askCard(r, true),
+        rows: teams.map(t => {
+          const a = answerFor(String(r.id), String(t.id));
+          return { team: t.id, text: a?.text || "", right: correct(r, a) };
+        }),
+      } : null)(scored.find(q => String(q.id) === st.last) || [...scored].pop()),
+    },
+  };
+
+  if (isAdmin) {
+    out.trivia.questions = qs.map(q => ({
+      ...askCard(q, true),
+      answers: teams.map(t => {
+        const a = answerFor(String(q.id), String(t.id));
+        return {
+          team: t.id, text: a?.text || "", by: a?.by || "",
+          mark: a?.mark || "", right: correct(q, a), has: !!a,
+        };
+      }),
+    }));
+    out.trivia.unteamed = all
+      .filter(g => (g.lane || "invited") === "invited" && !String(g.team || ""))
+      .map(g => ({ slug: g.slug, name: full(g) }));
+  }
+  return out;
+}
 
 /* ---------- entry point --------------------------------------------------- */
 
@@ -458,6 +642,267 @@ export default async function (req: Request): Promise<Response> {
 
       const me = await reread();
       return json(await payload(me, all, isAdmin));
+    }
+
+
+    /* ---------- trivia, for everyone signed in ---------- */
+
+    case "trivia":
+      return json(await triviaPayload(me0, isAdmin));
+
+    /* forming teams: start one and name it, or join one that exists */
+    case "triviaTeam": {
+      const st = await tstate();
+      if (st.phase === "off" && !isAdmin) return json({ ok: false, error: "not_open" });
+      const list = await teamsAll();
+      const op = body.op;
+
+      if (op === "create") {
+        const name = clean(body.name, 40);
+        if (!name) return json({ ok: false, error: "no_name" });
+        if (list.some(t => tnorm(t.name) === tnorm(name))) {
+          return json({ ok: false, error: "name_taken" });
+        }
+        if (list.length >= 20) return json({ ok: false, error: "too_many_teams" });
+        const id = newId("t");
+        await sqlite.execute({
+          sql: `INSERT INTO ${TT} (id, name, captain, created) VALUES (?, ?, ?, ?)`,
+          args: [id, name, slug, new Date().toISOString()],
+        });
+        await setField(slug, "team", id);
+        await log(full(me0), `started the trivia team “${name}”`);
+      }
+
+      if (op === "join") {
+        const t = list.find(x => String(x.id) === String(body.id));
+        if (!t) return json({ ok: false, error: "no_team" });
+        await setField(slug, "team", t.id);
+        await log(full(me0), `joined the trivia team “${t.name}”`);
+      }
+
+      if (op === "leave") {
+        const t = list.find(x => String(x.id) === String(me0.team || ""));
+        await setField(slug, "team", "");
+        if (t) await log(full(me0), `left the trivia team “${t.name}”`);
+      }
+
+      /* The captain owns the name. The host can fix any of them. */
+      if (op === "rename") {
+        const t = list.find(x => String(x.id) === String(body.id || me0.team || ""));
+        if (!t) return json({ ok: false, error: "no_team" });
+        if (!isAdmin && String(t.captain) !== slug) return json({ ok: false, error: "not_captain" });
+        const name = clean(body.name, 40);
+        if (!name) return json({ ok: false, error: "no_name" });
+        if (list.some(x => x.id !== t.id && tnorm(x.name) === tnorm(name))) {
+          return json({ ok: false, error: "name_taken" });
+        }
+        await sqlite.execute({ sql: `UPDATE ${TT} SET name = ? WHERE id = ?`, args: [name, t.id] });
+        await log(full(me0), `renamed a trivia team: ${brief(t.name)} → ${brief(name)}`);
+      }
+
+      const me = await reread();
+      return json(await triviaPayload(me, isAdmin));
+    }
+
+    /* one answer per team — whoever types last speaks for the team */
+    case "triviaAnswer": {
+      const st = await tstate();
+      if (st.phase !== "play") return json({ ok: false, error: "not_playing" });
+      const team = String(me0.team || "");
+      if (!team) return json({ ok: false, error: "no_team" });
+      const qs = await questAll();
+      const q = qs.find(x => String(x.id) === String(body.qid));
+      if (!q) return json({ ok: false, error: "no_question" });
+      if (q.state !== "open" || String(q.id) !== st.active) {
+        return json({ ok: false, error: "closed" });
+      }
+      const text = clean(body.text, 200);
+      const id = `${q.id}::${team}`;
+      await sqlite.execute({
+        sql: `INSERT INTO ${TA} (id, qid, team, text, by, at, mark)
+              VALUES (?, ?, ?, ?, ?, ?, '')
+              ON CONFLICT(id) DO UPDATE SET text = excluded.text, by = excluded.by,
+                                            at = excluded.at, mark = ''`,
+        args: [id, q.id, team, text, full(me0), new Date().toISOString()],
+      });
+      const t = (await teamsAll()).find(x => String(x.id) === team);
+      await log(full(me0), `answered for ${brief(t?.name || "a team")}: ${brief(text)}`);
+      return json(await triviaPayload(me0, isAdmin));
+    }
+
+    /* ---------- trivia, host only ---------- */
+    case "triviaAdmin": {
+      if (!isAdmin) return json({ ok: false, error: "not_admin" });
+      const op = String(body.op || "");
+
+      /* how far along the evening is, and whether guests can see any of it */
+      if (op === "phase") {
+        const v = ["off", "teams", "play", "done"].includes(body.value) ? body.value : "off";
+        await tset("phase", v);
+        await log(full(me0), `trivia phase → ${v}`);
+      }
+      if (op === "visible") {
+        await tset("visible", body.value ? "yes" : "");
+        await log(full(me0), `trivia is ${body.value ? "visible to guests" : "hidden again"}`);
+      }
+      if (op === "title") await tset("title", clean(body.value, 60) || "AI safety trivia");
+
+      /* rounds are numbered; only the name is stored */
+      if (op === "roundName") {
+        const n = Math.max(1, Math.min(99, Math.round(Number(body.n) || 1)));
+        await tset("rnd:" + n, clean(body.value, 60));
+      }
+      if (op === "roundAdd") {
+        const st = await tstate();
+        const qs = await questAll();
+        const next = roundsOf(st, qs).reduce((m, r) => Math.max(m, r.n), 0) + 1;
+        await tset("rnd:" + next, clean(body.name, 60) || `Round ${next}`);
+      }
+      if (op === "roundDrop") {
+        const n = Math.round(Number(body.n) || 0);
+        const doomed = (await questAll()).filter(q => (Number(q.rnd) || 1) === n);
+        for (const q of doomed) {
+          await sqlite.execute({ sql: `DELETE FROM ${TA} WHERE qid = ?`, args: [q.id] });
+        }
+        await sqlite.execute({ sql: `DELETE FROM ${TQ} WHERE rnd = ?`, args: [n] });
+        await sqlite.execute({ sql: `DELETE FROM ${T} WHERE k = ?`, args: ["rnd:" + n] });
+        await log(full(me0), `dropped trivia round ${n} and its ${doomed.length} question(s)`);
+      }
+
+      /* the editor */
+      if (op === "qAdd" || op === "qBulk") {
+        const rnd = Math.max(1, Math.round(Number(body.rnd) || 1));
+        const qs = await questAll();
+        let ord = qs.filter(q => (Number(q.rnd) || 1) === rnd)
+                    .reduce((m, q) => Math.max(m, Number(q.ord) || 0), 0);
+        /* Bulk entry: one question per line, "prompt | answer | also accepted". */
+        const lines = op === "qBulk"
+          ? String(body.text || "").split("\n").map((l: string) => l.trim()).filter(Boolean)
+          : [null];
+        let n = 0;
+        for (const line of lines) {
+          const parts = line === null ? null : line.split("|").map((x: string) => x.trim());
+          const prompt = clean(parts ? parts[0] : body.prompt, 400);
+          if (!prompt) continue;
+          const answer = cleanLines(parts ? parts.slice(1).join("\n") : body.answer, 400);
+          await sqlite.execute({
+            sql: `INSERT INTO ${TQ} (id, rnd, ord, prompt, answer, points, state, note)
+                  VALUES (?, ?, ?, ?, ?, ?, 'todo', ?)`,
+            args: [newId("q"), rnd, ++ord, prompt, answer,
+                   String(points({ points: parts ? 1 : body.points })), clean(body.note, 300)],
+          });
+          n++;
+        }
+        await log(full(me0), `added ${n} trivia question${n === 1 ? "" : "s"} to round ${rnd}`);
+      }
+
+      if (op === "qSet") {
+        const field = String(body.field || "");
+        if (!["prompt", "answer", "points", "note", "rnd"].includes(field)) {
+          return json({ ok: false, error: "bad_field" });
+        }
+        const value = field === "answer" || field === "prompt" ? cleanLines(body.value, 400)
+                    : field === "points" ? String(points({ points: body.value }))
+                    : field === "rnd"    ? String(Math.max(1, Math.round(Number(body.value) || 1)))
+                    : clean(body.value, 300);
+        await sqlite.execute({
+          sql: `UPDATE ${TQ} SET ${field} = ? WHERE id = ?`, args: [value, body.id],
+        });
+      }
+
+      if (op === "qDrop") {
+        await sqlite.execute({ sql: `DELETE FROM ${TA} WHERE qid = ?`, args: [body.id] });
+        await sqlite.execute({ sql: `DELETE FROM ${TQ} WHERE id = ?`, args: [body.id] });
+        const st = await tstate();
+        if (st.active === String(body.id)) await tset("active", "");
+        await log(full(me0), `deleted a trivia question`);
+      }
+
+      if (op === "qMove") {
+        const qs = await questAll();
+        const q = qs.find(x => String(x.id) === String(body.id));
+        if (q) {
+          const lane = qs.filter(x => (Number(x.rnd) || 1) === (Number(q.rnd) || 1));
+          const at = lane.findIndex(x => x.id === q.id);
+          const to = body.dir === "up" ? at - 1 : at + 1;
+          if (to >= 0 && to < lane.length) {
+            const b = lane[to];
+            await sqlite.execute({ sql: `UPDATE ${TQ} SET ord = ? WHERE id = ?`, args: [Number(b.ord) || 0, q.id] });
+            await sqlite.execute({ sql: `UPDATE ${TQ} SET ord = ? WHERE id = ?`, args: [Number(q.ord) || 0, b.id] });
+          }
+        }
+      }
+
+      /* running it: ask one, close it, and closing is what scores it */
+      if (op === "ask") {
+        const qs = await questAll();
+        const q = qs.find(x => String(x.id) === String(body.id));
+        if (!q) return json({ ok: false, error: "no_question" });
+        await sqlite.execute({ sql: `UPDATE ${TQ} SET state = 'todo' WHERE state = 'open'` });
+        await sqlite.execute({ sql: `UPDATE ${TQ} SET state = 'open' WHERE id = ?`, args: [q.id] });
+        await tset("active", String(q.id));
+        await tset("phase", "play");
+        await log(full(me0), `asked: ${brief(q.prompt)}`);
+      }
+      if (op === "close") {
+        const qs = await questAll();
+        const q = qs.find(x => String(x.id) === String(body.id));
+        if (!q) return json({ ok: false, error: "no_question" });
+        await sqlite.execute({ sql: `UPDATE ${TQ} SET state = 'done' WHERE id = ?`, args: [q.id] });
+        const st = await tstate();
+        if (st.active === String(q.id)) await tset("active", "");
+        await tset("last", String(q.id));
+        await log(full(me0), `closed: ${brief(q.prompt)}`);
+      }
+      /* Back to unasked — the points come off the board with it. */
+      if (op === "reopen") {
+        await sqlite.execute({ sql: `UPDATE ${TQ} SET state = 'todo' WHERE id = ?`, args: [body.id] });
+        const st = await tstate();
+        if (st.active === String(body.id)) await tset("active", "");
+      }
+
+      /* the host's last word on any answer */
+      if (op === "mark") {
+        const value = ["yes", "no", ""].includes(body.value) ? body.value : "";
+        const id = `${body.qid}::${body.team}`;
+        await sqlite.execute({
+          sql: `INSERT INTO ${TA} (id, qid, team, text, by, at, mark)
+                VALUES (?, ?, ?, '', '', ?, ?)
+                ON CONFLICT(id) DO UPDATE SET mark = excluded.mark`,
+          args: [id, body.qid, body.team, new Date().toISOString(), value],
+        });
+        await log(full(me0), `marked an answer ${value === "yes" ? "right" : value === "no" ? "wrong" : "back to auto"}`);
+      }
+
+      if (op === "teamDrop") {
+        const t = (await teamsAll()).find(x => String(x.id) === String(body.id));
+        if (t) {
+          for (const g of all.filter(g => String(g.team || "") === String(t.id))) {
+            await setField(g.slug, "team", "");
+          }
+          await sqlite.execute({ sql: `DELETE FROM ${TA} WHERE team = ?`, args: [t.id] });
+          await sqlite.execute({ sql: `DELETE FROM ${TT} WHERE id = ?`, args: [t.id] });
+          await log(full(me0), `disbanded the trivia team “${t.name}”`);
+        }
+      }
+      /* Moving someone by hand, for whoever never got round to picking. */
+      if (op === "put") {
+        const g = all.find(x => x.slug === String(body.slug));
+        if (!g) return json({ ok: false, error: "no_guest" });
+        await setField(g.slug, "team", clean(body.team, 40));
+        await log(full(me0), `put ${full(g)} on a trivia team`);
+      }
+
+      /* Wipes every typed answer but keeps the questions, for a second run. */
+      if (op === "clearAnswers") {
+        await sqlite.execute(`DELETE FROM ${TA}`);
+        await sqlite.execute(`UPDATE ${TQ} SET state = 'todo'`);
+        await tset("active", "");
+        await log(full(me0), `cleared every trivia answer`);
+      }
+
+      const me = await reread();
+      return json(await triviaPayload(me, isAdmin));
     }
 
     /* what everyone has been doing — the console's live log */

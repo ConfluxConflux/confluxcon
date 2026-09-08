@@ -599,6 +599,147 @@ td.acts{white-space:nowrap;display:flex;gap:5px;align-items:center}
   margin:0 0 2rem;color:#6b4a12;font-size:.98rem;text-align:left}
 .setup h3{font-family:var(--display);margin:0 0 .5rem;font-size:1.2rem;color:#6b4a12}
 .setup code{font-family:var(--mono);font-size:.86em;background:#fde8c8;padding:.12em .4em;border-radius:3px}
+
+/* ---------- trivia ---------- */
+.tvhead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;margin:0 0 1.4rem}
+.tvhead h2{margin:0}
+.tvstate{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.tvsec{margin:0 0 2rem}
+.tvsec h3{font-family:var(--display);font-weight:500;font-size:1.25rem;margin:0 0 .8rem;color:var(--ink)}
+.tvnote{margin:0 0 1rem;font-size:.92rem;color:var(--ink-3);font-style:italic}
+
+/* the question in front of the room */
+.ask{background:var(--paper-2);border:1px solid var(--rule-soft);border-left:3px solid var(--gold);
+  border-radius:6px;padding:1.3rem 1.4rem;margin:0 0 1.6rem}
+.ask .akround{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin:0 0 .5rem}
+.ask .akq{font-family:var(--display);font-size:1.45rem;line-height:1.3;margin:0 0 1rem;
+  color:var(--ink);text-wrap:pretty;white-space:pre-wrap}
+.ask .akpts{font-family:var(--mono);font-size:.76rem;color:var(--gold-deep);margin-left:.6em}
+.ansrow{display:flex;gap:8px;flex-wrap:wrap}
+.ansrow input{flex:1;min-width:12em;font-family:var(--body);font-size:1.05rem;
+  padding:.6rem .8rem;border:1px solid var(--rule);border-radius:5px;background:#fff;color:var(--ink)}
+.ansrow input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(18,101,106,.12)}
+.ansstate{margin:.7rem 0 0;font-size:.9rem;color:var(--ink-2)}
+.ansstate b{font-family:var(--display);font-weight:500;font-size:1.05rem}
+.ansstate .who{color:var(--ink-3);font-style:italic}
+.waiting{background:var(--paper-2);border:1px solid var(--rule-soft);border-radius:6px;
+  padding:1.5rem;text-align:center;font-style:italic;color:var(--ink-3);margin:0 0 1.6rem}
+
+/* what the answer was */
+.reveal{border:1px solid var(--rule-soft);border-radius:6px;background:#fff;
+  padding:1rem 1.2rem;margin:0 0 1.6rem}
+.reveal .rvq{font-family:var(--display);font-size:1.05rem;color:var(--ink-2);margin:0 0 .4rem}
+.reveal .rva{font-family:var(--display);font-size:1.3rem;color:var(--ink);margin:0}
+.reveal .rvn{margin:.5rem 0 0;font-size:.92rem;color:var(--ink-3);font-style:italic}
+.reveal .rvrows{list-style:none;margin:.9rem 0 0;padding:.8rem 0 0;border-top:1px solid var(--rule-soft)}
+.reveal .rvrows li{display:flex;align-items:baseline;gap:.6rem;font-size:.92rem;padding:.18rem 0}
+.reveal .rvrows .nm{font-family:var(--display);color:var(--ink);flex:none;min-width:9em}
+.reveal .rvrows .tx{color:var(--ink-2);overflow-wrap:anywhere}
+.reveal .rvrows .tx.miss{color:var(--ink-3);text-decoration:line-through}
+.tick{flex:none;font-family:var(--mono);font-size:.9em}
+.tick.y{color:var(--go)} .tick.n{color:var(--no)}
+
+/* teams */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));gap:10px;margin:0 0 1.2rem}
+.tcard{background:var(--paper-2);border:1px solid var(--rule-soft);border-radius:6px;
+  padding:.85rem .95rem;display:flex;flex-direction:column;gap:.45rem}
+.tcard.mine{border-color:var(--teal);box-shadow:inset 0 0 0 1px var(--teal)}
+.tcard .tn{font-family:var(--display);font-size:1.15rem;line-height:1.15;color:var(--ink);margin:0}
+.tcard .tm{margin:0;font-size:.85rem;color:var(--ink-3);line-height:1.4}
+.tcard .cap{font-style:italic}
+.tcard .trow{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:.3rem}
+.newteam{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.newteam input{flex:1;min-width:11em;font-family:var(--body);font-size:1rem;padding:.5rem .7rem;
+  border:1px solid var(--rule);border-radius:5px;background:#fff;color:var(--ink)}
+.newteam input:focus{outline:none;border-color:var(--teal)}
+
+/* the board */
+.board{list-style:none;margin:0;padding:0;border:1px solid var(--rule-soft);border-radius:6px;
+  background:#fff;overflow:hidden}
+.board li{display:flex;align-items:center;gap:.8rem;padding:.7rem .95rem;
+  border-bottom:1px solid var(--rule-soft)}
+.board li:last-child{border-bottom:0}
+.board li.mine{background:var(--go-bg)}
+.board .rk{font-family:var(--mono);font-size:.86rem;color:var(--ink-3);flex:none;width:1.6em}
+.board .bn{font-family:var(--display);font-size:1.15rem;color:var(--ink);flex:1;min-width:0;
+  overflow-wrap:anywhere}
+.board .bn small{font-family:var(--body);font-size:.72rem;color:var(--ink-3);margin-left:.6em}
+.board .bar{flex:none;width:min(34vw,180px);height:7px;border-radius:999px;background:var(--rule-soft);
+  overflow:hidden}
+.board .bar i{display:block;height:100%;background:var(--teal);border-radius:999px;
+  transition:width .5s cubic-bezier(.2,.7,.3,1)}
+.board .sc{font-family:var(--display);font-size:1.4rem;color:var(--ink);flex:none;
+  font-variant-numeric:tabular-nums;min-width:1.6em;text-align:right}
+.board .empty{display:block;padding:1rem;color:var(--ink-3);font-style:italic;text-align:center}
+
+/* the host's side */
+.tvhost{border:1px dashed var(--rule);border-radius:6px;padding:1rem 1.1rem;margin:0 0 2rem;
+  background:rgba(255,255,255,.5)}
+.tvhost h3{margin-top:0}
+.hostrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 .8rem}
+.hostrow:last-child{margin-bottom:0}
+.hostrow .lbl{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);
+  flex:none;min-width:5.4em}
+.phase{display:flex;gap:6px;flex-wrap:wrap}
+.phase button{font-family:var(--body);font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;
+  padding:.45em 1.1em;border-radius:999px;cursor:pointer;border:1px solid var(--rule);
+  background:#fff;color:var(--ink-2)}
+.phase button:hover{background:var(--paper-2)}
+.phase button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+
+/* the editor */
+.qlist{display:flex;flex-direction:column;gap:8px;margin:0 0 1rem}
+.qrow{border:1px solid var(--rule-soft);border-radius:6px;background:#fff;padding:.7rem .85rem}
+.qrow.open{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.qrow.done{background:#fcfaf5}
+.qtop{display:flex;align-items:flex-start;gap:.6rem}
+.qtop .qno{font-family:var(--mono);font-size:.78rem;color:var(--ink-3);flex:none;padding-top:.5rem;width:1.8em}
+.qfields{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.qfields textarea,.qfields input{font-family:var(--body);width:100%;background:transparent;
+  border:1px solid transparent;border-radius:4px;padding:.3em .45em;color:var(--ink);resize:vertical}
+.qfields textarea:hover,.qfields input:hover{background:var(--paper-2);border-color:var(--rule-soft)}
+.qfields textarea:focus,.qfields input:focus{background:#fff;border-color:var(--teal);outline:none}
+.qfields .qp{font-family:var(--display);font-size:1.06rem;line-height:1.35}
+.qfields .qa{font-size:.92rem;color:var(--ink-2);font-style:italic}
+.qmeta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.qmeta .pts{width:4.6em;font-family:var(--mono);font-size:.82rem;flex:none;
+  border-color:var(--rule-soft)!important;background:var(--paper-2)!important}
+.qacts{display:flex;gap:4px;flex-wrap:wrap;flex:none;align-items:flex-start;padding-top:.15rem}
+.qstate{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.25em .6em;border-radius:999px;flex:none;align-self:flex-start;margin-top:.35rem}
+.qstate.todo{background:var(--idle-bg);color:var(--idle)}
+.qstate.open{background:var(--maybe-bg);color:var(--maybe)}
+.qstate.done{background:var(--go-bg);color:var(--go)}
+.marks{list-style:none;margin:.7rem 0 0;padding:.7rem 0 0;border-top:1px solid var(--rule-soft)}
+.marks li{display:flex;align-items:center;gap:.6rem;padding:.22rem 0;font-size:.92rem}
+.marks .nm{font-family:var(--display);color:var(--ink);flex:none;min-width:8.5em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.marks .tx{flex:1;min-width:0;color:var(--ink-2);overflow-wrap:anywhere}
+.marks .tx.blank{color:var(--ink-3);font-style:italic}
+.marks .mk{display:flex;gap:3px;flex:none}
+.marks .mk button{font-family:var(--mono);font-size:.8rem;line-height:1;padding:.3em .55em;
+  border:1px solid var(--rule-soft);background:#fff;border-radius:4px;cursor:pointer;color:var(--ink-3)}
+.marks .mk button[aria-pressed="true"].y{background:var(--go);border-color:var(--go);color:#fff}
+.marks .mk button[aria-pressed="true"].n{background:var(--no);border-color:var(--no);color:#fff}
+.marks .auto{font-size:.72rem;color:var(--ink-3);font-style:italic;flex:none}
+.addq{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--rule-soft);
+  padding-top:.9rem;margin-top:.3rem}
+.addq textarea{font-family:var(--body);font-size:.95rem;width:100%;min-height:4.5em;
+  border:1px solid var(--rule);border-radius:5px;padding:.5rem .6rem;background:#fff;
+  color:var(--ink);resize:vertical}
+.addq textarea:focus{outline:none;border-color:var(--teal)}
+.addq .hint{font-size:.8rem;color:var(--ink-3);font-style:italic}
+.rndhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:1.4rem 0 .7rem}
+.rndhead input{font-family:var(--display);font-size:1.2rem;color:var(--ink);flex:1;min-width:8em;
+  background:transparent;border:1px solid transparent;border-radius:4px;padding:.15em .35em}
+.rndhead input:hover{background:var(--paper-2);border-color:var(--rule-soft)}
+.rndhead input:focus{background:#fff;border-color:var(--teal);outline:none}
+@media (max-width:640px){
+  .qtop{flex-wrap:wrap}
+  .board .bar{width:22vw}
+  .marks .nm{min-width:6em}
+}
 footer{padding:1vh 0 8vh;text-align:center;color:rgba(240,252,248,.7);font-size:.94rem}
 footer a{color:rgba(240,252,248,.9)}
 </style>
@@ -651,6 +792,7 @@ footer a{color:rgba(240,252,248,.9)}
     <nav class="tabs" role="tablist">
       <button role="tab" id="tabEvent"   aria-selected="true"  aria-controls="pEvent">Event</button>
       <button role="tab" id="tabProfile" aria-selected="false" aria-controls="pProfile">RSVP</button>
+      <button role="tab" id="tabTrivia"  aria-selected="false" aria-controls="pTrivia"  hidden>Trivia</button>
       <button role="tab" id="tabConsole" aria-selected="false" aria-controls="pConsole" hidden>Console</button>
     </nav>
 
@@ -957,6 +1099,20 @@ footer a{color:rgba(240,252,248,.9)}
       </div>
     </div>
 
+    <!-- ---------------- TRIVIA ---------------- -->
+    <div id="pTrivia" role="tabpanel" aria-labelledby="tabTrivia" hidden>
+      <div class="panel">
+        <div class="tvhead">
+          <h2 id="tvTitle">AI safety trivia</h2>
+          <span class="tvstate" id="tvState"></span>
+        </div>
+        <div id="tvHost" hidden></div>
+        <div id="tvPlay"></div>
+        <div id="tvBoard"></div>
+        <div id="tvEditor" hidden></div>
+      </div>
+    </div>
+
     <!-- ---------------- CONSOLE ---------------- -->
     <div id="pConsole" role="tabpanel" aria-labelledby="tabConsole" hidden>
       <div class="panel">
@@ -1106,6 +1262,8 @@ async function api(action, extra = {}) {
 function adopt(payload) {
   S = payload;
   $("tabConsole").hidden = !S.admin;
+  /* Hidden from guests until the host switches it on; always there for him. */
+  $("tabTrivia").hidden = !(S.admin || (S.trivia && S.trivia.visible));
   $("whoName").textContent = NAME(S.me) + (S.admin ? " · host" : "");
   drawWall(); drawSessions(); drawBoard();
   paintVote(false);                       // keep the mark honest as votes land
@@ -1335,8 +1493,8 @@ $("signOut").addEventListener("click", () => {
 
 /* ---------- tabs ---------- */
 
-const PANES = { event:"pEvent", profile:"pProfile", console:"pConsole" };
-const TABS  = { event:"tabEvent", profile:"tabProfile", console:"tabConsole" };
+const PANES = { event:"pEvent", profile:"pProfile", trivia:"pTrivia", console:"pConsole" };
+const TABS  = { event:"tabEvent", profile:"tabProfile", trivia:"tabTrivia", console:"tabConsole" };
 
 function showTab(which) {
   Object.keys(PANES).forEach(k => {
@@ -1344,6 +1502,7 @@ function showTab(which) {
     $(TABS[k]).setAttribute("aria-selected", String(k === which));
   });
   logPolling(which === "console" && !!(S && S.admin));
+  tvPolling(which === "trivia");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 Object.keys(TABS).forEach(k => $(TABS[k]).addEventListener("click", () => showTab(k)));
@@ -2364,6 +2523,487 @@ $("addBtn").addEventListener("click", async () => {
   } catch (_) { toast("Couldn't add them."); }
 });
 $("newName").addEventListener("keydown", e => { if (e.key === "Enter") $("addBtn").click(); });
+
+/* ============================================================
+   TRIVIA
+   A question in front of the room, one typed answer per team,
+   right or wrong, a point each unless the question says more.
+   The host drives every step of it from the same tab; guests
+   see only what has been opened to them.
+   ============================================================ */
+
+let TV = null;          // the last trivia payload
+let tvTimer = null;
+let tvSaveT = null;
+/* Boxes whose contents live nowhere but the page until a button is pressed —
+   a pile of pasted questions, a team name being thought about. A poll lands
+   every five seconds and would otherwise wipe them. */
+const TV_DRAFTS = {};
+
+const PHASES = [["off","Off"], ["teams","Teams"], ["play","Playing"], ["done","Done"]];
+const PHASE_WORD = { off:"not started", teams:"picking teams", play:"in play", done:"finished" };
+
+/* A redraw arrives every few seconds. Whatever is being typed into survives
+   it — value, cursor and all — or nobody could finish a sentence. */
+function tvKeepFocus(redraw) {
+  const el = document.activeElement;
+  const live = el && el.closest && el.closest("#pTrivia") &&
+               /^(INPUT|TEXTAREA)$/.test(el.tagName)
+    ? { k: el.dataset.k || "", val: el.value, s: el.selectionStart, e: el.selectionEnd }
+    : null;
+  redraw();
+  document.querySelectorAll("#pTrivia [data-draft]").forEach(el => {
+    const v = TV_DRAFTS[el.dataset.draft];
+    if (v != null && v !== el.value) el.value = v;
+  });
+  document.querySelectorAll("#tvEditor textarea.qp").forEach(t => {
+    if (!t.scrollHeight) return;
+    t.style.height = "auto";
+    t.style.height = t.scrollHeight + "px";
+  });
+  if (!live || !live.k) return;
+  const back = document.querySelector(`#pTrivia [data-k="${live.k.replace(/"/g, "")}"]`);
+  if (!back) return;
+  back.value = live.val;
+  back.focus();
+  try { back.setSelectionRange(live.s, live.e); } catch (_) {}
+}
+
+async function tvPoll() {
+  if (!S) return;
+  try {
+    const data = await api("trivia");
+    TV = data.trivia;
+    /* The host may have switched the tab on since sign-in. */
+    S.trivia = { phase: TV.phase, visible: TV.visible, title: TV.title };
+    $("tabTrivia").hidden = !(S.admin || TV.visible);
+    tvKeepFocus(drawTrivia);
+  } catch (err) {
+    $("tvState").textContent = String(err.message).includes("unknown_action")
+      ? "paste the new backend.ts into Val Town"
+      : "can't reach the server";
+  }
+}
+
+/* Polls only while this tab is the open one and the window is in front. */
+function tvPolling(on) {
+  clearInterval(tvTimer);
+  tvTimer = null;
+  if (!on) return;
+  tvPoll();
+  tvTimer = setInterval(() => { if (!document.hidden) tvPoll(); }, 5000);
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && tvTimer) tvPoll();
+});
+
+/** Every write goes through here, so the screen is never a step behind. */
+async function tvDo(action, extra) {
+  try {
+    const data = await api(action, extra);
+    TV = data.trivia;
+    tvKeepFocus(drawTrivia);
+    return true;
+  } catch (err) {
+    toast(TV_ERR[err.message] || "That didn't go through.");
+    tvPoll();
+    return false;
+  }
+}
+const TV_ERR = {
+  name_taken: "Another team already has that name.",
+  no_name: "Give the team a name first.",
+  not_captain: "Only the captain can rename the team.",
+  no_team: "Join a team first.",
+  closed: "That question just closed.",
+  not_playing: "Nothing is open right now.",
+  too_many_teams: "That's enough teams.",
+  not_open: "Trivia hasn't started.",
+};
+
+/* ---------- drawing ---------- */
+
+function drawTrivia() {
+  if (!TV) return;
+  $("tvTitle").textContent = TV.title || "AI safety trivia";
+  const board = TV.teams || [];
+  $("tvState").textContent = TV.phase === "play" && TV.active ? "question open"
+    : `${PHASE_WORD[TV.phase] || TV.phase}${board.length ? ` · ${board.length} team${board.length === 1 ? "" : "s"}` : ""}`;
+
+  $("tvHost").hidden = !S.admin;
+  $("tvEditor").hidden = !S.admin;
+  if (S.admin) { tvDrawHost(); tvDrawEditor(); }
+  tvDrawPlay();
+  tvDrawScores();
+}
+
+const myTeam = () => (TV.teams || []).find(t => t.id === TV.team) || null;
+
+/* ---------- what a guest is looking at ---------- */
+
+function tvDrawPlay() {
+  const box = $("tvPlay");
+  if (TV.phase === "off") {
+    box.innerHTML = S.admin
+      ? `<p class="tvnote">Nothing is running. Switch to <b>Teams</b> above to let people
+         pick sides, and <b>Visible</b> to put this tab in front of them.</p>`
+      : `<div class="waiting">Not started yet.</div>`;
+    return;
+  }
+  const mine = myTeam();
+  let html = "";
+
+  /* Teams first: you can't answer for a team you aren't on, and people keep
+     arriving, so the picker stays reachable the whole way through. */
+  if (!mine) html += tvTeamPicker();
+  else if (TV.phase === "teams") html += tvTeamPicker();
+
+  if (TV.phase === "play") {
+    if (TV.active && mine) html += tvAskCard(TV.active);
+    else if (TV.active && !mine) html += `<div class="waiting">A question is open — join a team to answer it.</div>`;
+    else html += `<div class="waiting">Waiting for the next question&hellip;</div>`;
+  }
+  if (TV.phase === "done") {
+    html += `<div class="waiting">That's the lot. Final scores below.</div>`;
+  }
+  /* The reveal sits under whatever else is on screen, never over an open
+     question — knowing the last answer while the next one is live is fine. */
+  if (TV.last && !(TV.active && TV.phase === "play")) html += tvReveal(TV.last);
+
+  box.innerHTML = html;
+}
+
+function tvAskCard(q) {
+  const a = TV.answer;
+  const rnd = (TV.rounds.find(r => r.n === q.rnd) || {}).name || `Round ${q.rnd}`;
+  return `<div class="ask">
+    <p class="akround">${esc(rnd)}${q.points > 1 ? `<span class="akpts">${q.points} points</span>` : ""}</p>
+    <p class="akq">${esc(q.prompt)}</p>
+    <div class="ansrow">
+      <input id="tvAns" data-k="ans" type="text" value="${esc(a ? a.text : "")}"
+             placeholder="your team's answer" aria-label="Your team's answer"
+             spellcheck="false" autocomplete="off" maxlength="200">
+      <button class="mini go" id="tvSend">Lock it in</button>
+    </div>
+    <p class="ansstate" id="tvAnsState">${a && a.text
+      ? `In: <b>${esc(a.text)}</b> <span class="who">&middot; ${esc(a.by)}</span>`
+      : `Nothing in yet. Anyone on the team can answer; the last one typed is the one that counts.`}</p>
+  </div>`;
+}
+
+function tvReveal(r) {
+  const names = Object.fromEntries((TV.teams || []).map(t => [t.id, t.name]));
+  const key = String(r.answer || "").split(/[\n|]+/).map(x => x.trim()).filter(Boolean);
+  return `<div class="reveal">
+    <p class="rvq">${esc(r.prompt)}</p>
+    <p class="rva">${key.length ? esc(key[0]) : "—"}${
+      key.length > 1 ? ` <span class="rvn">(also: ${key.slice(1).map(esc).join(", ")})</span>` : ""}</p>
+    ${r.note ? `<p class="rvn">${esc(r.note)}</p>` : ""}
+    <ul class="rvrows">${(r.rows || []).map(row => `<li>
+      <span class="tick ${row.right ? "y" : "n"}">${row.right ? "✓" : "✗"}</span>
+      <span class="nm">${esc(names[row.team] || "—")}</span>
+      <span class="tx${row.right ? "" : " miss"}">${esc(row.text || "—")}</span>
+    </li>`).join("")}</ul>
+  </div>`;
+}
+
+function tvTeamPicker() {
+  const mine = myTeam();
+  const teams = TV.teams || [];
+  const cards = teams.map(t => {
+    const isMine = t.id === TV.team;
+    const cap = t.members.find(m => m.slug === t.captain);
+    return `<div class="tcard${isMine ? " mine" : ""}">
+      ${isMine && t.captain === S.slug
+        ? `<input class="tn" data-k="rn" id="tvRename" value="${esc(t.name)}" maxlength="40"
+                  aria-label="Your team's name" title="You named it; you can rename it">`
+        : `<p class="tn">${esc(t.name)}</p>`}
+      <p class="tm">${t.members.length
+        ? t.members.map(m => esc(m.name) + (m.slug === t.captain ? ` <span class="cap">(captain)</span>` : "")).join(", ")
+        : "nobody yet"}</p>
+      <div class="trow">${isMine
+        ? `<button class="mini quiet" data-leave="1">Leave</button>`
+        : `<button class="mini go" data-join="${esc(t.id)}">Join</button>`}</div>
+    </div>`;
+  }).join("");
+
+  return `<div class="tvsec">
+    <h3>${mine ? "Teams" : "Pick a team"}</h3>
+    <p class="tvnote">${mine
+      ? "Anyone on your team can put an answer in."
+      : "Join one, or start your own — whoever starts it gets to name it."}</p>
+    <div class="tgrid">${cards || ""}</div>
+    ${mine ? "" : `<div class="newteam">
+      <input id="tvNew" data-k="new" data-draft="new" type="text" placeholder="…or name a new team"
+             aria-label="New team name" maxlength="40" autocomplete="off">
+      <button class="mini go" id="tvStart">Start it</button>
+    </div>`}
+  </div>`;
+}
+
+function tvDrawScores() {
+  const teams = TV.teams || [];
+  const show = TV.phase === "play" || TV.phase === "done" || teams.some(t => t.score);
+  if (!show) { $("tvBoard").innerHTML = ""; return; }
+  const top = Math.max(1, ...teams.map(t => t.score));
+  $("tvBoard").innerHTML = `<div class="tvsec">
+    <h3>${TV.phase === "done" ? "Final" : "Scoreboard"}</h3>
+    <ol class="board">${teams.length ? teams.map((t, i) => `<li${t.id === TV.team ? ' class="mine"' : ""}>
+      <span class="rk">${i + 1}</span>
+      <span class="bn">${esc(t.name)}<small>${t.right}/${t.of}</small></span>
+      <span class="bar"><i style="width:${Math.round(100 * t.score / top)}%"></i></span>
+      <span class="sc">${t.score}</span>
+    </li>`).join("") : `<li><span class="empty">No teams yet.</span></li>`}</ol>
+  </div>`;
+}
+
+/* ---------- the host's side ---------- */
+
+function tvDrawHost() {
+  const teams = TV.teams || [];
+  const un = TV.unteamed || [];
+  const opts = `<option value="">—</option>` +
+    teams.map(t => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
+
+  $("tvHost").innerHTML = `<div class="tvhost">
+    <h3>Running it</h3>
+    <div class="hostrow">
+      <span class="lbl">Phase</span>
+      <span class="phase">${PHASES.map(([v, l]) =>
+        `<button data-phase="${v}" aria-pressed="${TV.phase === v}">${l}</button>`).join("")}</span>
+    </div>
+    <div class="hostrow">
+      <span class="lbl">Guests</span>
+      <span class="phase">
+        <button data-vis="1" aria-pressed="${!!TV.visible}">Can see the tab</button>
+        <button data-vis="0" aria-pressed="${!TV.visible}">Can't</button>
+      </span>
+      <span class="hint">${TV.visible ? "It's in front of everyone." : "Yours alone right now."}</span>
+    </div>
+    <div class="hostrow">
+      <span class="lbl">Title</span>
+      <input data-k="title" id="tvTitleIn" value="${esc(TV.title || "")}" maxlength="60"
+             style="flex:1;min-width:10em;font-family:var(--body);padding:.35em .5em;
+                    border:1px solid var(--rule-soft);border-radius:4px;background:#fff">
+    </div>
+    ${teams.length ? `<div class="hostrow" style="align-items:flex-start">
+      <span class="lbl">Teams</span>
+      <div class="tgrid" style="flex:1;margin:0">${teams.map(t => `<div class="tcard">
+        <input class="tn" data-k="hn:${esc(t.id)}" data-team="${esc(t.id)}" value="${esc(t.name)}" maxlength="40"
+               aria-label="Team name">
+        <p class="tm">${t.members.length ? t.members.map(m => esc(m.name)).join(", ") : "nobody yet"}</p>
+        <div class="trow"><button class="mini quiet" data-disband="${esc(t.id)}">Disband</button></div>
+      </div>`).join("")}</div>
+    </div>` : ""}
+    ${un.length ? `<div class="hostrow" style="align-items:flex-start">
+      <span class="lbl">Loose</span>
+      <div style="flex:1;display:flex;flex-direction:column;gap:5px">${un.map(g => `
+        <div style="display:flex;gap:8px;align-items:center;font-size:.92rem">
+          <span style="flex:1;min-width:0">${esc(g.name)}</span>
+          <select data-put="${esc(g.slug)}" style="font-family:var(--body);font-size:.88rem;
+            padding:.25em .4em;border:1px solid var(--rule-soft);border-radius:4px;background:#fff">${opts}</select>
+        </div>`).join("")}</div>
+    </div>` : ""}
+    <div class="hostrow">
+      <span class="lbl"></span>
+      <button class="mini quiet" id="tvWipe">Clear every answer</button>
+      <span class="hint">Keeps the questions, puts them all back to unasked.</span>
+    </div>
+  </div>`;
+}
+
+/* ---------- the question editor ---------- */
+
+function tvDrawEditor() {
+  const qs = TV.questions || [];
+  const rounds = TV.rounds || [];
+  const parts = rounds.map(r => {
+    const inRound = qs.filter(q => q.rnd === r.n);
+    return `<div class="rndhead">
+      <input data-k="rname:${r.n}" data-round="${r.n}" value="${esc(r.name)}" maxlength="60"
+             aria-label="Round name">
+      <span class="hint">${inRound.length} question${inRound.length === 1 ? "" : "s"}</span>
+      ${rounds.length > 1 ? `<button class="mini quiet" data-dropround="${r.n}">Delete round</button>` : ""}
+    </div>
+    <div class="qlist">${inRound.map((q, i) => tvQRow(q, i + 1)).join("") ||
+      `<p class="tvnote" style="margin:0">Nothing here yet.</p>`}</div>
+    <div class="addq">
+      <textarea data-k="add:${r.n}" data-draft="add:${r.n}" data-add="${r.n}" rows="2"
+        placeholder="Who coined &quot;paperclip maximiser&quot;? | Bostrom | Nick Bostrom"></textarea>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="mini go" data-addgo="${r.n}">Add to ${esc(r.name)}</button>
+        <span class="hint">One per line. Question, then the answers it will take, split by <code>|</code>.</span>
+      </div>
+    </div>`;
+  }).join("");
+
+  $("tvEditor").innerHTML = `<div class="tvsec">
+    <h3>Questions</h3>
+    <p class="tvnote">Marking is case- and punctuation-blind and ignores a leading
+      &ldquo;the&rdquo;. Anything it gets wrong you can flip by hand. Closing a
+      question is what puts the points on the board.</p>
+    ${parts}
+    <div style="margin-top:1.6rem"><button class="mini" id="tvAddRound">Add a round</button></div>
+  </div>`;
+}
+
+function tvQRow(q, n) {
+  const st = q.state === "open" ? "open" : q.state === "done" ? "done" : "todo";
+  const names = Object.fromEntries((TV.teams || []).map(t => [t.id, t.name]));
+  const marks = (st === "todo") ? "" : `<ul class="marks">${(q.answers || []).map(a => `<li>
+    <span class="tick ${a.right ? "y" : "n"}">${a.right ? "✓" : "✗"}</span>
+    <span class="nm">${esc(names[a.team] || "—")}</span>
+    <span class="tx${a.text ? "" : " blank"}">${esc(a.text || "no answer")}</span>
+    ${a.mark ? "" : `<span class="auto">auto</span>`}
+    <span class="mk">
+      <button class="y" aria-pressed="${a.mark === "yes"}" data-mark="yes"
+              data-q="${esc(q.id)}" data-team="${esc(a.team)}" title="Right">✓</button>
+      <button class="n" aria-pressed="${a.mark === "no"}" data-mark="no"
+              data-q="${esc(q.id)}" data-team="${esc(a.team)}" title="Wrong">✗</button>
+    </span>
+  </li>`).join("")}</ul>`;
+
+  return `<div class="qrow ${st}">
+    <div class="qtop">
+      <span class="qno">${n}</span>
+      <div class="qfields">
+        <textarea class="qp" rows="1" data-k="qp:${esc(q.id)}" data-q="${esc(q.id)}" data-f="prompt"
+                  aria-label="Question">${esc(q.prompt)}</textarea>
+        <input class="qa" data-k="qa:${esc(q.id)}" data-q="${esc(q.id)}" data-f="answer"
+               value="${esc(String(q.answer || "").replace(/\n/g, " | "))}"
+               placeholder="answers it will take, split by |" aria-label="Accepted answers">
+        <div class="qmeta">
+          <input class="pts" data-k="qpt:${esc(q.id)}" data-q="${esc(q.id)}" data-f="points"
+                 value="${q.points}" aria-label="Points" title="Points">
+          <button class="mini quiet" data-move="up" data-q="${esc(q.id)}" title="Up">↑</button>
+          <button class="mini quiet" data-move="down" data-q="${esc(q.id)}" title="Down">↓</button>
+          ${st === "open"
+            ? `<button class="mini go" data-close="${esc(q.id)}">Close &amp; score</button>`
+            : `<button class="mini" data-ask="${esc(q.id)}">${st === "done" ? "Ask again" : "Ask this"}</button>`}
+          ${st === "done" ? `<button class="mini quiet" data-reopen="${esc(q.id)}">Un-score</button>` : ""}
+          <button class="mini quiet" data-dropq="${esc(q.id)}" title="Delete">✕</button>
+        </div>
+      </div>
+      <span class="qstate ${st}">${st === "todo" ? "unasked" : st === "open" ? "live" : "scored"}</span>
+    </div>
+    ${marks}
+  </div>`;
+}
+
+/* ---------- what the clicks do ---------- */
+
+$("pTrivia").addEventListener("click", async e => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  const d = b.dataset;
+
+  if (d.join)   return void tvDo("triviaTeam", { op: "join", id: d.join });
+  if (d.leave)  return void tvDo("triviaTeam", { op: "leave" });
+  if (b.id === "tvStart") {
+    const name = ($("tvNew").value || "").trim();
+    if (!name) return toast("Name it first.");
+    delete TV_DRAFTS.new;
+    return void tvDo("triviaTeam", { op: "create", name });
+  }
+  if (b.id === "tvSend") return void tvSend(true);
+
+  if (!S.admin) return;
+  if (d.phase)  return void tvDo("triviaAdmin", { op: "phase", value: d.phase });
+  if (d.vis)    return void tvDo("triviaAdmin", { op: "visible", value: d.vis === "1" });
+  if (d.ask)    return void tvDo("triviaAdmin", { op: "ask", id: d.ask });
+  if (d.close)  return void tvDo("triviaAdmin", { op: "close", id: d.close });
+  if (d.reopen) return void tvDo("triviaAdmin", { op: "reopen", id: d.reopen });
+  if (d.move)   return void tvDo("triviaAdmin", { op: "qMove", id: d.q, dir: d.move });
+  if (d.mark) {
+    /* Clicking the mark that is already on takes it back to automatic. */
+    const value = b.getAttribute("aria-pressed") === "true" ? "" : d.mark;
+    return void tvDo("triviaAdmin", { op: "mark", qid: d.q, team: d.team, value });
+  }
+  if (d.dropq) {
+    if (!confirm("Delete this question and every answer to it?")) return;
+    return void tvDo("triviaAdmin", { op: "qDrop", id: d.dropq });
+  }
+  if (d.disband) {
+    if (!confirm("Disband the team? Its members go loose and its answers go with it.")) return;
+    return void tvDo("triviaAdmin", { op: "teamDrop", id: d.disband });
+  }
+  if (d.dropround) {
+    if (!confirm("Delete the whole round and its questions?")) return;
+    return void tvDo("triviaAdmin", { op: "roundDrop", n: +d.dropround });
+  }
+  if (b.id === "tvAddRound") return void tvDo("triviaAdmin", { op: "roundAdd" });
+  if (b.id === "tvWipe") {
+    if (!confirm("Clear every answer from every team and put all the questions back to unasked?")) return;
+    return void tvDo("triviaAdmin", { op: "clearAnswers" });
+  }
+  if (d.addgo) {
+    const box = document.querySelector(`#pTrivia [data-add="${d.addgo}"]`);
+    const text = (box && box.value || "").trim();
+    if (!text) return toast("Type a question first.");
+    if (box) box.value = "";
+    delete TV_DRAFTS["add:" + d.addgo];
+    return void tvDo("triviaAdmin", { op: "qBulk", rnd: +d.addgo, text });
+  }
+});
+
+/* ---------- what the typing does ---------- */
+
+/* The answer box saves itself shortly after the typing stops, so nobody loses
+   one by never pressing the button. The button just doesn't wait. */
+async function tvSend(explicit) {
+  clearTimeout(tvSaveT);
+  const el = $("tvAns");
+  if (!el || !TV || !TV.active) return;
+  const text = el.value.trim();
+  const was = TV.answer && TV.answer.text;
+  if (!explicit && text === (was || "")) return;
+  const ok = await tvDo("triviaAnswer", { qid: TV.active.id, text });
+  if (ok && explicit) toast(text ? "In." : "Answer cleared.");
+}
+
+$("pTrivia").addEventListener("input", e => {
+  if (e.target.dataset && e.target.dataset.draft) TV_DRAFTS[e.target.dataset.draft] = e.target.value;
+  if (e.target.id !== "tvAns") return;
+  clearTimeout(tvSaveT);
+  tvSaveT = setTimeout(() => tvSend(false), 900);
+});
+
+$("pTrivia").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  if (e.target.id === "tvAns") { e.preventDefault(); tvSend(true); }
+  else if (e.target.id === "tvNew") { e.preventDefault(); $("tvStart").click(); }
+  else if (e.target.tagName === "INPUT" && e.target.dataset.k) { e.preventDefault(); e.target.blur(); }
+});
+
+/* Everything else in here is a field that saves when you leave it. */
+$("pTrivia").addEventListener("change", async e => {
+  const el = e.target;
+  const d = el.dataset;
+
+  if (el.id === "tvRename") return void tvDo("triviaTeam", { op: "rename", name: el.value.trim() });
+  if (el.id === "tvAns") return void tvSend(false);
+
+  if (!S.admin) return;
+  if (el.id === "tvTitleIn") return void tvDo("triviaAdmin", { op: "title", value: el.value });
+  if (d.team)  return void tvDo("triviaTeam",  { op: "rename", id: d.team, name: el.value.trim() });
+  if (d.round) return void tvDo("triviaAdmin", { op: "roundName", n: +d.round, value: el.value });
+  if (d.put)   return void tvDo("triviaAdmin", { op: "put", slug: d.put, team: el.value });
+  if (d.q && d.f) {
+    /* The key is one line per accepted answer in the database and one field
+       here, so the pipes go back to newlines on the way in. */
+    const value = d.f === "answer" ? el.value.split("|").map(x => x.trim()).filter(Boolean).join("\n")
+                                   : el.value;
+    return void tvDo("triviaAdmin", { op: "qSet", id: d.q, field: d.f, value });
+  }
+});
+
+/* A question grows to fit what is typed into it. */
+$("pTrivia").addEventListener("input", e => {
+  const el = e.target;
+  if (el.tagName !== "TEXTAREA" || !el.classList.contains("qp")) return;
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+});
 
 /* ---------- come back still signed in ---------- */
 (async function boot() {
