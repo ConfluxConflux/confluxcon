@@ -413,6 +413,7 @@ a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 .sessrow .swhen{font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;color:var(--gold-deep);
   font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
 .sessrow.sub{margin-left:1.4rem;border-left:2px solid var(--rule-soft);padding-left:.9rem}
+.sessrow .sdesc.board{font-style:italic;margin:.3rem 0 .15rem}
 .descbtn{font-family:var(--body);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--teal);background:#fff;border:1px solid var(--rule);border-radius:999px;
   padding:.28em .8em;margin-left:.45em;cursor:pointer;white-space:nowrap;
@@ -1709,7 +1710,9 @@ function scheduleRows() {
   document.querySelectorAll("#agendaBoard .ev[data-key]").forEach(ev => {
     const when = (ev.querySelector(".evwhen") || {}).textContent || "";
     const name = (ev.querySelector(".evname") || {}).textContent || "";
-    out.push({ key: ev.dataset.key, when, name });
+    const descs = [...ev.querySelectorAll(".evmain .evdesc")]
+      .map(d => d.textContent.trim()).filter(Boolean);
+    out.push({ key: ev.dataset.key, when, name, descs });
     (ev.dataset.options || "").split("|").filter(Boolean)
       .forEach(k => out.push({ key: k, when, name: k, sub: true }));
   });
@@ -1734,7 +1737,8 @@ function drawSessions() {
     const i = at.get(r.key);
     if (i == null || seen.has(i)) return;
     seen.add(i);
-    rows.push({ s: S.sessions[i], i, when: r.when, label: r.name, sub: r.sub });
+    rows.push({ s: S.sessions[i], i, when: r.when, label: r.name,
+                sub: r.sub, descs: r.descs });
   });
   /* Anything a guest added that isn't on the schedule keeps its shuffled place
      at the end, so the adder still works. */
@@ -1742,7 +1746,7 @@ function drawSessions() {
     .sort((a, b) => sessOrder(a.s.name) - sessOrder(b.s.name))
     .forEach(o => rows.push({ s: o.s, i: o.i, when: "", label: o.s.name }));
 
-  box.innerHTML = rows.map(({ s, i, when, label, sub }) => {
+  box.innerHTML = rows.map(({ s, i, when, label, sub, descs }) => {
     const want = mine[s.name] || "";
     const isMine = s.by && s.by === S.me.first;
     return `<div class="sessrow${sub ? " sub" : ""}">
@@ -1754,6 +1758,7 @@ function drawSessions() {
         ${isMine || S.admin ? `<button type="button" class="drop" data-drop="${esc(s.name)}"
                  aria-label="Remove ${esc(s.name)}">&times;</button>` : ""}
       </p>
+      ${(descs || []).map(d => `<span class="sdesc board">${esc(d)}</span>`).join("")}
       ${descBodyHTML(s, "sdesc")}
       <div class="seg small" role="radiogroup" aria-label="${esc(s.name)}">
         ${RUNGS.map(r => `<label class="v-${r.v}"><input type="radio" name="sess${i}"
