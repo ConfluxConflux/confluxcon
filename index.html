@@ -141,23 +141,8 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .subhead{font-family:var(--display);font-style:italic;font-weight:500;font-size:1.4rem;
   margin:1.6rem 0 .9rem;color:var(--ink)}
 .dayparts{display:grid;gap:2.2rem 1.9rem;align-items:start;
-  grid-template-columns:minmax(0,1fr) minmax(0,1.72fr)}
-@media (max-width:860px){.dayparts{grid-template-columns:1fr}}
-
-/* confluxcon runs on a clock: rows are ten minutes, columns are rooms */
-.tlwrap{overflow-x:auto;padding-bottom:.2rem}
-.timeline{display:grid;grid-template-columns:3.2rem repeat(3,minmax(116px,1fr));
-  grid-auto-rows:minmax(15px,auto);column-gap:.45rem;min-width:440px}
-.tlhead{grid-row:1;align-self:end;font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--teal);text-align:center;padding-bottom:.45rem}
-.tltime{grid-column:1;font-family:var(--mono);font-size:.63rem;color:var(--gold-deep);
-  font-variant-numeric:tabular-nums;white-space:nowrap;transform:translateY(-.4em)}
-.tlrule{grid-column:1/-1;height:0;border-top:1px solid var(--rule-soft);align-self:start;
-  pointer-events:none}
-.timeline .ev{position:relative;z-index:1;margin-bottom:.3rem;padding:.5rem .7rem .55rem}
-.timeline .evname{font-size:1rem;margin-top:.22rem}
-.timeline .evdesc{font-size:.88rem;margin-top:.3rem}
-.ev.allrooms{grid-column:2/-1}
+  grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:640px){.dayparts{grid-template-columns:1fr}}
 .evby{font-family:var(--body);font-style:italic;font-size:.86rem;color:var(--ink-3);
   margin:.25rem 0 0}
 .dpname{font-family:var(--display);font-weight:600;font-size:1.5rem;margin:0;line-height:1.1;
@@ -165,7 +150,12 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .dpname .fl{color:var(--gold-deep)}
 .dptag{font-family:var(--display);font-style:italic;font-size:1.05rem;color:var(--ink-2);
   margin:.15rem 0 1rem}
-.agenda{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.7rem}
+.agenda{list-style:none;margin:0;padding:0;display:grid;gap:.7rem;
+  grid-template-columns:repeat(2,minmax(0,1fr))}
+.agenda>.ev{grid-column:1/-1}
+.agenda>.ev.half{grid-column:auto}
+.half .pickrow{max-width:none}
+.loc.gate{color:var(--gold-deep);letter-spacing:.1em}
 .ev{background:var(--paper-2);border:1px solid var(--rule-soft);border-left:3px solid var(--gold);
   padding:.85rem 1rem .95rem;display:flex;flex-wrap:wrap;gap:.5rem .9rem;
   justify-content:space-between;align-items:flex-start}
@@ -625,114 +615,116 @@ footer a{color:rgba(240,252,248,.9)}
               <h3 class="dpname"><span class="fl">flux</span>con</h3>
               <p class="dptag">a morning/afternoon in flux</p>
               <ul class="agenda">
-              <li data-key="Coworking" class="ev">
-                <div class="evmain">
-                  <span class="evwhen">10:00&ndash;12:30ish</span>
-                  <h4 class="evname">Coworking</h4>
-                </div>
-                <div class="evwhere">
-                  <span class="loc">Bayes Ground</span>
-                </div>
-              </li>
-              <li data-key="Lunch (maybe we'll walk somewhere, like The Butcher's Son?)" class="ev">
-                <div class="evmain">
-                  <span class="evwhen">1:00&ndash;2:00ish</span>
-                  <h4 class="evname">Lunch</h4>
-                </div>
-                <div class="evwhere">
-                  <a class="loc" href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son &nearr;<span class="off">(NOT LIGHTHAVEN)</span></a>
-                </div>
-              </li>
-              <li data-key="Bike adventure" class="ev">
-                <div class="evmain">
-                  <span class="evwhen">Afternoon</span>
-                  <h4 class="evname">Bike adventure</h4>
-                  <p class="evdesc">Leaving from The Butcher's Son and exploring! We might go to the Berkeley Marina, Solano Ave, or beyond... I'm also interested in doing some thrifting / fashion improvement</p>
-                </div>
-              </li>
-              <li data-key="Reception" class="ev">
-                <div class="evmain">
-                  <span class="evwhen">5:30&ndash;6:00</span>
-                  <h4 class="evname">Reception</h4>
-                </div>
-                <div class="evwhere">
-                  <span class="loc">Bayes House</span>
-                </div>
-              </li>
+                <li data-key="Coworking" class="ev">
+                  <div class="evmain">
+                    <span class="evwhen">10:00&ndash;12:30ish</span>
+                    <h4 class="evname">Coworking</h4>
+                  </div>
+                  <div class="evwhere">
+                    <span class="loc">Bayes Ground</span>
+                  </div>
+                </li>
+                <li data-key="Lunch (maybe we'll walk somewhere, like The Butcher's Son?)" class="ev">
+                  <div class="evmain">
+                    <span class="evwhen">1:00&ndash;2:00ish</span>
+                    <h4 class="evname">Lunch</h4>
+                  </div>
+                  <div class="evwhere">
+                    <a class="loc" href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son &nearr;<span class="off">(NOT LIGHTHAVEN)</span></a>
+                  </div>
+                </li>
+                <li data-key="Bike adventure" class="ev">
+                  <div class="evmain">
+                    <span class="evwhen">Afternoon</span>
+                    <h4 class="evname">Bike adventure</h4>
+                    <p class="evdesc">Leaving from The Butcher's Son and exploring! We might go to the Berkeley Marina, Solano Ave, or beyond... I'm also interested in doing some thrifting / fashion improvement</p>
+                  </div>
+                </li>
+                <li data-key="Reception" class="ev">
+                  <div class="evmain">
+                    <span class="evwhen">5:30&ndash;6:00</span>
+                    <h4 class="evname">Reception</h4>
+                  </div>
+                  <div class="evwhere">
+                    <span class="loc">Bayes House</span>
+                  </div>
+                </li>
               </ul>
             </div>
             <div class="daypart">
               <h3 class="dpname">con<span class="fl">flux</span>con</h3>
               <p class="dptag">an evening in conflux</p>
-              <div class="tlwrap">
-              <div class="timeline">
-                <div class="tlhead" style="grid-column:2">Bayes House</div>
-                <div class="tlhead" style="grid-column:3">Bayes Ground</div>
-                <div class="tlhead" style="grid-column:4">Bayes Attic</div>
-                <div class="tlrule" style="grid-row:2"></div>
-                <span class="tltime" style="grid-row:2">6:00</span>
-                <div class="tlrule" style="grid-row:8"></div>
-                <span class="tltime" style="grid-row:8">7:00</span>
-                <div class="tlrule" style="grid-row:14"></div>
-                <span class="tltime" style="grid-row:14">8:00</span>
-                <div class="tlrule" style="grid-row:20"></div>
-                <span class="tltime" style="grid-row:20">9:00</span>
-                <div class="tlrule" style="grid-row:26"></div>
-                <span class="tltime" style="grid-row:26">10:00</span>
-                <div class="tlrule" style="grid-row:32"></div>
-                <span class="tltime" style="grid-row:32">11:00</span>
-                <div class="tlrule" style="grid-row:38"></div>
-                <span class="tltime" style="grid-row:38">12:00</span>
-                <div class="tlrule" style="grid-row:44"></div>
-                <span class="tltime" style="grid-row:44">1:00</span>
-                <li data-key="Dinner" class="ev" style="grid-column:2;grid-row:2 / 13">
+              <ul class="agenda">
+                <li data-key="Dinner" class="ev">
                   <div class="evmain">
-                    <span class="evwhen">6:00&ndash;7:50</span>
+                    <span class="evwhen">6:00&ndash;6:50</span>
                     <h4 class="evname">Dinner</h4>
                     <p class="evdesc">I'm planning to order pizza but this is only because I'm fundamentally uncreative</p>
                   </div>
+                  <div class="evwhere">
+                    <span class="loc">Bayes House</span>
+                  </div>
                 </li>
-                <li data-key="AI Safety Trivia" class="ev" style="grid-column:3;grid-row:8 / 13">
+                <li data-key="AI Safety Trivia" class="ev">
                   <div class="evmain">
                     <span class="evwhen">7:00&ndash;7:50</span>
                     <h4 class="evname">AI Safety Trivia!</h4>
                     <p class="evdesc">I've actually been wanting to do this for awhile!</p>
                   </div>
+                  <div class="evwhere">
+                    <span class="loc">Bayes Ground</span>
+                  </div>
                 </li>
-                <li data-key="Jacob appreciation circle" class="ev" style="grid-column:3;grid-row:14 / 16">
+                <li data-key="Jacob appreciation circle" class="ev">
                   <div class="evmain">
                     <span class="evwhen">8:00&ndash;8:20</span>
                     <h4 class="evname">Jacob appreciation circle</h4>
                     <p class="evby">run by Jo Jiao</p>
                   </div>
+                  <div class="evwhere">
+                    <span class="loc">Bayes Ground</span>
+                  </div>
                 </li>
-                <li data-key="Blood on the Clocktower" class="ev" style="grid-column:3;grid-row:17 / 28">
+                <li data-key="Blood on the Clocktower" class="ev half">
                   <div class="evmain">
                     <span class="evwhen">8:30&ndash;10:20</span>
                     <h4 class="evname">Blood on the Clocktower</h4>
                     <p class="evby">run by Ian Habich</p>
                   </div>
+                  <div class="evwhere">
+                    <span class="loc">Bayes Ground</span>
+                  </div>
                 </li>
-                <li data-key="Authentic Relating Games" class="ev" style="grid-column:4;grid-row:17 / 28">
+                <li data-key="Authentic Relating Games" class="ev half">
                   <div class="evmain">
                     <span class="evwhen">8:30&ndash;10:20</span>
                     <h4 class="evname">Authentic Relating Games</h4>
                   </div>
+                  <div class="evwhere">
+                    <span class="loc">Bayes Attic</span>
+                  </div>
                 </li>
-                <li data-key="Cuddle Puddle" class="ev" style="grid-column:4;grid-row:29 / 32">
+                <li data-key="Cuddle Puddle" class="ev">
                   <div class="evmain">
                     <span class="evwhen">10:30&ndash;11:00</span>
                     <h4 class="evname">Cuddle Puddle</h4>
                   </div>
+                  <div class="evwhere">
+                    <span class="loc">Bayes Attic</span>
+                  </div>
                 </li>
-                <li data-key="Nighthaven" class="ev allrooms" style="grid-row:32 / 44">
+                <li data-key="Nighthaven" class="ev">
                   <div class="evmain">
                     <span class="evwhen">11:00&ndash;1:00ish</span>
                     <h4 class="evname">Nighthaven</h4>
                   </div>
+                  <div class="evwhere">
+                    <span class="loc">Bayes House</span>
+                    <span class="loc">2740 Telegraph Ave</span>
+                    <span class="loc gate">Gate Code: 4761</span>
+                  </div>
                 </li>
-              </div>
-              </div>
+              </ul>
             </div>
           </div>
         </section>
