@@ -412,6 +412,27 @@ def load_trivia(sheet, url=None, force=False):
         print("  Pass the backend URL to load it:  python3 build.py --trivia <url>")
         return
 
+    # The val holds whatever was last pasted into it, which is not necessarily
+    # this checkout. Ask it before trying, so a stale one is a plain sentence
+    # rather than a load that quietly does nothing.
+    want = ""
+    with open(os.path.join(HERE, "backend.ts"), encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("const BUILD"):
+                want = line.split('"')[1]
+                break
+    try:
+        with urllib.request.urlopen(url, timeout=20) as r:
+            live = json.load(r).get("build", "")
+    except Exception as e:
+        print(f"  couldn't reach the backend: {e}")
+        return
+    if want and live != want:
+        print(f"\n  the val is running:  {live or '(no build string)'}")
+        print(f"  this checkout wants: {want}")
+        print("  Paste backend.ts into Val Town first, then run this again.")
+        return
+
     admin = next((sheet.get(r, "password").lower() for r in sheet.rows
                   if slugify(sheet.get(r, "name"), set()) == "jacob"), "")
     if not admin:
@@ -429,14 +450,17 @@ def load_trivia(sheet, url=None, force=False):
     except Exception as e:
         print(f"  backend refused: {e}")
         return
-    if out.get("ok"):
+    if out.get("ok") and out.get("loaded") is not None:
         print(f"  loaded {out.get('loaded')} questions")
+    elif out.get("ok"):
+        # An older backend accepts the request and ignores it.
+        print("  the val accepted that but loaded nothing — its backend.ts is out of date")
     elif out.get("error") == "already_loaded":
         print(f"  the backend already holds {out.get('questions')} questions "
               f"and {out.get('answers')} answers — refusing to replace them")
         print("  (pass --force alongside --trivia to replace them anyway)")
-    elif out.get("error") == "unknown_action":
-        print("  paste the new backend.ts into Val Town first")
+    elif out.get("error") in ("unknown_action", "unknown_op"):
+        print("  the val is running an older backend.ts — paste the current one in first")
     else:
         print(f"  backend said: {out.get('error')}")
 

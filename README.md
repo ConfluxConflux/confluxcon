@@ -210,7 +210,9 @@ blank and the key decides. Scores can be fractional or negative.
     python3 build.py --trivia <backend url>
 
 It refuses if the backend already holds questions or answers; add `--force` to
-replace them. Each question carries a `src`: blank for yours, `claude` for the
+replace them. It also checks the `BUILD` string in `backend.ts` against the one
+the val reports and stops if they differ — paste first, then load. Bump `BUILD`
+whenever you change `backend.ts`, or that check can't tell the revisions apart. Each question carries a `src`: blank for yours, `claude` for the
 ones Claude wrote. That shows as a badge in your editor and **never reaches a
 guest in any form** — the last question asks the room to guess how many there
 are, so it has to stay that way. If you add or remove a Claude question, the

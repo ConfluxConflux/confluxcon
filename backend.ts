@@ -15,7 +15,7 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 
 /* Bumped whenever this file changes, so a plain GET on the val says which
    version is actually pasted in. */
-const BUILD = "2026-09-08 · trivia";
+const BUILD = "2026-09-08 · trivia r3 (preview, deck import, scoring by the point)";
 
 /* Stamps older than this were guessed from a last-edit time, not recorded when
    someone actually answered. They are cleared once and never written again. */
@@ -782,6 +782,15 @@ export default async function (req: Request): Promise<Response> {
     case "triviaAdmin": {
       if (!isAdmin) return json({ ok: false, error: "not_admin" });
       const op = String(body.op || "");
+      /* An op this file has never heard of used to fall through every branch
+         below and return a cheerful, empty success — which is exactly what an
+         older copy of this file pasted into the val does when the page asks it
+         for something new. Say so instead. */
+      const OPS = ["phase", "visible", "title", "preview", "roundName", "roundAdd",
+                   "roundDrop", "qAdd", "qBulk", "qSet", "qDrop", "qMove", "ask",
+                   "close", "reopen", "mark", "score", "teamDrop", "put", "import",
+                   "clearAnswers"];
+      if (!OPS.includes(op)) return json({ ok: false, error: "unknown_op", op, build: BUILD });
 
       /* how far along the evening is, and whether guests can see any of it */
       if (op === "phase") {
