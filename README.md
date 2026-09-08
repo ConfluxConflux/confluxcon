@@ -219,6 +219,12 @@ are, so it has to stay that way. If you add or remove a Claude question, the
 loader checks that the count question's answer still agrees and refuses to load
 if it doesn't.
 
+**Ending it.** The **Done** phase stops any more answers coming in and turns
+the board into a final one. It does *not* score whatever question is still
+open — only **Close & score** does that — so close the last question first. The
+console warns you while anything is open, including after you press Done, and
+closing it late still counts.
+
 **Clear every answer** wipes what the teams typed and puts every question back
 to unasked, keeping the questions themselves — for a second run at it.
 

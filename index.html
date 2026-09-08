@@ -733,6 +733,9 @@ td.acts{white-space:nowrap;display:flex;gap:5px;align-items:center}
   border:1px solid var(--rule-soft);border-radius:4px;padding:.28em .2em;background:#fff;color:var(--ink)}
 .marks .sc:focus{outline:none;border-color:var(--teal)}
 .marks .sc::placeholder{color:var(--ink-3);opacity:.55}
+.phasewarn{margin:.1rem 0 .9rem;padding:.5rem .7rem;font-size:.88rem;line-height:1.45;
+  background:var(--maybe-bg);border-left:3px solid var(--gold);border-radius:4px;color:var(--ink-2)}
+.phasewarn b{color:var(--ink)}
 .loosebtn{display:flex;align-items:center;gap:.5em;font-family:var(--body);font-size:.92rem;
   color:var(--ink-2);background:none;border:0;padding:.2em 0;cursor:pointer;text-align:left}
 .loosebtn:hover{color:var(--ink)}
@@ -2796,6 +2799,9 @@ function tvDrawScores() {
 function tvDrawHost() {
   const teams = TV.teams || [];
   const pv = TV.preview || [];
+  /* Finishing while a question is open quietly loses its points — the phase
+     stops answers but only closing a question scores it. Say so. */
+  const openQ = (TV.questions || []).find(q => q.state === "open");
   const un = TV.unteamed || [];
   const opts = `<option value="">—</option>` +
     teams.map(t => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
@@ -2807,6 +2813,9 @@ function tvDrawHost() {
       <span class="phase">${PHASES.map(([v, l]) =>
         `<button data-phase="${v}" aria-pressed="${TV.phase === v}">${l}</button>`).join("")}</span>
     </div>
+    ${openQ ? `<p class="phasewarn">
+      &ldquo;${esc(openQ.prompt.slice(0, 60))}${openQ.prompt.length > 60 ? "…" : ""}&rdquo;
+      is still open. <b>Close &amp; score</b> it before you finish, or its points never land.</p>` : ""}
     <div class="hostrow">
       <span class="lbl">Guests</span>
       <span class="phase">
