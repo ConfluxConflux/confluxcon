@@ -82,10 +82,16 @@ async function init() {
   await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${TQ} (
     id TEXT PRIMARY KEY, rnd INTEGER, ord INTEGER, prompt TEXT, answer TEXT,
     points TEXT, state TEXT, note TEXT)`);
+  /* Who wrote the question. Never leaves the host's own screen — one of the
+     questions asks the room to guess, so this would give it away. */
+  try { await sqlite.execute(`ALTER TABLE ${TQ} ADD COLUMN src TEXT`); } catch (_) {}
   /* One answer per team per question — the id is both together, so a second
      member of the same team overwrites rather than adding a second row. */
   await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${TA} (
     id TEXT PRIMARY KEY, qid TEXT, team TEXT, text TEXT, by TEXT, at TEXT, mark TEXT)`);
+  /* A typed-in number beats both the key and the tick, for the questions that
+     pay per name, dock a point for a wrong guess, or go to whoever is nearest. */
+  try { await sqlite.execute(`ALTER TABLE ${TA} ADD COLUMN score TEXT`); } catch (_) {}
 }
 
 /* ---------- the log -------------------------------------------------------
@@ -302,6 +308,22 @@ const points = (q: any) => {
   return isNaN(n) || n <= 0 ? 1 : Math.min(99, Math.round(n));
 };
 
+/* Half a point per surname, minus one for a wrong board member, three for the
+   closest guess — none of that is right or wrong, so the host may type the
+   number instead. Blank means work it out from the key. */
+const hasScore = (a: any) => a && String(a.score ?? "").trim() !== "" && !isNaN(Number(a.score));
+
+/** What one answer is worth. */
+function worth(q: any, a: any) {
+  if (hasScore(a)) return Math.max(-99, Math.min(99, Number(a.score)));
+  return correct(q, a) ? points(q) : 0;
+}
+
+/* Scores can be fractional now, so they are added up in tenths and put back
+   afterwards — 0.1 + 0.2 is not 0.3 in floating point and a scoreboard that
+   says 4.699999999999999 is not a scoreboard. */
+const tidy = (n: number) => Math.round(n * 10) / 10;
+
 /** Round names live in the state doc under rnd:1, rnd:2, … */
 function roundsOf(st: Record<string, string>, qs: any[]) {
   const ns = new Set<number>();
@@ -348,8 +370,11 @@ async function triviaPayload(me: any, isAdmin: boolean) {
   const table = teams.map(t => {
     let score = 0, right = 0;
     for (const q of scored) {
-      if (correct(q, answerFor(String(q.id), String(t.id)))) { score += points(q); right++; }
+      const a = answerFor(String(q.id), String(t.id));
+      score += worth(q, a);
+      if (worth(q, a) > 0) right++;
     }
+    score = tidy(score);
     const members = all.filter(g => String(g.team || "") === String(t.id));
     return {
       id: t.id, name: t.name || "Unnamed team", captain: t.captain || "",
@@ -386,7 +411,8 @@ async function triviaPayload(me: any, isAdmin: boolean) {
         ...askCard(r, true),
         rows: teams.map(t => {
           const a = answerFor(String(r.id), String(t.id));
-          return { team: t.id, text: a?.text || "", right: correct(r, a) };
+          return { team: t.id, text: a?.text || "",
+                   right: worth(r, a) > 0, worth: tidy(worth(r, a)) };
         }),
       } : null)(scored.find(q => String(q.id) === st.last) || [...scored].pop()),
     },
@@ -395,11 +421,14 @@ async function triviaPayload(me: any, isAdmin: boolean) {
   if (isAdmin) {
     out.trivia.questions = qs.map(q => ({
       ...askCard(q, true),
+      src: q.src || "",
       answers: teams.map(t => {
         const a = answerFor(String(q.id), String(t.id));
         return {
           team: t.id, text: a?.text || "", by: a?.by || "",
           mark: a?.mark || "", right: correct(q, a), has: !!a,
+          score: hasScore(a) ? String(Number(a.score)) : "",
+          worth: tidy(worth(q, a)),
         };
       }),
     }));
@@ -831,7 +860,7 @@ export default async function (req: Request): Promise<Response> {
 
       if (op === "qSet") {
         const field = String(body.field || "");
-        if (!["prompt", "answer", "points", "note", "rnd"].includes(field)) {
+        if (!["prompt", "answer", "points", "note", "rnd", "src"].includes(field)) {
           return json({ ok: false, error: "bad_field" });
         }
         const value = field === "answer" || field === "prompt" ? cleanLines(body.value, 400)
@@ -899,12 +928,27 @@ export default async function (req: Request): Promise<Response> {
         const value = ["yes", "no", ""].includes(body.value) ? body.value : "";
         const id = `${body.qid}::${body.team}`;
         await sqlite.execute({
-          sql: `INSERT INTO ${TA} (id, qid, team, text, by, at, mark)
-                VALUES (?, ?, ?, '', '', ?, ?)
-                ON CONFLICT(id) DO UPDATE SET mark = excluded.mark`,
+          sql: `INSERT INTO ${TA} (id, qid, team, text, by, at, mark, score)
+                VALUES (?, ?, ?, '', '', ?, ?, '')
+                ON CONFLICT(id) DO UPDATE SET mark = excluded.mark, score = ''`,
           args: [id, body.qid, body.team, new Date().toISOString(), value],
         });
         await log(full(me0), `marked an answer ${value === "yes" ? "right" : value === "no" ? "wrong" : "back to auto"}`);
+      }
+
+      /* Typing a number wins over both the key and the tick. */
+      if (op === "score") {
+        const raw = String(body.value ?? "").trim();
+        const n = Number(raw);
+        const value = raw === "" || isNaN(n) ? "" : String(Math.max(-99, Math.min(99, n)));
+        const id = `${body.qid}::${body.team}`;
+        await sqlite.execute({
+          sql: `INSERT INTO ${TA} (id, qid, team, text, by, at, mark, score)
+                VALUES (?, ?, ?, '', '', ?, '', ?)
+                ON CONFLICT(id) DO UPDATE SET score = excluded.score, mark = ''`,
+          args: [id, body.qid, body.team, new Date().toISOString(), value],
+        });
+        await log(full(me0), value === "" ? `put an answer back to automatic` : `scored an answer ${value}`);
       }
 
       if (op === "teamDrop") {
@@ -924,6 +968,45 @@ export default async function (req: Request): Promise<Response> {
         if (!g) return json({ ok: false, error: "no_guest" });
         await setField(g.slug, "team", clean(body.team, 40));
         await log(full(me0), `put ${full(g)} on a trivia team`);
+      }
+
+      /* The whole set in one go, from build.py — the answers stay out of the
+         repo, so they arrive over the wire instead. Refuses to run over a game
+         already in progress unless told twice. */
+      if (op === "import") {
+        const qsNow = await questAll();
+        const ansNow = await answAll();
+        if ((qsNow.length || ansNow.length) && body.force !== true) {
+          return json({ ok: false, error: "already_loaded", questions: qsNow.length, answers: ansNow.length });
+        }
+        await sqlite.execute(`DELETE FROM ${TA}`);
+        await sqlite.execute(`DELETE FROM ${TQ}`);
+        for (const k of Object.keys(await tstate())) {
+          if (/^rnd:\d+$/.test(k)) await sqlite.execute({ sql: `DELETE FROM ${T} WHERE k = ?`, args: [k] });
+        }
+        await tset("active", "");
+        await tset("last", "");
+        for (const r of (body.rounds || [])) {
+          await tset("rnd:" + Math.max(1, Math.round(Number(r.n) || 1)), clean(r.name, 60));
+        }
+        const ords: Record<number, number> = {};
+        let n = 0;
+        for (const q of (body.questions || [])) {
+          const rnd = Math.max(1, Math.round(Number(q.rnd) || 1));
+          const prompt = cleanLines(q.prompt, 400);
+          if (!prompt) continue;
+          ords[rnd] = (ords[rnd] || 0) + 1;
+          await sqlite.execute({
+            sql: `INSERT INTO ${TQ} (id, rnd, ord, prompt, answer, points, state, note, src)
+                  VALUES (?, ?, ?, ?, ?, ?, 'todo', ?, ?)`,
+            args: [newId("q"), rnd, ords[rnd], prompt, cleanLines(q.answer, 400),
+                   String(points(q)), cleanLines(q.note, 400), clean(q.src, 20)],
+          });
+          n++;
+        }
+        await log(full(me0), `loaded ${n} trivia questions`);
+        const me2 = await reread();
+        return json({ ...(await triviaPayload(me2, isAdmin)), loaded: n });
       }
 
       /* Wipes every typed answer but keeps the questions, for a second run. */

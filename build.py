@@ -7,6 +7,7 @@ confluxcon — turn guests.csv into the site's public data.
   python3 build.py --links     # just print the invite links
   python3 build.py --report    # private headcount / arrival report (never published)
   python3 build.py --seed URL  # load guests into the Val Town backend, once
+  python3 build.py --trivia URL # load trivia.json into the backend's trivia tab
 
 Numbers never writes back to a .csv — opening one makes a separate Numbers
 document, and saving writes a .numbers file. So either edit guests.csv in a
@@ -368,6 +369,78 @@ def build_seed(sheet, url=None, force=False):
         print(f"  backend said: {out.get('error')}")
 
 
+
+# ---------- trivia ----------------------------------------------------------
+
+TRIVIA_PATH = os.path.join(HERE, "trivia.json")
+
+
+def load_trivia(sheet, url=None, force=False):
+    """The questions and their answers, into the backend's trivia tab.
+
+    The answers never go near the repo, which is public — they live in
+    trivia.json, gitignored, and travel straight to the database. Re-running
+    replaces the whole set, so it refuses once anything has been answered
+    unless you pass --force."""
+    if not os.path.exists(TRIVIA_PATH):
+        print("\n  no trivia.json here — nothing to load")
+        return
+    with open(TRIVIA_PATH, encoding="utf-8") as f:
+        blob = json.load(f)
+    rounds = blob.get("rounds") or []
+    qs = [q for q in blob.get("questions", []) if q.get("prompt")]
+    mine = sum(1 for q in qs if not q.get("src"))
+    theirs = len(qs) - mine
+
+    print(f"\n  trivia.json — {len(qs)} questions in {len(rounds)} rounds "
+          f"({mine} yours, {theirs} Claude's)")
+    for r in rounds:
+        n = sum(1 for q in qs if q.get("rnd") == r.get("n"))
+        print(f"    {r.get('n')}. {r.get('name')} — {n}")
+
+    # The meta question has to agree with the file it is in.
+    meta = next((q for q in qs if "written by Claude" in q.get("prompt", "")), None)
+    if meta:
+        want = str(theirs - 1)
+        got = str(meta.get("answer", "")).split("|")[0].strip()
+        if got != want:
+            print(f"    !! the Claude-count question answers {got}, "
+                  f"but there are {want} others — fix trivia.json")
+            return
+
+    if not url:
+        print("  Pass the backend URL to load it:  python3 build.py --trivia <url>")
+        return
+
+    admin = next((sheet.get(r, "password").lower() for r in sheet.rows
+                  if slugify(sheet.get(r, "name"), set()) == "jacob"), "")
+    if not admin:
+        print("  couldn't find the admin password in guests.csv")
+        return
+
+    payload = {"action": "triviaAdmin", "op": "import", "password": admin,
+               "rounds": rounds, "questions": qs, "force": bool(force)}
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=body,
+                                 headers={"Content-Type": "text/plain;charset=utf-8"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            out = json.load(r)
+    except Exception as e:
+        print(f"  backend refused: {e}")
+        return
+    if out.get("ok"):
+        print(f"  loaded {out.get('loaded')} questions")
+    elif out.get("error") == "already_loaded":
+        print(f"  the backend already holds {out.get('questions')} questions "
+              f"and {out.get('answers')} answers — refusing to replace them")
+        print("  (pass --force alongside --trivia to replace them anyway)")
+    elif out.get("error") == "unknown_action":
+        print("  paste the new backend.ts into Val Town first")
+    else:
+        print(f"  backend said: {out.get('error')}")
+
+
 # ---------- Numbers ---------------------------------------------------------
 
 NUMBERS_SCRIPT = """
@@ -428,6 +501,10 @@ def main():
     if "--seed" in args:
         urls = [a for a in args if a.startswith("http")]
         build_seed(sheet, urls[0] if urls else None, force="--force" in args)
+        return
+    if "--trivia" in args:
+        urls = [a for a in args if a.startswith("http")]
+        load_trivia(sheet, urls[0] if urls else None, force="--force" in args)
         return
     if "--report" in args:
         report(sheet)

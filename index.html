@@ -729,6 +729,15 @@ td.acts{white-space:nowrap;display:flex;gap:5px;align-items:center}
   border:1px solid var(--rule-soft);background:#fff;border-radius:4px;cursor:pointer;color:var(--ink-3)}
 .marks .mk button[aria-pressed="true"].y{background:var(--go);border-color:var(--go);color:#fff}
 .marks .mk button[aria-pressed="true"].n{background:var(--no);border-color:var(--no);color:#fff}
+.marks .sc{width:3.6em;flex:none;font-family:var(--mono);font-size:.8rem;text-align:center;
+  border:1px solid var(--rule-soft);border-radius:4px;padding:.28em .2em;background:#fff;color:var(--ink)}
+.marks .sc:focus{outline:none;border-color:var(--teal)}
+.marks .sc::placeholder{color:var(--ink-3);opacity:.55}
+.qtags{display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex:none}
+.qsrc{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.22em .55em;border-radius:999px;background:var(--maybe-bg);color:var(--gold-deep);
+  border:1px solid var(--gold-lt)}
+.reveal .rvrows .won{flex:none;font-family:var(--mono);font-size:.8rem;color:var(--go)}
 .marks .auto{font-size:.72rem;color:var(--ink-3);font-style:italic;flex:none}
 .addq{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--rule-soft);
   padding-top:.9rem;margin-top:.3rem}
@@ -2646,6 +2655,9 @@ function drawTrivia() {
 
 const myTeam = () => (TV.teams || []).find(t => t.id === TV.team) || null;
 
+/* Half points exist now, so 4 stays 4 and 4.5 stays 4.5. */
+const tvNum = n => (Math.round(n * 10) / 10).toString();
+
 /* ---------- what a guest is looking at ---------- */
 
 function tvDrawPlay() {
@@ -2710,6 +2722,7 @@ function tvReveal(r) {
       <span class="tick ${row.right ? "y" : "n"}">${row.right ? "✓" : "✗"}</span>
       <span class="nm">${esc(names[row.team] || "—")}</span>
       <span class="tx${row.right ? "" : " miss"}">${esc(row.text || "—")}</span>
+      ${row.worth ? `<span class="won">+${tvNum(row.worth)}</span>` : ""}
     </li>`).join("")}</ul>
   </div>`;
 }
@@ -2759,7 +2772,7 @@ function tvDrawScores() {
       <span class="rk">${i + 1}</span>
       <span class="bn">${esc(t.name)}<small>${t.right}/${t.of}</small></span>
       <span class="bar"><i style="width:${Math.round(100 * t.score / top)}%"></i></span>
-      <span class="sc">${t.score}</span>
+      <span class="sc">${tvNum(t.score)}</span>
     </li>`).join("") : `<li><span class="empty">No teams yet.</span></li>`}</ol>
   </div>`;
 }
@@ -2879,12 +2892,15 @@ function tvQRow(q, n) {
     <span class="tick ${a.right ? "y" : "n"}">${a.right ? "✓" : "✗"}</span>
     <span class="nm">${esc(names[a.team] || "—")}</span>
     <span class="tx${a.text ? "" : " blank"}">${esc(a.text || "no answer")}</span>
-    ${a.mark ? "" : `<span class="auto">auto</span>`}
+    ${a.mark || a.score !== "" ? "" : `<span class="auto">auto</span>`}
     <span class="mk">
       <button class="y" aria-pressed="${a.mark === "yes"}" data-mark="yes"
               data-q="${esc(q.id)}" data-team="${esc(a.team)}" title="Right">✓</button>
       <button class="n" aria-pressed="${a.mark === "no"}" data-mark="no"
               data-q="${esc(q.id)}" data-team="${esc(a.team)}" title="Wrong">✗</button>
+      <input class="sc" data-k="sc:${esc(q.id)}:${esc(a.team)}" data-score="${esc(q.id)}"
+             data-team="${esc(a.team)}" value="${esc(a.score)}" placeholder="${a.worth}"
+             aria-label="Points for this answer" title="Type a number to score it by hand">
     </span>
   </li>`).join("")}</ul>`;
 
@@ -2909,7 +2925,10 @@ function tvQRow(q, n) {
           <button class="mini quiet" data-dropq="${esc(q.id)}" title="Delete">✕</button>
         </div>
       </div>
-      <span class="qstate ${st}">${st === "todo" ? "unasked" : st === "open" ? "live" : "scored"}</span>
+      <span class="qtags">
+        <span class="qstate ${st}">${st === "todo" ? "unasked" : st === "open" ? "live" : "scored"}</span>
+        ${q.src ? `<span class="qsrc" title="Guests are never told this">${esc(q.src)}</span>` : ""}
+      </span>
     </div>
     ${marks}
   </div>`;
@@ -2939,6 +2958,7 @@ $("pTrivia").addEventListener("click", async e => {
   if (d.close)  return void tvDo("triviaAdmin", { op: "close", id: d.close });
   if (d.reopen) return void tvDo("triviaAdmin", { op: "reopen", id: d.reopen });
   if (d.move)   return void tvDo("triviaAdmin", { op: "qMove", id: d.q, dir: d.move });
+  if (d.score !== undefined) return;   // the number box is a field, not a button
   if (d.mark) {
     /* Clicking the mark that is already on takes it back to automatic. */
     const value = b.getAttribute("aria-pressed") === "true" ? "" : d.mark;
@@ -3017,6 +3037,10 @@ $("pTrivia").addEventListener("change", async e => {
     if (slug) return void tvDo("triviaAdmin", { op: "preview", slug, on: true });
     return;
   }
+  /* Before the team check, not after: the score box names a team too, and
+     being asked for three points is not a request to rename anybody. */
+  if (d.score) return void tvDo("triviaAdmin",
+    { op: "score", qid: d.score, team: d.team, value: el.value });
   if (d.team)  return void tvDo("triviaTeam",  { op: "rename", id: d.team, name: el.value.trim() });
   if (d.round) return void tvDo("triviaAdmin", { op: "roundName", n: +d.round, value: el.value });
   if (d.put)   return void tvDo("triviaAdmin", { op: "put", slug: d.put, team: el.value });

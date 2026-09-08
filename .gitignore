@@ -10,3 +10,6 @@ __pycache__/
 guests.csv.bak
 data/secrets.json
 data/seed.json
+
+# The answer key. This repo is public.
+trivia.json

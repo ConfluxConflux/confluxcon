@@ -195,6 +195,26 @@ board, reveals the answer to everyone, and stops any more coming in. Nothing
 scores until you close it, and **Un-score** takes it back off. The scoreboard
 updates itself for everybody every five seconds while the tab is open.
 
+**Scoring that isn't right-or-wrong.** Beside each team's answer is a number
+box as well as the ✓ and ✗. Type into it and that is the team's score for the
+question, whatever the key says — which is how the deck's own questions work:
++1 per board member and −1 per wrong one, half a point per investigator's first
+and last name, three points to the closest guess in the Estimathon. Leave it
+blank and the key decides. Scores can be fractional or negative.
+
+**Loading the deck.** The questions live in `trivia.json`, which is
+**gitignored** — this repo is public and the file holds the answers.
+
+    python3 build.py --trivia <backend url>
+
+It refuses if the backend already holds questions or answers; add `--force` to
+replace them. Each question carries a `src`: blank for yours, `claude` for the
+ones Claude wrote. That shows as a badge in your editor and **never reaches a
+guest in any form** — the last question asks the room to guess how many there
+are, so it has to stay that way. If you add or remove a Claude question, the
+loader checks that the count question's answer still agrees and refuses to load
+if it doesn't.
+
 **Clear every answer** wipes what the teams typed and puts every question back
 to unasked, keeping the questions themselves — for a second run at it.
 
