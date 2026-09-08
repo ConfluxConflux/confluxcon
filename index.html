@@ -147,6 +147,9 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 @media (max-width:640px){.dayparts{grid-template-columns:1fr}}
 .evby{font-family:var(--body);font-style:italic;font-size:.86rem;color:var(--ink-3);
   margin:.25rem 0 0}
+.evby a{color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(18,101,106,.35);
+  transition:border-color .16s}
+.evby a:hover,.evby a:focus-visible{border-bottom-color:var(--teal)}
 .dpname{font-family:var(--display);font-weight:500;font-size:1.6rem;margin:0;line-height:1;
   letter-spacing:-.02em;color:var(--teal-deep)}
 .dpname em{font-style:italic;font-weight:700;color:var(--gold-deep)}
@@ -761,7 +764,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <div class="evmain">
                       <span class="evwhen">8:00&ndash;9:50</span>
                       <h4 class="evname">Blood on the Clocktower</h4>
-                      <p class="evby">run by Ian Habich</p>
+                      <p class="evby">run by <span data-runner="ian" data-name="Ian Habich">Ian Habich</span></p>
                     <p class="evdesc">(if sufficient interest)</p>
                     </div>
                   </div>
@@ -773,7 +776,7 @@ footer a{color:rgba(240,252,248,.9)}
                   <div class="evmain">
                     <span class="evwhen">10:00&ndash;10:20</span>
                     <h4 class="evname">Jacob appreciation circle</h4>
-                    <p class="evby">run by Jo Jiao</p>
+                    <p class="evby">run by <span data-runner="jo" data-name="Jo Jiao">Jo Jiao</span></p>
                   </div>
                 </li>
                 <li data-key="Cuddle Puddle" class="ev" data-start="22:30" data-end="23:00">
@@ -1363,7 +1366,21 @@ $("rsvpBtn").addEventListener("click", () => showTab("profile"));
 const BOARD_RUNGS = [["yes","Def","Definitely"], ["likely","Prob","Probably"],
                      ["maybe","Maybe","Maybe"],  ["no","No","Probably not"]];
 
+/* Whoever runs a block links to their own site, read off their guest card so
+   it follows them when they change it - and stays plain text for anyone who
+   hasn't put one in. */
+function linkRunners() {
+  document.querySelectorAll("#agendaBoard [data-runner]").forEach(el => {
+    const g = (S.guests || []).find(x => x.slug === el.dataset.runner);
+    const href = g ? hrefOf(g.link) : "";
+    const name = esc(el.dataset.name || "");
+    el.innerHTML = href
+      ? `<a href="${esc(href)}" target="_blank" rel="noopener">${name}</a>` : name;
+  });
+}
+
 function drawBoard() {
+  linkRunners();
   const mine = (S.me && S.me.sessions) || {};
   document.querySelectorAll(".ev[data-key]").forEach(ev => {
     const key = ev.dataset.key, want = mine[key] || "";
