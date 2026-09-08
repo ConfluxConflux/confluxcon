@@ -193,7 +193,16 @@ a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 /* Answer for one activity, right on the board. Clears the floated room tag. */
 .pickwrap{clear:both;display:flex;align-items:center;flex-wrap:wrap;gap:.5rem .8rem;
   margin-top:.8rem}
-.pickrow{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;flex:0 1 270px}
+.pickrow{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;flex:0 1 268px}
+/* The rectangle measures itself: a roomy one spells the answers out, a narrow
+   column in the split keeps the short forms. */
+.ev{container-type:inline-size}
+.pick .lg{display:none}
+@container (min-width:420px){
+  .pick .lg{display:inline}
+  .pick .sm{display:none}
+  .pickrow{flex:0 1 348px}
+}
 .expect{font-family:var(--mono);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;
   color:var(--teal);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pick{font-family:var(--mono);font-size:.57rem;letter-spacing:.06em;text-transform:uppercase;
@@ -213,6 +222,7 @@ a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 #picktip b{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.11em;
   text-transform:uppercase;color:var(--gold-lt);font-weight:500;margin-bottom:.28rem}
 #picktip .none{opacity:.66;font-style:italic}
+#picktip .who{display:block}
 
 .evwhen{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;
   color:var(--gold-deep);font-variant-numeric:tabular-nums}
@@ -1336,8 +1346,10 @@ $("rsvpBtn").addEventListener("click", () => showTab("profile"));
 
 /* ---------- the agenda board ---------- */
 
-/* Short labels: four of these have to fit across a half-width rectangle. */
-const BOARD_RUNGS = [["yes","Yes"],["likely","Likely"],["maybe","Maybe"],["no","No"]];
+/* Two labels per answer: the short one always fits, the long one shows when
+   the rectangle is wide enough to spell it out. */
+const BOARD_RUNGS = [["yes","Def","Definitely"], ["likely","Prob","Probably"],
+                     ["maybe","Maybe","Maybe"],  ["no","No","Probably not"]];
 
 /* Expected heads, not raised hands: everyone counts as their own chance of
    turning up times how likely they are to sit in on this one. */
@@ -1357,10 +1369,11 @@ function drawBoard() {
         aria-label="Do you want to be at ${esc(key)}?"></div><span class="expect"></span>`;
       ev.appendChild(wrap);
     }
-    wrap.querySelector(".pickrow").innerHTML = BOARD_RUNGS.map(([v, label]) =>
-      `<button type="button" class="pick v-${v}" data-v="${v}"
-         aria-pressed="${want === v}">${label}</button>`).join("");
-    wrap.querySelector(".expect").textContent = expectedAt(key).toFixed(1) + " expected";
+    wrap.querySelector(".pickrow").innerHTML = BOARD_RUNGS.map(([v, short, long]) =>
+      `<button type="button" class="pick v-${v}" data-v="${v}" aria-label="${esc(long)}"
+         aria-pressed="${want === v}"><span class="sm">${short}</span><span
+         class="lg">${long}</span></button>`).join("");
+    wrap.querySelector(".expect").textContent = expectedAt(key).toFixed(2) + " people";
   });
 }
 
@@ -1379,9 +1392,10 @@ function showPickTip(b, x, y) {
   const ev = b.closest(".ev[data-key]");
   if (!ev) return;
   const v = b.dataset.v, who = whoPicked(ev.dataset.key, v);
-  const label = (BOARD_RUNGS.find(r => r[0] === v) || ["", v])[1];
+  const label = (BOARD_RUNGS.find(r => r[0] === v) || ["", "", v])[2];
   tipEl.innerHTML = `<b>${esc(label)} \u00b7 ${who.length}</b>` +
-    (who.length ? who.map(esc).join(", ") : `<span class="none">nobody yet</span>`);
+    (who.length ? who.map(n => `<span class="who">${esc(n)}</span>`).join("")
+                : `<span class="none">nobody yet</span>`);
   tipEl.classList.add("on");
   const r = tipEl.getBoundingClientRect();
   let nx = x + 14, ny = y + 16;
