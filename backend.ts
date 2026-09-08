@@ -15,7 +15,7 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 
 /* Bumped whenever this file changes, so a plain GET on the val says which
    version is actually pasted in. */
-const BUILD = "2026-09-08 · trivia r3 (preview, deck import, scoring by the point)";
+const BUILD = "2026-09-08 · trivia r4 (fixes Ask)";
 
 /* Stamps older than this were guessed from a last-edit time, not recorded when
    someone actually answered. They are cleared once and never written again. */
@@ -909,7 +909,9 @@ export default async function (req: Request): Promise<Response> {
         const qs = await questAll();
         const q = qs.find(x => String(x.id) === String(body.id));
         if (!q) return json({ ok: false, error: "no_question" });
-        await sqlite.execute({ sql: `UPDATE ${TQ} SET state = 'todo' WHERE state = 'open'` });
+        /* args is not optional in the object form — Val Town rejects the
+           statement outright without it. Pass a bare string or pass args. */
+        await sqlite.execute(`UPDATE ${TQ} SET state = 'todo' WHERE state = 'open'`);
         await sqlite.execute({ sql: `UPDATE ${TQ} SET state = 'open' WHERE id = ?`, args: [q.id] });
         await tset("active", String(q.id));
         await tset("phase", "play");
