@@ -185,8 +185,11 @@ a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 .evmain a:hover,.evmain a:focus-visible{border-bottom-color:var(--teal)}
 
 /* Answer for one activity, right on the board. Clears the floated room tag. */
-.pickrow{clear:both;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;
-  margin-top:.75rem;max-width:270px}
+.pickwrap{clear:both;display:flex;align-items:center;flex-wrap:wrap;gap:.5rem .8rem;
+  margin-top:.8rem}
+.pickrow{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;flex:0 1 270px}
+.expect{font-family:var(--mono);font-size:.62rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--teal);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pick{font-family:var(--mono);font-size:.57rem;letter-spacing:.06em;text-transform:uppercase;
   padding:.45em .1em;line-height:1.2;border:1px solid var(--rule);border-radius:3px;
   background:var(--paper);color:var(--ink-3);cursor:pointer;
@@ -197,22 +200,20 @@ a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 .pick.v-likely[aria-pressed="true"]{background:var(--likely-bg);border-color:var(--likely);color:var(--likely)}
 .pick.v-maybe[aria-pressed="true"]{background:var(--maybe-bg);border-color:var(--maybe);color:var(--maybe)}
 .pick.v-no[aria-pressed="true"]{background:var(--no-bg);border-color:var(--no);color:var(--no)}
+#picktip{position:fixed;z-index:80;pointer-events:none;max-width:250px;opacity:0;
+  background:var(--teal-deep);color:var(--paper);padding:.55rem .72rem;border-radius:4px;
+  font-size:.88rem;line-height:1.42;box-shadow:0 6px 20px rgba(4,32,35,.3);transition:opacity .1s}
+#picktip.on{opacity:1}
+#picktip b{display:block;font-family:var(--mono);font-size:.58rem;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--gold-lt);font-weight:500;margin-bottom:.28rem}
+#picktip .none{opacity:.66;font-style:italic}
 
-.pick{font-family:var(--mono);font-size:.57rem;letter-spacing:.06em;text-transform:uppercase;
-  padding:.42em .1em;line-height:1.2;border:1px solid var(--rule);border-radius:3px;
-  background:var(--paper);color:var(--ink-3);cursor:pointer;
-  transition:background .14s,border-color .14s,color .14s}
-.pick:hover{border-color:var(--ink-3);color:var(--ink-2)}
-.pick[aria-pressed="true"]{font-weight:600}
-.pick.v-yes[aria-pressed="true"]{background:var(--go-bg);border-color:var(--go);color:var(--go)}
-.pick.v-likely[aria-pressed="true"]{background:var(--likely-bg);border-color:var(--likely);color:var(--likely)}
-.pick.v-maybe[aria-pressed="true"]{background:var(--maybe-bg);border-color:var(--maybe);color:var(--maybe)}
-.pick.v-no[aria-pressed="true"]{background:var(--no-bg);border-color:var(--no);color:var(--no)}
 .evwhen{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;
   color:var(--gold-deep);font-variant-numeric:tabular-nums}
 .evname{font-family:var(--display);font-weight:500;font-size:1.14rem;line-height:1.25;
   margin:.3rem 0 0;color:var(--ink)}
-.evdesc{font-style:italic;font-size:.95rem;line-height:1.5;color:var(--ink-2);margin:.4rem 0 0}
+.evdesc{clear:both;font-style:italic;font-size:.95rem;line-height:1.5;color:var(--ink-2);
+  margin:.4rem 0 0}
 .by a{color:var(--teal);text-decoration:underline;text-underline-offset:2px;
   border-bottom:1px solid transparent;transition:color .16s,border-color .16s}
 .by a:hover{border-bottom-color:var(--teal)}
@@ -667,7 +668,7 @@ footer a{color:rgba(240,252,248,.9)}
                   <div class="evmain">
                     <span class="evwhen">2:00ish&ndash;5:00ish</span>
                     <h4 class="evname">Afternoon adventure (ebike ride, probably)</h4>
-                    <p class="evdesc">Leaving from <a href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son</a> and exploring! I'm planning to rent a bike and you can too. We might go to the Berkeley Marina, Solano Ave, or beyond... I'm also interested in doing some thrifting / fashion improvement</p>
+                    <p class="evdesc">Leaving from <a href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son</a> and exploring! I'm planning to rent a bike and you can too. We might go to the Berkeley Marina, Solano Ave, or beyond... I'm also interested in doing some thrifting / fashion improvement, if this arises naturally...</p>
                   </div>
                 </li>
               </ul>
@@ -1319,23 +1320,72 @@ $("rsvpBtn").addEventListener("click", () => showTab("profile"));
 /* Short labels: four of these have to fit across a half-width rectangle. */
 const BOARD_RUNGS = [["yes","Yes"],["likely","Likely"],["maybe","Maybe"],["no","No"]];
 
+/* Expected heads, not raised hands: everyone counts as their own chance of
+   turning up times how likely they are to sit in on this one. */
+const SESS_W = { yes:1, likely:.7, maybe:.3, no:0 };
+const expectedAt = key => (S.guests || []).reduce((n, g) =>
+  n + (g.prob == null ? 0 : g.prob / 100) * (SESS_W[(g.sessions || {})[key]] || 0), 0);
+
 function drawBoard() {
   const mine = (S.me && S.me.sessions) || {};
   document.querySelectorAll(".ev[data-key]").forEach(ev => {
     const key = ev.dataset.key, want = mine[key] || "";
-    let row = ev.querySelector(".pickrow");
-    if (!row) {
-      row = document.createElement("div");
-      row.className = "pickrow";
-      row.setAttribute("role", "group");
-      row.setAttribute("aria-label", "Do you want to be at " + key + "?");
-      ev.appendChild(row);
+    let wrap = ev.querySelector(".pickwrap");
+    if (!wrap) {
+      wrap = document.createElement("div");
+      wrap.className = "pickwrap";
+      wrap.innerHTML = `<div class="pickrow" role="group"
+        aria-label="Do you want to be at ${esc(key)}?"></div><span class="expect"></span>`;
+      ev.appendChild(wrap);
     }
-    row.innerHTML = BOARD_RUNGS.map(([v, label]) =>
+    wrap.querySelector(".pickrow").innerHTML = BOARD_RUNGS.map(([v, label]) =>
       `<button type="button" class="pick v-${v}" data-v="${v}"
          aria-pressed="${want === v}">${label}</button>`).join("");
+    wrap.querySelector(".expect").textContent = expectedAt(key).toFixed(1) + " expected";
   });
 }
+
+/* Hovering an answer says who else gave it. Every guest's picks already
+   travel to every browser in S.guests, so this surfaces what the page was
+   already holding rather than fetching anything new. */
+const tipEl = document.createElement("div");
+tipEl.id = "picktip";
+document.body.appendChild(tipEl);
+
+const whoPicked = (key, v) => (S.guests || [])
+  .filter(g => ((g.sessions || {})[key] || "") === v)
+  .map(NAME).filter(Boolean).sort((a, b) => a.localeCompare(b));
+
+function showPickTip(b, x, y) {
+  const ev = b.closest(".ev[data-key]");
+  if (!ev) return;
+  const v = b.dataset.v, who = whoPicked(ev.dataset.key, v);
+  const label = (BOARD_RUNGS.find(r => r[0] === v) || ["", v])[1];
+  tipEl.innerHTML = `<b>${esc(label)} \u00b7 ${who.length}</b>` +
+    (who.length ? who.map(esc).join(", ") : `<span class="none">nobody yet</span>`);
+  tipEl.classList.add("on");
+  const r = tipEl.getBoundingClientRect();
+  let nx = x + 14, ny = y + 16;
+  if (nx + r.width  > innerWidth  - 8) nx = x - r.width  - 14;
+  if (ny + r.height > innerHeight - 8) ny = y - r.height - 14;
+  tipEl.style.left = Math.max(8, nx) + "px";
+  tipEl.style.top  = Math.max(8, ny) + "px";
+}
+const hidePickTip = () => tipEl.classList.remove("on");
+
+$("agendaBoard").addEventListener("mousemove", e => {
+  const b = e.target.closest(".pick");
+  b ? showPickTip(b, e.clientX, e.clientY) : hidePickTip();
+});
+$("agendaBoard").addEventListener("mouseleave", hidePickTip);
+$("agendaBoard").addEventListener("focusin", e => {
+  const b = e.target.closest(".pick");
+  if (!b) return hidePickTip();
+  const r = b.getBoundingClientRect();
+  showPickTip(b, r.left + r.width / 2, r.bottom - 8);
+});
+$("agendaBoard").addEventListener("focusout", hidePickTip);
+addEventListener("scroll", hidePickTip, { passive: true });
 
 /* Pressing the answer you already gave takes it back off. */
 $("agendaBoard").addEventListener("click", e => {
