@@ -1323,7 +1323,7 @@ function enter(data) {
   $("site").hidden = false;
   adopt(data);
   fillForm();
-  showTab(data.admin ? "console" : "profile");   // the host has a console to run
+  showTab(data.admin ? "console" : "event");   // the host has a console to run
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(leap);
   else setTimeout(leap, 60);
 }
