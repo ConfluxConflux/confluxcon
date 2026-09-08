@@ -406,6 +406,9 @@ a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 .sessrow details[open] summary::before{content:"\2212 "}
 .sessrow details .rundetails{margin-top:.7rem}
 .sessrow .sdesc{display:block;margin:.45rem 0 .1rem;font-size:.94rem;line-height:1.55;color:var(--ink-2)}
+.sessrow .swhen{font-family:var(--mono);font-size:.66rem;letter-spacing:.06em;color:var(--gold-deep);
+  font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
+.sessrow.sub{margin-left:1.4rem;border-left:2px solid var(--rule-soft);padding-left:.9rem}
 .descbtn{font-family:var(--body);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--teal);background:#fff;border:1px solid var(--rule);border-radius:999px;
   padding:.28em .8em;margin-left:.45em;cursor:pointer;white-space:nowrap;
@@ -414,7 +417,7 @@ a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 .sess{display:flex;flex-direction:column;gap:1.1rem}
 .sessrow .snm{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;
   font-size:1rem;margin-bottom:.4rem;line-height:1.25}
-.sessrow .snm>span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+.sessrow .snm .sname{flex:1;min-width:0;overflow-wrap:anywhere}
 .sessrow .snm .runs{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
   color:var(--gold-deep);white-space:nowrap;flex:none}
 .sessrow .snm .by{font-size:.8rem;font-style:italic;color:var(--ink-3);white-space:nowrap;flex:none}
@@ -689,6 +692,7 @@ footer a{color:rgba(240,252,248,.9)}
                     <span class="evwhen">2:00ish&ndash;5:00ish</span>
                     <h4 class="evname">Afternoon adventure (ebike ride, probably)</h4>
                     <p class="evdesc">Leaving from Downtown Berkeley and exploring! I'm planning to rent a bike and you can too. We might go to the Berkeley Marina, Solano Ave, or beyond... I'm also interested in doing some thrifting / fashion improvement, if this arises naturally...</p>
+                    <p class="evdesc">Text me if you want to join and have ideas / if you can only make it starting at a particular time!</p>
                   </div>
                 </li>
               </ul>
@@ -731,7 +735,7 @@ footer a{color:rgba(240,252,248,.9)}
                         <p class="evdesc">Warmup: How many of the seven Anthropic cofounders can you name?</p>
                       </div>
                     </div>
-                    <div data-key="Authentic Relating Games" class="ev">
+                    <div data-key="Authentic Relating Games" data-options="Hot Seat|Circling|Conflict Improv|Lightning Talks" class="ev">
                       <div class="evwhere">
                         <span class="loc">Bayes Attic</span>
                       </div>
@@ -837,6 +841,12 @@ footer a{color:rgba(240,252,248,.9)}
         </div>
 
         <div class="fld">
+          <label for="fDiet">Dietary restrictions</label>
+          <input type="text" id="fDiet" maxlength="200"
+                 placeholder="anything I should know when I order food">
+        </div>
+
+        <div class="fld">
           <label id="lblProfile">Your profile</label>
         <div class="badge">
           <div class="clip" aria-hidden="true"><span class="hole"></span></div>
@@ -924,12 +934,6 @@ footer a{color:rgba(240,252,248,.9)}
             <input type="number" id="fPay" min="0" step="5" inputmode="decimal"
                    placeholder="0" aria-label="Willingness to pay, in dollars">
           </div>
-        </div>
-
-        <div class="fld">
-          <label for="fDiet">Dietary restrictions</label>
-          <input type="text" id="fDiet" maxlength="200"
-                 placeholder="anything I should know when I order food">
         </div>
 
         <div class="fld">
@@ -1699,6 +1703,21 @@ const sessOrder = name => {
   return SESS_ORDER.get(name);
 };
 
+/* The board is the schedule, so the RSVP list reads its order and times
+   straight off it rather than keeping a second copy that can drift. A slot
+   with data-options is a vote: the slot comes first, then its candidates. */
+function scheduleRows() {
+  const out = [];
+  document.querySelectorAll("#agendaBoard .ev[data-key]").forEach(ev => {
+    const when = (ev.querySelector(".evwhen") || {}).textContent || "";
+    const name = (ev.querySelector(".evname") || {}).textContent || "";
+    out.push({ key: ev.dataset.key, when, name });
+    (ev.dataset.options || "").split("|").filter(Boolean)
+      .forEach(k => out.push({ key: k, when, name: k, sub: true }));
+  });
+  return out;
+}
+
 /* Redrawing wipes whatever is half-typed, so leave the list alone while a
    details field has the cursor, and put back the ones that were open. */
 function drawSessions() {
@@ -1711,15 +1730,27 @@ function drawSessions() {
   /* Shuffled, so the order they were added in doesn't decide what gets picked.
      The key is drawn once per activity and kept for the visit, so the list
      holds still while you answer and one added mid-visit lands anywhere. */
-  box.innerHTML = S.sessions
-    .map((s, i) => ({ s, i }))                 // i stays the index into S.sessions
+  const at = new Map(S.sessions.map((s, i) => [s.name, i]));
+  const rows = [], seen = new Set();
+  scheduleRows().forEach(r => {                // i stays the index into S.sessions
+    const i = at.get(r.key);
+    if (i == null || seen.has(i)) return;
+    seen.add(i);
+    rows.push({ s: S.sessions[i], i, when: r.when, label: r.name, sub: r.sub });
+  });
+  /* Anything a guest added that isn't on the schedule keeps its shuffled place
+     at the end, so the adder still works. */
+  S.sessions.map((s, i) => ({ s, i })).filter(o => !seen.has(o.i))
     .sort((a, b) => sessOrder(a.s.name) - sessOrder(b.s.name))
-    .map(({ s, i }) => {
+    .forEach(o => rows.push({ s: o.s, i: o.i, when: "", label: o.s.name }));
+
+  box.innerHTML = rows.map(({ s, i, when, label, sub }) => {
     const want = mine[s.name] || "";
     const isMine = s.by && s.by === S.me.first;
-    return `<div class="sessrow">
+    return `<div class="sessrow${sub ? " sub" : ""}">
       <p class="snm">
-        <span>${esc(s.name)}</span>
+        ${when ? `<span class="swhen">${esc(when)}</span>` : ""}
+        <span class="sname">${esc(label || s.name)}</span>
         <span class="by">&mdash; run by ${runByHTML(s)}</span>
         ${descToggleHTML(s)}
         ${isMine || S.admin ? `<button type="button" class="drop" data-drop="${esc(s.name)}"
