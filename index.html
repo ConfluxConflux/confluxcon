@@ -1987,6 +1987,37 @@ const ago = iso => {
   return new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 };
 
+/* An activity is logged under its key, which is the name it carried when its
+   row was made; the board holds the name it goes by now. Swapping them in at
+   draw time means a rename reaches the lines already written. Only a label
+   position is touched — a key at the head of a change, or one in curly quotes
+   — so a comment that happens to mention "Dinner" is left as typed. */
+function boardNames() {
+  const m = new Map();
+  /* A long key reaches the log already shortened, so its short form is worth
+     an entry of its own — otherwise the one activity with a key too long to
+     fit would be the one that never gets its name back. Matches the backend. */
+  const brief = t => t.length > 44 ? t.slice(0, 43) + "\u2026" : t;
+  scheduleRows().forEach(r => {
+    if (!r.name || r.name === r.key) return;
+    m.set(r.key, r.name);
+    m.set(brief(r.key), r.name);
+  });
+  return m;
+}
+
+function logWhat(what) {
+  const names = boardNames();
+  if (!names.size) return what;
+  return String(what).split("; ").map(seg => {
+    const at = seg.indexOf(": ");
+    const head = at < 0 ? "" : seg.slice(0, at);
+    if (names.has(head)) seg = names.get(head) + seg.slice(at);
+    return seg.replace(/\u201c([^\u201d]*)\u201d/g,
+      (whole, n) => names.has(n) ? "\u201c" + names.get(n) + "\u201d" : whole);
+  }).join("; ");
+}
+
 function drawLog() {
   if (!LOG.length) {
     $("logList").innerHTML = `<li><span class="empty">Nothing yet. Anything anyone does
@@ -1996,7 +2027,7 @@ function drawLog() {
   $("logList").innerHTML = LOG.map(e => `
     <li class="${logPrimed && +e.id > logHigh ? "fresh" : ""}">
       <span class="lwho">${esc(e.who)}</span>
-      <span class="lwhat">${esc(e.what)}</span>
+      <span class="lwhat">${esc(logWhat(e.what))}</span>
       <span class="lat" title="${esc(e.at)}">${esc(ago(e.at))}</span>
     </li>`).join("");
   logHigh = Math.max(logHigh, ...LOG.map(e => +e.id || 0));
