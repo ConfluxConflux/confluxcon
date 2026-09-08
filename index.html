@@ -151,7 +151,12 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   letter-spacing:-.02em;color:var(--teal-deep)}
 .dpname em{font-style:italic;font-weight:700;color:var(--gold-deep)}
 .dptag{font-family:var(--display);font-style:italic;font-size:1.05rem;color:var(--ink-2);
-  margin:.15rem 0 1rem}
+  margin:.15rem 0 .4rem}
+.dpnote{font-family:var(--body);font-style:normal;font-size:.97rem;line-height:1.5;
+  color:var(--ink-2);margin:0 0 1.1rem;max-width:56ch}
+.dpnote a{color:var(--teal);text-decoration:none;
+  border-bottom:1px solid rgba(18,101,106,.35);transition:border-color .16s}
+.dpnote a:hover,.dpnote a:focus-visible{border-bottom-color:var(--teal)}
 .agenda{list-style:none;margin:0;padding:0;display:grid;gap:.7rem;
   grid-template-columns:repeat(12,minmax(0,1fr))}
 .agenda>.ev{grid-column:1/-1}
@@ -180,6 +185,7 @@ a.loc{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent
   transition:border-color .16s}
 a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 .loc .off{display:block;color:var(--no)}
+.loc .off.plain{color:var(--ink-3)}
 .evmain a{color:var(--teal);text-decoration:none;
   border-bottom:1px solid rgba(18,101,106,.35);transition:border-color .16s}
 .evmain a:hover,.evmain a:focus-visible{border-bottom-color:var(--teal)}
@@ -640,6 +646,10 @@ footer a{color:rgba(240,252,248,.9)}
             <div class="daypart">
               <h3 class="dpname">flux<em>con</em></h3>
               <p class="dptag">a morning/afternoon in flux</p>
+              <p class="dpnote">Meet me at Lighthaven in the morning (starting 10am) for
+                coworking, at 12:45 for lunch at <a href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son</a>, or early
+                afternoon at <a href="https://www.google.com/maps/place/Downtown+Berkeley/@37.8700733,-122.2681998,17.96z/data=!4m6!3m5!1s0x80857e9dcbbcfba7:0xad74c1e4918cbdb6!8m2!3d37.8701083!4d-122.2681007!16s%2Fg%2F11rdhls7w?hl=en&amp;entry=ttu&amp;g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">Constellation/Downtown Berkeley BART</a> for the
+                bike adventure</p>
               <ul class="agenda">
                 <li data-key="Coworking" class="ev">
                   <div class="evwhere">
@@ -663,12 +673,12 @@ footer a{color:rgba(240,252,248,.9)}
                 </li>
                 <li data-key="Bike adventure" class="ev">
                   <div class="evwhere">
-                    <a class="loc" href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">Meet at The Butcher's Son &nearr;<span class="off">(NOT LIGHTHAVEN)</span></a>
+                    <a class="loc" href="https://www.google.com/maps/place/Downtown+Berkeley/@37.8700733,-122.2681998,17.96z/data=!4m6!3m5!1s0x80857e9dcbbcfba7:0xad74c1e4918cbdb6!8m2!3d37.8701083!4d-122.2681007!16s%2Fg%2F11rdhls7w?hl=en&amp;entry=ttu&amp;g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">Meet in front of Constellation &nearr;<span class="off plain">(Downtown Berkeley BART)</span></a>
                   </div>
                   <div class="evmain">
                     <span class="evwhen">2:00ish&ndash;5:00ish</span>
                     <h4 class="evname">Afternoon adventure (ebike ride, probably)</h4>
-                    <p class="evdesc">Leaving from <a href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son</a> and exploring! I'm planning to rent a bike and you can too. We might go to the Berkeley Marina, Solano Ave, or beyond... I'm also interested in doing some thrifting / fashion improvement, if this arises naturally...</p>
+                    <p class="evdesc">Leaving from Downtown Berkeley and exploring! I'm planning to rent a bike and you can too. We might go to the Berkeley Marina, Solano Ave, or beyond... I'm also interested in doing some thrifting / fashion improvement, if this arises naturally...</p>
                   </div>
                 </li>
               </ul>
@@ -676,6 +686,9 @@ footer a{color:rgba(240,252,248,.9)}
             <div class="daypart">
               <h3 class="dpname">conflux<em>con</em></h3>
               <p class="dptag">an evening in conflux</p>
+              <p class="dpnote">Festivities at Lighthaven starting at 6pm! Ideally come before
+                8pm, but coming later is also totally fine ... I anticipate things will go
+                pretty late</p>
               <ul class="agenda">
                 <li data-key="Reception" class="ev">
                   <div class="evwhere">
@@ -901,6 +914,12 @@ footer a{color:rgba(240,252,248,.9)}
             <input type="number" id="fPay" min="0" step="5" inputmode="decimal"
                    placeholder="0" aria-label="Willingness to pay, in dollars">
           </div>
+        </div>
+
+        <div class="fld">
+          <label for="fDiet">Dietary restrictions</label>
+          <input type="text" id="fDiet" maxlength="200"
+                 placeholder="anything I should know when I order food">
         </div>
 
         <div class="fld">
@@ -1353,7 +1372,7 @@ tipEl.id = "picktip";
 document.body.appendChild(tipEl);
 
 const whoPicked = (key, v) => (S.guests || [])
-  .filter(g => ((g.sessions || {})[key] || "") === v)
+  .filter(g => onWall(g) && ((g.sessions || {})[key] || "") === v)
   .map(NAME).filter(Boolean).sort((a, b) => a.localeCompare(b));
 
 function showPickTip(b, x, y) {
@@ -1435,6 +1454,9 @@ const FIRST_IN = [
   ["harry",  "harry waterman"],
 ];
 
+/* Who the guest list admits: answered, and not a no. */
+const onWall = x => !!x.going && x.going !== "no";
+
 function drawWall() {
   const seat = x => {
     const nm = NAME(x).toLowerCase();
@@ -1444,7 +1466,7 @@ function drawWall() {
   // A missing stamp sorts last rather than poisoning the comparison with NaN.
   const when = x => { const t = Date.parse(x.rsvped || ""); return isNaN(t) ? 8.64e15 : t; };
   const going = S.guests
-    .filter(x => x.going && x.going !== "no")
+    .filter(onWall)
     .map((x, i) => ({ x, i }))
     .sort((a, b) => seat(a.x) - seat(b.x) || when(a.x) - when(b.x) || a.i - b.i)
     .map(o => o.x);
@@ -1479,6 +1501,7 @@ function fillForm() {
   syncLink();
   $("fNote").value   = me.note   || "";
   $("fMsg").value    = me.msg    || "";
+  $("fDiet").value   = me.diet   || "";
   $("fPay").value    = me.pay    || "";
   $("fArrive").value = toTime(me.arrive);
   if (me.prob == null) {
@@ -1504,6 +1527,7 @@ function collect() {
     met:   $("bMet").value.trim(),   org:   $("bAffil").value.trim(),
     arrive:$("fArrive").value.trim(),link:  $("bLink").value.trim(),
     note:  $("fNote").value.trim(),   msg:   $("fMsg").value,
+    diet:  $("fDiet").value.trim(),
     pay:   $("fPay").value.trim(),
     going: picked ? picked.value : "",
     prob:  $("fProbOut").value === "" ? "" : clampPct($("fProbOut").value),
@@ -1545,7 +1569,7 @@ async function flush() {
   }
 }
 
-["bFirst","bLast","bMet","bAffil","bLink","fNote","fMsg","fPay","fArrive"]
+["bFirst","bLast","bMet","bAffil","bLink","fNote","fMsg","fPay","fArrive","fDiet"]
   .forEach(id => $(id).addEventListener("input", touched));
 
 /* the arrow only offers itself once there is something to open */

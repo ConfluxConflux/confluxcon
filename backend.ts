@@ -15,7 +15,7 @@ import { sqlite } from "https://esm.town/v/std/sqlite";
 
 /* Bumped whenever this file changes, so a plain GET on the val says which
    version is actually pasted in. */
-const BUILD = "2026-09-04 · add guest fix";
+const BUILD = "2026-09-08 · dietary restrictions";
 
 /* Stamps older than this were guessed from a last-edit time, not recorded when
    someone actually answered. They are cleared once and never written again. */
@@ -27,7 +27,7 @@ const L = "confluxcon_log_v1";
 
 const GCOLS = ["ord","slug","first","last","password","admin","met","org","lane","tier",
                "going","prob","arrive","link","run","sessions","namevote","note","msg",
-               "pay","seen","updated","rsvped"];
+               "pay","seen","updated","rsvped","diet"];
 
 const WORDS = ("bellwether cinder driftwood ember fathom girder hearth ingot jetty keystone " +
   "lodestar mantle nectar obelisk parapet quiver rampart sextant tallow undertow vellum " +
@@ -44,7 +44,7 @@ async function init() {
     arrive TEXT, link TEXT, run TEXT, sessions TEXT, namevote TEXT,
     note TEXT, msg TEXT, pay TEXT, seen TEXT, updated TEXT)`);
   // Older tables predate these columns; adding one that exists throws, harmlessly.
-  for (const col of ["tier", "note", "msg", "pay", "rsvped"]) {
+  for (const col of ["tier", "note", "msg", "pay", "rsvped", "diet"]) {
     try { await sqlite.execute(`ALTER TABLE ${G} ADD COLUMN ${col} TEXT`); } catch (_) {}
   }
   /* "rsvped" is when someone first answered, which is the order the guest wall
@@ -174,6 +174,7 @@ function adminRow(g: any) {
   c.tier = g.tier == null ? "" : String(g.tier);
   c.msg = g.msg || "";                 // never leaves adminRow
   c.pay = g.pay || "";                 // nor does this
+  c.diet = g.diet || "";               // nor does this
   c.arrive = g.arrive;
   c.order = Number(g.ord) || 0;
   c.admin = isYes(g.admin);
@@ -287,6 +288,7 @@ export default async function (req: Request): Promise<Response> {
         prob: num(p.prob),
         namevote: ["confluxcon", "fluxcon", ""].includes(p.namevote) ? p.namevote : me0.namevote,
         note: clean(p.note, 140),
+        diet: clean(p.diet, 200),
         msg: cleanLines(p.msg, 2000),
         pay: money(p.pay),
       };
@@ -294,6 +296,7 @@ export default async function (req: Request): Promise<Response> {
         first: "first name", last: "last name", met: "how they know Jacob",
         org: "affiliation", arrive: "arrival", link: "link", going: "answer",
         prob: "probability", namevote: "name vote", note: "public comment",
+        diet: "dietary restrictions",
         msg: "private note", pay: "willingness to pay",
       };
       const changed: string[] = [];
