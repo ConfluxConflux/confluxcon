@@ -688,6 +688,13 @@ td.acts{white-space:nowrap;display:flex;gap:5px;align-items:center}
 .phase button:hover{background:var(--paper-2)}
 .phase button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 
+/* Not .chip — the arrival-time presets got there first. */
+.pvchips{display:flex;gap:5px;flex-wrap:wrap}
+.pvchip{display:inline-flex;align-items:center;gap:.35em;font-size:.85rem;background:var(--paper-2);
+  border:1px solid var(--rule-soft);border-radius:999px;padding:.2em .3em .2em .75em;color:var(--ink-2)}
+.pvchip button{border:0;background:none;cursor:pointer;color:var(--ink-3);font-size:.9em;
+  line-height:1;padding:.25em .4em;border-radius:999px}
+.pvchip button:hover{background:var(--no-bg);color:var(--no)}
 /* the editor */
 .qlist{display:flex;flex-direction:column;gap:8px;margin:0 0 1rem}
 .qrow{border:1px solid var(--rule-soft);border-radius:6px;background:#fff;padding:.7rem .85rem}
@@ -2761,6 +2768,7 @@ function tvDrawScores() {
 
 function tvDrawHost() {
   const teams = TV.teams || [];
+  const pv = TV.preview || [];
   const un = TV.unteamed || [];
   const opts = `<option value="">—</option>` +
     teams.map(t => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("");
@@ -2775,10 +2783,27 @@ function tvDrawHost() {
     <div class="hostrow">
       <span class="lbl">Guests</span>
       <span class="phase">
-        <button data-vis="1" aria-pressed="${!!TV.visible}">Can see the tab</button>
-        <button data-vis="0" aria-pressed="${!TV.visible}">Can't</button>
+        <button data-vis="1" aria-pressed="${!!TV.live}">Can see the tab</button>
+        <button data-vis="0" aria-pressed="${!TV.live}">Can't</button>
       </span>
-      <span class="hint">${TV.visible ? "It's in front of everyone." : "Yours alone right now."}</span>
+      <span class="hint">${TV.live ? "It's in front of everyone."
+        : pv.length ? `Hidden, except for ${pv.length} preview account${pv.length === 1 ? "" : "s"}.`
+        : "Yours alone right now."}</span>
+    </div>
+    <div class="hostrow">
+      <span class="lbl">Preview</span>
+      <span class="pvchips">${pv.map(g =>
+        `<span class="pvchip">${esc(g.name)}<button data-unpreview="${esc(g.slug)}"
+           aria-label="Stop ${esc(g.name)} previewing">✕</button></span>`).join("")}</span>
+      <select id="tvPreviewAdd" aria-label="Let someone see it early"
+              style="font-family:var(--body);font-size:.88rem;padding:.3em .45em;
+                     border:1px solid var(--rule-soft);border-radius:4px;background:#fff">
+        <option value="">let someone in early…</option>
+        ${(TV.roster || []).filter(g => !pv.some(p => p.slug === g.slug))
+          .map(g => `<option value="${esc(g.slug)}">${esc(g.name)}${
+            g.lane === "prospect" ? " (maybe pile)" : ""}</option>`).join("")}
+      </select>
+      <span class="hint">They see the tab and can play; nobody else knows it is there.</span>
     </div>
     <div class="hostrow">
       <span class="lbl">Title</span>
@@ -2931,6 +2956,7 @@ $("pTrivia").addEventListener("click", async e => {
     if (!confirm("Delete the whole round and its questions?")) return;
     return void tvDo("triviaAdmin", { op: "roundDrop", n: +d.dropround });
   }
+  if (d.unpreview) return void tvDo("triviaAdmin", { op: "preview", slug: d.unpreview, on: false });
   if (b.id === "tvAddRound") return void tvDo("triviaAdmin", { op: "roundAdd" });
   if (b.id === "tvWipe") {
     if (!confirm("Clear every answer from every team and put all the questions back to unasked?")) return;
@@ -2985,6 +3011,12 @@ $("pTrivia").addEventListener("change", async e => {
 
   if (!S.admin) return;
   if (el.id === "tvTitleIn") return void tvDo("triviaAdmin", { op: "title", value: el.value });
+  if (el.id === "tvPreviewAdd") {
+    const slug = el.value;
+    el.value = "";
+    if (slug) return void tvDo("triviaAdmin", { op: "preview", slug, on: true });
+    return;
+  }
   if (d.team)  return void tvDo("triviaTeam",  { op: "rename", id: d.team, name: el.value.trim() });
   if (d.round) return void tvDo("triviaAdmin", { op: "roundName", n: +d.round, value: el.value });
   if (d.put)   return void tvDo("triviaAdmin", { op: "put", slug: d.put, team: el.value });

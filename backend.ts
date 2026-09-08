@@ -226,7 +226,7 @@ async function payload(me: any, all: any[], isAdmin: boolean) {
   /* Two values, so the browser knows whether to draw the trivia tab at all
      before it has polled for anything. */
   const st = await tstate();
-  out.trivia = { phase: st.phase, visible: st.visible === "yes", title: st.title };
+  out.trivia = { phase: st.phase, visible: canSeeTrivia(st, me), title: st.title };
   return out;
 }
 
@@ -245,7 +245,8 @@ const byPassword = (all: any[], pw: any) => {
 
 const TSTATE_DEFAULTS: Record<string, string> = {
   phase: "off",      // off | teams | play | done
-  visible: "",       // "yes" once guests may see the tab at all
+  visible: "",       // "yes" once every guest may see the tab
+  preview: "",       // slugs who may see it before that — for trying it out
   active: "",        // the question currently taking answers
   last: "",          // the one most recently closed, for the reveal
   title: "AI safety trivia",
@@ -321,6 +322,14 @@ function askCard(q: any, reveal: boolean) {
   };
 }
 
+/* Who may see the tab at all: everyone once it is switched on, and before
+   that only the accounts named for a preview. */
+const previewers = (st: Record<string, string>) =>
+  new Set(String(st.preview || "").split(",").map(x => x.trim()).filter(Boolean));
+
+const canSeeTrivia = (st: Record<string, string>, me: any) =>
+  isYes(me?.admin) || st.visible === "yes" || previewers(st).has(String(me?.slug || ""));
+
 async function triviaPayload(me: any, isAdmin: boolean) {
   const st = await tstate();
   const teams = await teamsAll();
@@ -355,7 +364,11 @@ async function triviaPayload(me: any, isAdmin: boolean) {
   const out: any = {
     ok: true,
     trivia: {
-      phase: st.phase, visible: st.visible === "yes", title: st.title,
+      phase: st.phase,
+      /* What this viewer may see, which is not the same as the switch. */
+      visible: canSeeTrivia(st, me),
+      live: st.visible === "yes",
+      title: st.title,
       rounds: roundsOf(st, qs),
       teams: table,
       team: mine,
@@ -390,6 +403,12 @@ async function triviaPayload(me: any, isAdmin: boolean) {
         };
       }),
     }));
+    out.trivia.preview = [...previewers(st)]
+      .map(sl => { const g = all.find(x => x.slug === sl); return g ? { slug: sl, name: full(g) } : null; })
+      .filter(Boolean);
+    out.trivia.roster = all
+      .filter(g => (g.lane || "invited") === "invited" || (g.lane || "") === "prospect")
+      .map(g => ({ slug: g.slug, name: full(g), lane: g.lane || "invited" }));
     out.trivia.unteamed = all
       .filter(g => (g.lane || "invited") === "invited" && !String(g.team || ""))
       .map(g => ({ slug: g.slug, name: full(g) }));
@@ -746,6 +765,20 @@ export default async function (req: Request): Promise<Response> {
         await log(full(me0), `trivia is ${body.value ? "visible to guests" : "hidden again"}`);
       }
       if (op === "title") await tset("title", clean(body.value, 60) || "AI safety trivia");
+
+      /* Letting one account in early, to walk through it as a guest would
+         while the tab stays hidden from everybody else. */
+      if (op === "preview") {
+        const st = await tstate();
+        const set = previewers(st);
+        const who = clean(body.slug, 40);
+        const g = all.find(x => x.slug === who);
+        if (!g) return json({ ok: false, error: "no_guest" });
+        if (body.on) set.add(who); else set.delete(who);
+        await tset("preview", [...set].join(","));
+        await log(full(me0), `${body.on ? "gave" : "took"} ${full(g)} ` +
+          `${body.on ? "an early look at" : "off"} the trivia tab`);
+      }
 
       /* rounds are numbered; only the name is stored */
       if (op === "roundName") {

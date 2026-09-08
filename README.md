@@ -198,6 +198,16 @@ updates itself for everybody every five seconds while the tab is open.
 **Clear every answer** wipes what the teams typed and puts every question back
 to unasked, keeping the questions themselves — for a second run at it.
 
+**Trying it as a guest, without a guest seeing it.** The *Preview* row in
+*Running it* lets named accounts in early: pick someone and the tab appears for
+them alone, with the switch still off and nobody else any the wiser. They get
+the guest view — no host panel, no editor — and can form teams and answer for
+real. To walk through it end to end, add a throwaway person in the **Console**
+first: they land in the maybe pile, hidden from the guest wall, and their
+password is in the Console beside them. Sign in as them in a private window.
+Anything they score is real, so disband the team or hit *Clear every answer*
+before the room starts.
+
 **This needs the new `backend.ts` pasted into the val.** Until then the tab is
 yours alone and says so; nothing else on the site is affected.
 
