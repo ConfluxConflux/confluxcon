@@ -224,6 +224,9 @@ a.loc{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent
 a.loc:hover,a.loc:focus-visible{border-bottom-color:var(--teal)}
 .loc .off{display:block;color:var(--no)}
 .loc .off.plain{color:var(--ink-3)}
+/* A room name can be shouted in small caps; the way to get there can't. */
+.loc .off.way{color:var(--ink-3);font-family:var(--body);font-size:.82rem;letter-spacing:0;
+  text-transform:none;line-height:1.3;margin-top:.15rem}
 .evmain a{color:var(--teal);text-decoration:none;
   border-bottom:1px solid rgba(18,101,106,.35);transition:border-color .16s}
 .evmain a:hover,.evmain a:focus-visible{border-bottom-color:var(--teal)}
@@ -945,7 +948,8 @@ footer a{color:rgba(240,252,248,.9)}
                 </li>
                 <li data-key="Dinner" class="ev" data-start="18:30" data-end="19:50">
                   <div class="evwhere">
-                    <span class="loc">Bayes House</span>
+                    <span class="loc">Outside<span class="off way">(enter Lighthaven, turn
+                      left, and walk for a bit)</span></span>
                   </div>
                   <div class="evmain">
                     <span class="evwhen">6:30&ndash;7:50</span>
