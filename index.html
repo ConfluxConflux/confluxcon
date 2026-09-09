@@ -173,6 +173,41 @@ h2 em{font-style:italic;font-weight:700;color:var(--gold-deep)}
   .agenda>.ev{grid-column:1/-1}
   .agenda>.split{grid-template-columns:1fr}
 }
+/* ---------- the day, from now on ----------
+   The board is long and most of it has already happened by the time anyone
+   opens the page, so each daypart scrolls inside a viewport parked on the
+   first thing that hasn't finished yet. Nothing is removed: the morning is
+   above you, and a scroll brings it back. */
+.agbox{position:relative}
+.agscroll{max-height:min(62vh,520px);overflow:hidden auto;scrollbar-width:thin}
+.agbox.plain .agscroll{max-height:none;overflow:visible}
+/* The fade says "there is more above" without spending a line saying it. */
+.agbox::before{content:"";position:absolute;left:0;right:0;top:0;height:38px;z-index:2;
+  pointer-events:none;opacity:0;transition:opacity .22s;
+  background:linear-gradient(var(--paper) 20%,rgba(251,246,236,0))}
+.agbox.scrolled::before{opacity:1}
+.agjump{position:absolute;right:6px;top:6px;z-index:3;font-family:var(--mono);font-size:.6rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);background:var(--paper);
+  border:1px solid var(--rule-soft);border-radius:999px;padding:.28rem .62rem;cursor:pointer;
+  transition:color .16s,border-color .16s}
+.agjump:hover,.agjump:focus-visible{color:var(--teal);border-color:var(--rule)}
+.agbox.plain .agjump{display:none}
+/* Over and done: still there, still readable, just no longer asking for you. */
+.ev.past{opacity:.5;transition:opacity .2s}
+.ev.past:hover,.ev.past:focus-within{opacity:1}
+.ev.live{border-left-color:var(--teal);background:var(--paper);
+  box-shadow:0 0 0 1px rgba(18,101,106,.13)}
+.evnow{font-family:var(--mono);font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--go);border:1px solid var(--go);border-radius:999px;padding:.1rem .45rem;
+  white-space:nowrap}
+.agendahead{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;
+  flex-wrap:wrap}
+.agendahead h2{margin-bottom:.9rem}
+.agtoggle{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);background:none;border:0;border-bottom:1px solid var(--rule);
+  padding:0 0 .15rem;cursor:pointer;transition:color .16s,border-color .16s}
+.agtoggle:hover,.agtoggle:focus-visible{color:var(--teal);border-bottom-color:var(--teal)}
+@media (prefers-reduced-motion:reduce){.agbox::before,.ev.past{transition:none}}
 .ev{background:var(--paper-2);border:1px solid var(--rule-soft);border-left:3px solid var(--gold);
   padding:.85rem 1rem .95rem}
 .ev::after{content:"";display:block;clear:both}
@@ -837,7 +872,11 @@ footer a{color:rgba(240,252,248,.9)}
         </div>
 
         <section class="esec">
-          <h2>Agenda</h2>
+          <div class="agendahead">
+            <h2>Agenda</h2>
+            <button type="button" id="agFull" class="agtoggle"
+                    aria-pressed="false">show the whole day</button>
+          </div>
           <div class="dayparts" id="agendaBoard">
             <div class="daypart">
               <h3 class="dpname">flux<em>con</em></h3>
@@ -846,7 +885,10 @@ footer a{color:rgba(240,252,248,.9)}
                 coworking, at 12:45 for lunch at <a href="https://maps.app.goo.gl/vFkz2bmiTWCb8yCn7" target="_blank" rel="noopener">The Butcher's Son</a>, or early
                 afternoon at <a href="https://www.google.com/maps/place/Downtown+Berkeley/@37.8700733,-122.2681998,17.96z/data=!4m6!3m5!1s0x80857e9dcbbcfba7:0xad74c1e4918cbdb6!8m2!3d37.8701083!4d-122.2681007!16s%2Fg%2F11rdhls7w?hl=en&amp;entry=ttu&amp;g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">Constellation/Downtown Berkeley BART</a> for the
                 bike adventure!</p>
-              <ul class="agenda">
+              <div class="agbox">
+                <button type="button" class="agjump" hidden>&uarr; earlier</button>
+                <div class="agscroll">
+                <ul class="agenda">
                 <li data-key="Coworking" class="ev" data-start="10:00" data-end="12:15">
                   <div class="evwhere">
                     <span class="loc">Bayes Ground</span>
@@ -879,6 +921,8 @@ footer a{color:rgba(240,252,248,.9)}
                   </div>
                 </li>
               </ul>
+                </div>
+              </div>
             </div>
             <div class="daypart">
               <h3 class="dpname">conflux<em>con</em></h3>
@@ -886,7 +930,10 @@ footer a{color:rgba(240,252,248,.9)}
               <p class="dpnote">Festivities at Lighthaven starting at 6pm! Ideally come before
                 8pm, but coming later is also totally fine. I will try to stick to the schedule,
                 but there may still be flux, as per the will of the conflux.</p>
-              <ul class="agenda">
+              <div class="agbox">
+                <button type="button" class="agjump" hidden>&uarr; earlier</button>
+                <div class="agscroll">
+                <ul class="agenda">
                 <li data-key="Reception" class="ev" data-start="18:00" data-end="18:30">
                   <div class="evwhere">
                     <span class="loc">Bayes House</span>
@@ -970,6 +1017,8 @@ footer a{color:rgba(240,252,248,.9)}
                   </div>
                 </li>
               </ul>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -1586,6 +1635,7 @@ function drawBoard() {
          aria-pressed="${want === v}"><span class="sm">${short}</span><span
          class="lg">${long}</span></button>`).join("");
   });
+  layoutAgenda();
 }
 
 /* Hovering an answer says who else gave it. Every guest's picks already
@@ -1603,6 +1653,163 @@ function partyMin(hhmm) {
   const t = +m[1] * 60 + +m[2];
   return t < 10 * 60 ? t + 24 * 60 : t;
 }
+
+/* ---------- the day, from now on -----------------------------------------
+   Each daypart scrolls inside a viewport parked on the first thing that
+   hasn't finished, so the first rectangle you read is the next one you can
+   still walk to. The past is never removed, only above you. */
+
+const PARTY_DAY = "2026-09-08";
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${
+  String(d.getDate()).padStart(2, "0")}`;
+
+/* Now, in the minutes-from-midnight the rectangles are written in, or null on
+   any day that isn't this one. The clock alone can't decide it: 1am is
+   Nighthaven on the ninth and an ordinary small hour on every other date. */
+function nowPartyMin() {
+  const now = new Date();
+  const today = ymd(now), mins = now.getHours() * 60 + now.getMinutes();
+  if (today === PARTY_DAY) return mins;
+  const after = new Date(PARTY_DAY + "T12:00:00");   // noon, so DST can't slip the date
+  after.setDate(after.getDate() + 1);
+  return today === ymd(after) && mins < 10 * 60 ? mins + 24 * 60 : null;
+}
+
+/* A split row runs two tracks in one slot, so the row lasts as long as its
+   longest rectangle rather than its first. */
+function rowSpan(row) {
+  let start = null, end = null;
+  const take = el => {
+    const s = partyMin(el.dataset.start), e = partyMin(el.dataset.end);
+    if (s != null && (start == null || s < start)) start = s;
+    if (e != null && (end == null || e > end)) end = e;
+  };
+  if (row.dataset && (row.dataset.start || row.dataset.end)) take(row);
+  row.querySelectorAll("[data-start],[data-end]").forEach(take);
+  return { start, end };
+}
+
+function markState(ev, now) {
+  const { start, end } = rowSpan(ev);
+  const live = now != null && start != null && end != null && now >= start && now < end;
+  ev.classList.toggle("past", now != null && end != null && now >= end);
+  ev.classList.toggle("live", live);
+  let pill = ev.querySelector(":scope > .evwhere > .evnow, :scope > .evmain > .evnow");
+  if (live && !pill) {
+    pill = document.createElement("span");
+    pill.className = "evnow";
+    pill.textContent = "now";
+    const host = ev.querySelector(":scope > .evwhere") || ev.querySelector(":scope > .evmain");
+    if (host) host.prepend(pill);
+  } else if (!live && pill) { pill.remove(); }
+}
+
+/* The fade and the button only ever describe where the viewport already is. */
+function agChrome(box) {
+  const scroll = box.querySelector(".agscroll"), jump = box.querySelector(".agjump");
+  const park = Number(box.dataset.park || 0), at = scroll.scrollTop;
+  box.classList.toggle("scrolled", at > 4);
+  if (!jump) return;
+  jump.hidden = park <= 4 || box.classList.contains("plain");
+  const back = at <= 4;
+  jump.textContent = back ? "↓ now" : "↑ earlier";
+  jump.dataset.to = back ? "park" : "top";
+}
+
+function layoutAgenda(opts) {
+  const now = nowPartyMin();
+  const force = !!(opts && opts.force);
+  document.querySelectorAll(".agbox").forEach(box => {
+    const scroll = box.querySelector(".agscroll"), list = box.querySelector(".agenda");
+    const jump = box.querySelector(".agjump");
+    if (!scroll || !list) return;
+
+    list.querySelectorAll(".ev").forEach(ev => markState(ev, now));
+
+    let target = null;
+    if (now != null && !box.classList.contains("plain")) {
+      for (const row of list.children) {
+        const { end } = rowSpan(row);
+        if (end == null || now < end) { target = row; break; }
+      }
+    }
+
+    /* Off-day, or a daypart that is wholly over: the whole thing reads from
+       the top, which is what a schedule you can't attend is for. */
+    if (!target) {
+      list.style.paddingBottom = "";
+      box.dataset.park = "0";
+      box.classList.remove("scrolled");
+      if (jump) jump.hidden = true;
+      if (force) scroll.scrollTop = 0;
+      return;
+    }
+
+    const topOf = el => el.getBoundingClientRect().top -
+                        scroll.getBoundingClientRect().top + scroll.scrollTop;
+    /* Measured with the old padding gone, or each pass would compound the
+       last one's. The tail of the day has nothing beneath it to scroll
+       against, so it is lent exactly the shortfall and no more. */
+    list.style.paddingBottom = "";
+    let want = Math.round(topOf(target));
+    const slack = scroll.scrollHeight - scroll.clientHeight;
+    if (want > slack) list.style.paddingBottom = (want - slack) + "px";
+    want = Math.max(0, Math.min(want, scroll.scrollHeight - scroll.clientHeight));
+
+    box.dataset.park = String(want);
+    if (force || box.dataset.touched !== "1") scroll.scrollTop = want;
+    agChrome(box);
+  });
+}
+
+document.querySelectorAll(".agbox").forEach(box => {
+  const scroll = box.querySelector(".agscroll"), jump = box.querySelector(".agjump");
+  let raf = 0;
+  scroll.addEventListener("scroll", () => {
+    /* Scrolling away is a decision; from then on the clock stops moving the
+       viewport under whoever is reading it. */
+    if (Math.abs(scroll.scrollTop - Number(box.dataset.park || 0)) > 8) box.dataset.touched = "1";
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = 0; agChrome(box); });
+  }, { passive: true });
+  if (jump) jump.addEventListener("click", () => {
+    const back = jump.dataset.to === "park";
+    box.dataset.touched = back ? "" : "1";
+    scroll.scrollTo({ top: back ? Number(box.dataset.park || 0) : 0,
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  });
+});
+
+/* An escape hatch, remembered: some people want the shape of the whole day. */
+const AG_FULL = "conflux.agenda.full";
+function agFull(on) {
+  document.querySelectorAll(".agbox").forEach(b => b.classList.toggle("plain", on));
+  const btn = $("agFull");
+  if (btn) {
+    btn.textContent = on ? "focus on now" : "show the whole day";
+    btn.setAttribute("aria-pressed", String(on));
+  }
+  try { localStorage.setItem(AG_FULL, on ? "1" : ""); } catch (_) {}
+  layoutAgenda({ force: true });
+}
+if ($("agFull")) {
+  $("agFull").addEventListener("click", () =>
+    agFull(!document.querySelector(".agbox").classList.contains("plain")));
+}
+let agWasFull = false;
+try { agWasFull = localStorage.getItem(AG_FULL) === "1"; } catch (_) {}
+agFull(agWasFull);
+
+/* Fonts and the answer rows both land after first paint and both change how
+   tall a rectangle is, so the park is taken again once the page settles. */
+addEventListener("load", () => layoutAgenda({ force: true }));
+let agRz = null;
+addEventListener("resize", () => {
+  clearTimeout(agRz);
+  agRz = setTimeout(() => layoutAgenda(), 160);
+});
+setInterval(() => layoutAgenda(), 60000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) layoutAgenda(); });
 
 /* Someone who turns up after a thing has finished isn't at it, whatever they
    answered — they drop out of the list rather than showing as a no. An
